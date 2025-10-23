@@ -1,0 +1,581 @@
+/* SavedJobCard.css - Modern and Professional Styling */
+
+.saved-job-card {
+    border: 1px solid #e0e6ed;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    background: #ffffff;
+    margin-bottom: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.saved-job-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+    border-color: #3b82f6;
+}
+
+.saved-job-card.selected {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%);
+}
+
+.saved-job-card.applied {
+    border-left: 4px solid #10b981;
+    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.saved-job-card .card-body {
+    padding: 24px;
+}
+
+/* Job Content Layout */
+.saved-job-content {
+    display: grid;
+    grid-template-columns: auto 60px 1fr auto;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+/* Selection Checkbox */
+.job-selection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.job-selection .form-check-input {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid #d1d5db;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.job-selection .form-check-input:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* Company Logo */
+.company-logo-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.company-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 2px solid #f3f4f6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.company-logo-placeholder {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Job Information */
+.job-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.job-header {
+    margin-bottom: 16px;
+}
+
+.job-title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 8px 0;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.job-title-link {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s ease;
+}
+
+.job-title-link:hover {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.applied-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.company-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: #6b7280;
+    margin: 0;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    align-items: center;
+}
+
+.company-name i {
+    color: #9ca3af;
+}
+
+/* Job Meta Information */
+.job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.job-meta span {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.job-meta i {
+    color: #9ca3af;
+    width: 16px;
+}
+
+.job-location, .job-type, .job-salary {
+    background: #f9fafb;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.remote-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Job Description */
+.job-description {
+    margin-bottom: 16px;
+}
+
+.job-description-content {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #4b5563;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.job-description-content p {
+    margin: 0 0 12px 0;
+}
+
+.job-description-content div {
+    margin-bottom: 12px;
+}
+
+.job-description-content div p:last-child {
+    margin-bottom: 0;
+}
+
+.description-show-more {
+    color: #3b82f6;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.description-show-more:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* Job Skills */
+.job-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.skill-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    text-transform: capitalize;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.skill-badge:last-child {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+/* Job Dates */
+.job-dates {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.saved-date i {
+    color: #ef4444;
+}
+
+.applied-date i {
+    color: #10b981;
+}
+
+.deadline-info i {
+    opacity: 0.8;
+}
+
+.deadline-info.text-warning {
+    color: #f59e0b !important;
+    font-weight: 600;
+}
+
+.deadline-info.text-danger {
+    color: #ef4444 !important;
+    font-weight: 600;
+}
+
+.deadline-info.text-info {
+    color: #3b82f6 !important;
+    font-weight: 600;
+}
+
+/* Job Actions */
+.job-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-end;
+    margin-left: auto;
+}
+
+.primary-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.apply-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    transition: all 0.2s ease;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.apply-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+    transform: translateY(-1px);
+}
+
+.applied-btn {
+    background: #f0fdf4;
+    border-color: #10b981;
+    color: #10b981;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.view-btn {
+    border-color: #3b82f6;
+    color: #3b82f6;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.view-btn:hover {
+    background: #3b82f6;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+/* Options Dropdown */
+.job-options-dropdown .options-btn {
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #6b7280;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
+}
+
+.job-options-dropdown .options-btn:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+    color: #374151;
+}
+
+.job-options-dropdown .dropdown-menu {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 8px;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.job-options-dropdown .dropdown-item {
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.job-options-dropdown .dropdown-item:hover {
+    background: #f3f4f6;
+}
+
+.job-options-dropdown .dropdown-item.text-danger:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* Modal Styling */
+.modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid #f3f4f6;
+    padding: 24px 24px 16px;
+}
+
+.modal-title {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: #1f2937;
+}
+
+.modal-body {
+    padding: 16px 24px;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.modal-footer {
+    border-top: 1px solid #f3f4f6;
+    padding: 16px 24px 24px;
+}
+
+.modal-footer .btn {
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 12px;
+    border: none;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 500;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #166534;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .saved-job-content {
+        grid-template-columns: auto 1fr auto;
+        gap: 16px;
+    }
+    
+    .company-logo-section {
+        grid-row: 1 / 3;
+    }
+    
+    .job-info {
+        grid-column: 2;
+    }
+    
+    .job-actions {
+        grid-column: 3;
+        grid-row: 1 / 3;
+        align-self: start;
+    }
+    
+    .job-selection {
+        grid-column: 1;
+        grid-row: 1;
+        align-self: start;
+    }
+    
+    .saved-job-card .card-body {
+        padding: 16px;
+    }
+    
+    .job-title {
+        font-size: 18px;
+    }
+    
+    .company-name {
+        font-size: 14px;
+    }
+    
+    .job-meta {
+        font-size: 13px;
+        gap: 12px;
+    }
+    
+    .primary-actions {
+        align-items: center;
+    }
+    
+    .apply-btn, .view-btn {
+        font-size: 13px;
+        padding: 8px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .saved-job-content {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .job-selection {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        grid-column: unset;
+        grid-row: unset;
+    }
+    
+    .company-logo-section {
+        grid-row: unset;
+        justify-self: start;
+    }
+    
+    .job-actions {
+        grid-column: unset;
+        grid-row: unset;
+        align-items: stretch;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    
+    .primary-actions {
+        flex-direction: row;
+        gap: 8px;
+    }
+    
+    .company-logo,
+    .company-logo-placeholder {
+        width: 48px;
+        height: 48px;
+        font-size: 20px;
+    }
+}
+
+/* Animation for loading states */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Focus states for accessibility */
+.saved-job-card:focus-within {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.job-title-link:focus,
+.view-btn:focus,
+.apply-btn:focus,
+.options-btn:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}

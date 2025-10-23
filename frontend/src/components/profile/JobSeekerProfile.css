@@ -1,0 +1,526 @@
+/* Job Seeker Profile Modern Styles */
+.job-seeker-profile {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding-bottom: 2rem;
+}
+
+/* Profile Header Styles */
+.profile-header-card {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    border: none;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.profile-photo-container {
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.profile-photo:hover {
+    transform: scale(1.05);
+}
+
+.profile-photo-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-photo-placeholder:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+.photo-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px;
+    font-size: 0.75rem;
+}
+
+.profile-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.profile-title {
+    font-size: 1.1rem;
+    color: #667eea;
+    font-weight: 500;
+}
+
+.profile-location {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.profile-badges .badge {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 25px;
+    font-weight: 500;
+}
+
+/* Profile Completion Card */
+.profile-completion-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem;
+    border-radius: 15px;
+    color: white;
+    text-align: center;
+}
+
+.completion-title {
+    font-weight: 600;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.completion-percentage {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffd700;
+}
+
+.completion-progress {
+    height: 8px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.completion-progress .progress-bar {
+    border-radius: 10px;
+}
+
+.completion-text {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.85rem;
+}
+
+/* Notification Alert */
+.notification-alert {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+}
+
+/* Profile Tabs */
+.profile-tabs-card {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    border: none;
+    overflow: hidden;
+}
+
+.profile-nav-tabs {
+    border-bottom: none;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 1rem 2rem 0;
+}
+
+.profile-tab {
+    border: none !important;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 1rem 1.5rem !important;
+    margin-right: 0.5rem;
+    background: transparent !important;
+    color: #6c757d !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-tab.active {
+    background: white !important;
+    color: #667eea !important;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.profile-tab:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.7) !important;
+    transform: translateY(-1px);
+}
+
+/* Form Styles */
+.section-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f1f3f4;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.section-description {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.subsection-header {
+    margin-bottom: 1.5rem;
+}
+
+.subsection-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #495057;
+    display: flex;
+    align-items: center;
+}
+
+.section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #dee2e6 50%, transparent 100%);
+    border: none;
+}
+
+.modern-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.required {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+.modern-input, .modern-select, .modern-textarea {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.modern-input:focus, .modern-select:focus, .modern-textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    outline: none;
+}
+
+.modern-checkbox {
+    margin-top: 1rem;
+}
+
+.modern-checkbox .form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    border-radius: 0.3em;
+    border: 2px solid #e9ecef;
+}
+
+.modern-checkbox .form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.modern-checkbox .form-check-label {
+    font-weight: 500;
+    color: #495057;
+    margin-left: 0.5rem;
+}
+
+/* Skills Styles */
+.skills-input-container {
+    margin-bottom: 1rem;
+}
+
+.skills-input-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.add-skill-btn {
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    border: 2px solid #667eea;
+    color: #667eea;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.add-skill-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(102, 126, 234, 0.3);
+}
+
+.skills-container {
+    min-height: 60px;
+    padding: 1rem;
+    border: 2px dashed #e9ecef;
+    border-radius: 12px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.skills-container:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.skill-badge {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.skill-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.skills-empty {
+    text-align: center;
+    font-style: italic;
+    color: #adb5bd;
+    margin: 1rem 0;
+}
+
+/* Upload Styles */
+.upload-section {
+    margin-bottom: 2rem;
+}
+
+.upload-card {
+    border: 2px dashed #e9ecef;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.upload-card:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.upload-icon {
+    color: #667eea;
+    margin-bottom: 1rem;
+}
+
+.upload-title {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 1rem;
+}
+
+.uploaded-file {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.file-name {
+    color: #155724;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.upload-prompt {
+    margin: 1rem 0;
+}
+
+.upload-text {
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.upload-help {
+    color: #adb5bd;
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 1rem;
+}
+
+/* Save Button */
+.save-profile-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.save-profile-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+.save-profile-btn:disabled {
+    opacity: 0.7;
+    transform: none;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* Photo Modal Styles */
+.photo-preview {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #667eea;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.photo-preview-placeholder {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e9ecef 0%, #f8f9fa 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #adb5bd;
+    border: 2px dashed #dee2e6;
+    margin: 0 auto;
+}
+
+.photo-upload-section {
+    padding: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-name {
+        font-size: 1.5rem;
+    }
+    
+    .profile-photo, .profile-photo-placeholder {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .completion-percentage {
+        font-size: 1.5rem;
+    }
+    
+    .profile-nav-tabs {
+        padding: 0.5rem 1rem 0;
+    }
+    
+    .profile-tab {
+        padding: 0.75rem 1rem !important;
+        margin-right: 0.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .skills-input-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .add-skill-btn {
+        width: 100%;
+    }
+}
+
+/* Animation for tabs */
+.tab-content-section {
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hover effects for cards */
+.profile-header-card, .profile-tabs-card {
+    transition: all 0.3s ease;
+}
+
+.profile-header-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+/* Form validation styles */
+.modern-input.is-valid, .modern-select.is-valid, .modern-textarea.is-valid {
+    border-color: #28a745;
+}
+
+.modern-input.is-invalid, .modern-select.is-invalid, .modern-textarea.is-invalid {
+    border-color: #dc3545;
+}
+
+/* Success states */
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Loading states */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
