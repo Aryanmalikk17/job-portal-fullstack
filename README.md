@@ -1,95 +1,301 @@
-# Job-Portal
-The Job Portal project aims to create a robust and user-friendly platform for job seekers and recruiters, utilizing modern web technologies. This application is currently under development, with several core functionalities already implemented, and more features are being actively developed.
+# 🚀 Job Portal - Full Stack Application
 
-## Technologies Used:
+A comprehensive job portal platform built with modern web technologies, connecting job seekers with recruiters through an intuitive and feature-rich interface.
 
-- **Java 21**: Ensures robustness and versatility in handling the business logic of the application.
-- **Spring Boot 3**: Streamlines development with embedded servers, minimal configuration, and a focus on production readiness.
-- **Spring MVC**: Provides a modular, maintainable architecture for creating web applications, facilitating a clear separation of concerns.
-- **Thymeleaf**: Serves as the server-side template engine for dynamic and interactive web pages.
-- **Spring Security**: Implements robust authentication and authorization mechanisms to secure user data and application resources.
-- **JPA (Java Persistence API) and Hibernate**: Simplifies database interactions and ensures efficient data handling and persistence.
-- **MySQL**: Offers a reliable and efficient relational database solution for data storage.
-- **Lombok**: Reduces boilerplate code through annotations, enhancing readability and developer productivity.
-- **Bootstrap**: Provides a responsive and visually appealing front-end design, ensuring accessibility across various devices and screen sizes
+## 🌟 Features
 
-## Tools and Development Environment:
+### 👥 For Job Seekers
+- **User Registration & Authentication** - Secure account creation and login
+- **Job Search & Filtering** - Advanced search with multiple filter options
+- **Job Applications** - Apply for jobs with cover letters and resume uploads
+- **My Applications** - Track application status and history
+- **Saved Jobs** - Bookmark interesting job opportunities
+- **Profile Management** - Complete profile setup with skills and experience
+- **Dashboard** - Personalized overview of job activities
 
-- **IDE**: IntelliJ IDEA 
-- **Build Tool**: Maven
-- **Version Control**: Git
-  
-## Implemented Functionalities:
+### 🏢 For Recruiters
+- **Company Profile Setup** - Comprehensive company information management
+- **Job Posting** - Create detailed job listings with rich text descriptions
+- **Application Management** - Review and manage job applications
+- **Candidate Tracking** - Monitor application statuses and candidate progress
+- **Dashboard Analytics** - View statistics and insights
+- **Resume Downloads** - Access candidate resumes and documents
 
-- **Home Page**: Provides an overview of the portal with easy navigation to other sections.
+### 🔐 Security & Authentication
+- **JWT-based Authentication** - Secure token-based login system
+- **Role-based Access Control** - Different permissions for job seekers and recruiters
+- **Protected Routes** - Secure navigation and data access
+- **Password Encryption** - Secure password storage and validation
 
-![Home](https://github.com/hey-its-d2t2/Job-Portal/assets/63626210/8a550992-bacb-40eb-acf5-82806264d91d)
+## 🛠 Tech Stack
 
+### Backend
+- **Java 21** - Modern Java features and performance
+- **Spring Boot 3.x** - Enterprise-grade framework
+- **Spring Security** - Authentication and authorization
+- **Spring Data JPA** - Database abstraction layer
+- **Hibernate** - ORM for database operations
+- **MySQL** - Relational database management
+- **Maven** - Dependency management and build tool
+- **JWT** - JSON Web Tokens for authentication
 
-- ## **User Authentication**:
-  - **Login and Registration for Job Seekers**: Allows job seekers to register, log in, and manage their profiles.
-  - **Login and Registration for Recruiters**: Enables recruiters to create accounts, log in, and access recruiter-specific functionalities.
-### Login:
-     
-  ![User Login](https://github.com/hey-its-d2t2/Job-Portal/assets/63626210/b1d39942-b98b-48a5-948f-9e17b7a4eea8)
+### Frontend
+- **React 18** - Modern UI library with hooks
+- **Bootstrap 5** - Responsive CSS framework
+- **Axios** - HTTP client for API communication
+- **React Router** - Client-side routing
+- **Context API** - State management
+- **Font Awesome** - Icon library
 
-### Register:
-  
-  ![Register user](https://github.com/hey-its-d2t2/Job-Portal/assets/63626210/66ebcb03-8ad1-41ff-a52b-d52575c9a961)
+### Development Tools
+- **Docker** - Containerization support
+- **Git** - Version control
+- **IntelliJ IDEA** - IDE for backend development
+- **VS Code** - Frontend development environment
+- **Postman** - API testing and documentation
 
-    
-- ## **Recruiter Profile Management**:
-    - **Profile Setup**: Allows recruiters to set up and update their profiles with relevant information.
+## 📋 Prerequisites
 
-  ![Recruiter Profile](https://github.com/hey-its-d2t2/Job-Portal/assets/63626210/bedf73dd-1fa3-42e3-99bc-7644309c81af)
+Before running this application, ensure you have the following installed:
 
-- ## **Job Posting**:
-    - **Add New Job**: Enables recruiters to post new job openings with detailed job descriptions, requirements, and other relevant
+- **Java 21** or later
+- **Node.js 16** or later
+- **MySQL 8.0** or later
+- **Maven 3.6** or later
+- **Git**
 
-   ![Job Post](https://github.com/hey-its-d2t2/Job-Portal/assets/63626210/25e752a0-06a0-45d9-9150-cc42297f9f17)
+## 🚀 Quick Start
 
-- ## Recruiter Dashboard:
-  - **View Job Listings**: Allows recruiters to view all their posted jobs, along with relevant details such as the number of applications, job status, and the ability to edit or delete postings.
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Aryanmalikk17/job-portal-fullstack.git
+cd job-portal-fullstack
+```
 
-  <img width="1886" height="941" alt="Screenshot 2025-09-21 163505" src="https://github.com/user-attachments/assets/1d71b6fa-b9b2-4065-9da8-b03d6113e96b" />
+### 2. Database Setup
+```bash
+# Create MySQL database
+mysql -u root -p
+CREATE DATABASE jobportal;
+CREATE USER 'jobportal_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON jobportal.* TO 'jobportal_user'@'localhost';
+FLUSH PRIVILEGES;
 
-- **Edit Job Listings**: Allows recruiters to edit all their posted jobs, along with relevant details such as the number of applications, job status, and the ability to edit or delete postings.
-  
-  <img width="1886" height="903" alt="Screenshot 2025-09-21 163547" src="https://github.com/user-attachments/assets/da8aefcb-c832-4f40-9c7a-047ac89f8453" />
+# Run database scripts
+mysql -u jobportal_user -p jobportal < DB_Scripts/01-jobportal.sql
+mysql -u jobportal_user -p jobportal < DB_Scripts/02-job-application-enhancement.sql
+```
 
-- `Edit`, `Delete` and Applied Candidates, click on candidate name to view application details and `download resume`
-  <img width="1871" height="931" alt="Screenshot 2025-09-21 163620" src="https://github.com/user-attachments/assets/fa3ee28d-7707-42cb-b87e-270e55ca0506" />
+### 3. Backend Setup
+```bash
+cd backend
 
-- **Candidate Profile**: Allows recruiters to view and Doenload resueme of candidate, along with relevant details such as the skills, experience....
+# Update application.properties with your database credentials
+# Edit src/main/resources/application.properties
 
-  <img width="1887" height="932" alt="Screenshot 2025-09-21 163647" src="https://github.com/user-attachments/assets/2df8f7ac-7be8-4e5a-b0e2-6b206e67702e" />
+# Install dependencies and run
+./mvnw clean install
+./mvnw spring-boot:run
+```
 
-- ## Candidate Dashboard:
-  - **View Job Listings and Search**: Allows candiates to view all posted jobs, along with search and filter.
-  
-  <img width="1887" height="928" alt="Screenshot 2025-09-21 163758" src="https://github.com/user-attachments/assets/accf22b6-2fd4-4aa8-918a-503a2839399f" />
-- **View Job Details Apply and Save**: Allows candiates to view posted job, candidate cna apply and save the job for future.
+The backend will start on `http://localhost:8080`
 
-  <img width="1907" height="936" alt="Screenshot 2025-09-21 163822" src="https://github.com/user-attachments/assets/55243425-330b-47a7-a93c-003b1066bbfa" />
-- **View Saved Jobs**: Allows candiates to view all his saved job, candidate cna view and apply to saved job by going inside.
-  
-  <img width="1905" height="930" alt="Screenshot 2025-09-21 163913" src="https://github.com/user-attachments/assets/eb25d092-657f-41e7-81f8-1417cb47a799" />
+### 4. Frontend Setup
+```bash
+cd frontend
 
-# Planned Functionalities:
+# Install dependencies
+npm install
 
-- ## Job Search and Application:
-  - **Job Search**: Allow job seekers to search for job openings based on various criteria such as location, job type, industry, etc.
-  - **Job Application**: Enable job seekers to apply for jobs directly through the portal.
-- ## Saved Jobs and Applications:
-  - **Save Jobs**: Allow job seekers to save jobs they are interested in and view them later.
-  - **Application Tracking**: Enable job seekers to track the status of their applications.
-- ## Candidate Management for Recruiters:
-  - **Candidate Management**: Enable recruiters to view and manage applications from job seekers.
-- ## Notifications and Alerts:
-  - **Email Notifications**: Implement email notifications for various actions such as job applications, job postings, profile updates, etc.
-- # Admin Panel:
-  - **User Management**: Enable administrators to manage users, monitor activities, and ensure compliance with platform policies.
+# Start development server
+npm start
+```
 
-# Conclusion:
-The Job Portal project, built with a modern stack of Java 21, Spring Boot 3, and supporting technologies, aims to provide a comprehensive and efficient solution for job seekers and recruiters.
-With essential functionalities already in place and more under active development, the portal is set to become a powerful tool for job matching and recruitment.
+The frontend will start on `http://localhost:3000`
+
+### 5. Using Docker (Optional)
+```bash
+# Run the entire application with Docker Compose
+docker-compose up -d
+```
+
+## 📁 Project Structure
+
+```
+job-portal-fullstack/
+├── backend/                    # Spring Boot application
+│   ├── src/main/java/         # Java source code
+│   │   └── com/jobportal/     
+│   │       ├── api/           # REST controllers
+│   │       ├── config/        # Configuration classes
+│   │       ├── entity/        # JPA entities
+│   │       ├── repository/    # Data repositories
+│   │       ├── services/      # Business logic
+│   │       └── security/      # Security configurations
+│   ├── src/main/resources/    # Configuration files
+│   └── pom.xml               # Maven dependencies
+├── frontend/                  # React application
+│   ├── src/
+│   │   ├── components/       # React components
+│   │   ├── pages/           # Page components
+│   │   ├── services/        # API service layers
+│   │   ├── context/         # React context providers
+│   │   └── styles/          # CSS stylesheets
+│   └── package.json         # NPM dependencies
+├── DB_Scripts/               # Database setup scripts
+├── docker-compose.yml        # Docker configuration
+└── README.md                # Project documentation
+```
+
+## 🔧 Configuration
+
+### Backend Configuration
+Update `backend/src/main/resources/application.properties`:
+
+```properties
+# Database Configuration
+spring.datasource.url=jdbc:mysql://localhost:3306/jobportal
+spring.datasource.username=jobportal_user
+spring.datasource.password=your_password
+
+# JWT Configuration
+app.jwt.secret=your-secret-key
+app.jwt.expiration=86400000
+
+# File Upload Configuration
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+```
+
+### Frontend Configuration
+Create `frontend/.env`:
+
+```env
+REACT_APP_API_BASE_URL=http://localhost:8080/api
+REACT_APP_ENV=development
+```
+
+## 📚 API Documentation
+
+### Authentication Endpoints
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `GET /api/auth/profile` - Get user profile
+
+### Job Endpoints
+- `GET /api/jobs` - Get all jobs with filters
+- `POST /api/jobs` - Create new job (Recruiter only)
+- `GET /api/jobs/{id}` - Get job details
+- `PUT /api/jobs/{id}` - Update job (Recruiter only)
+- `DELETE /api/jobs/{id}` - Delete job (Recruiter only)
+
+### Application Endpoints
+- `POST /api/applications/job/{jobId}/apply` - Apply for job
+- `GET /api/applications/my-applications` - Get user applications
+- `PUT /api/applications/{id}/withdraw` - Withdraw application
+- `GET /api/applications/recruiter/applications` - Get recruiter applications
+
+### Job Management Endpoints
+- `POST /api/jobs/{id}/save` - Save job
+- `DELETE /api/jobs/{id}/unsave` - Unsave job
+- `GET /api/jobs/{id}/status` - Check job status
+
+## 🧪 Testing
+
+### Backend Testing
+```bash
+cd backend
+./mvnw test
+```
+
+### Frontend Testing
+```bash
+cd frontend
+npm test
+```
+
+## 📱 Screenshots
+
+### Home Page
+Modern landing page with job search functionality and featured opportunities.
+
+### Job Seeker Dashboard
+- Personalized job recommendations
+- Application tracking
+- Saved jobs management
+- Profile completion status
+
+### Recruiter Dashboard
+- Posted jobs overview
+- Application management
+- Candidate pipeline
+- Analytics and insights
+
+### Job Application Flow
+- Detailed job descriptions
+- One-click apply process
+- Resume upload functionality
+- Cover letter submission
+
+## 🤝 Contributing
+
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Commit your changes** (`git commit -m 'Add amazing feature'`)
+4. **Push to the branch** (`git push origin feature/amazing-feature`)
+5. **Open a Pull Request**
+
+### Coding Standards
+- Follow Java naming conventions for backend
+- Use ESLint and Prettier for frontend code formatting
+- Write meaningful commit messages
+- Add tests for new features
+- Update documentation as needed
+
+## 🐛 Known Issues
+
+- File upload size is limited to 10MB
+- Email notifications are not yet implemented
+- Advanced search filters need optimization
+
+## 🔮 Future Enhancements
+
+- [ ] **Email Notifications** - Application status updates
+- [ ] **Advanced Analytics** - Detailed recruitment metrics
+- [ ] **Video Interviews** - Integrated video calling
+- [ ] **AI Job Matching** - Smart job recommendations
+- [ ] **Mobile App** - React Native mobile application
+- [ ] **Admin Panel** - Platform administration tools
+- [ ] **Payment Integration** - Premium job posting features
+- [ ] **Social Login** - Google/LinkedIn authentication
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
+
+**Aryan Malik**
+- GitHub: [@Aryanmalikk17](https://github.com/Aryanmalikk17)
+- Email: your.email@example.com
+
+## 🙏 Acknowledgments
+
+- Spring Boot community for excellent documentation
+- React team for the amazing framework
+- Bootstrap for responsive design components
+- All contributors who helped improve this project
+
+## 📞 Support
+
+If you encounter any issues or have questions:
+
+1. **Check the Issues** - See if your question has already been answered
+2. **Create an Issue** - Describe the problem with steps to reproduce
+3. **Contact** - Reach out via email or social media
+
+---
+
+⭐ **Star this repository if you find it helpful!**
+
+Built with ❤️ using Spring Boot and React
