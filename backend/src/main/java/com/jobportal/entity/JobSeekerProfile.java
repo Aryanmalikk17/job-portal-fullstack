@@ -1,6 +1,8 @@
 package com.jobportal.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -15,21 +17,75 @@ public class JobSeekerProfile {
     @MapsId
     private Users userId;
 
+    // Personal Information
     private String firstName;
     private String lastName;
+    private String phone;
+    
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
+    
+    private String gender;
     private String city;
     private String state;
     private String country;
-    private String workAuthorization;
-    private String employmentType;
-    private String resume;
+    
+    @Column(name = "willing_to_relocate")
+    private Boolean willingToRelocate;
 
+    // Professional Information
+    @Column(name = "current_job_title")
+    private String currentJobTitle;
+    
+    private String experience;
+    
+    @Column(columnDefinition = "TEXT")
+    private String education;
+    
+    @Column(name = "work_authorization")
+    private String workAuthorization;
+    
+    @Column(name = "employment_type")
+    private String employmentType;
+    
+    @Column(name = "expected_salary")
+    private String expectedSalary;
+    
+    @Column(name = "availability_date")
+    private LocalDate availabilityDate;
+    
+    @Column(name = "linkedin_profile")
+    private String linkedinProfile;
+    
+    @Column(name = "github_profile")
+    private String githubProfile;
+    
+    @Column(name = "portfolio_website")
+    private String portfolioWebsite;
+
+    // Documents
     @Column(nullable = true, length = 64)
     private String profilePhoto;
+    
+    private String resume;
+    
+    @Column(name = "resume_original_name")
+    private String resumeOriginalName;
+    
+    @Column(name = "resume_upload_date")
+    private LocalDateTime resumeUploadDate;
+    
+    @Column(name = "resume_file_size")
+    private Long resumeFileSize;
+    
+    @Column(name = "cover_letter", columnDefinition = "TEXT")
+    private String coverLetter;
 
+    // Skills relationship
     @OneToMany(targetEntity = Skills.class, cascade = CascadeType.ALL, mappedBy = "jobSeekerProfile")
     private List<Skills> skills;
 
+    // Constructors
     public JobSeekerProfile() {
     }
 
@@ -37,21 +93,7 @@ public class JobSeekerProfile {
         this.userId = userId;
     }
 
-    public JobSeekerProfile(Integer userAccountId, Users userId, String firstName, String lastName, String city, String state, String country, String workAuthorization, String employmentType, String resume, String profilePhoto, List<Skills> skills) {
-        this.userAccountId = userAccountId;
-        this.userId = userId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.city = city;
-        this.state = state;
-        this.country = country;
-        this.workAuthorization = workAuthorization;
-        this.employmentType = employmentType;
-        this.resume = resume;
-        this.profilePhoto = profilePhoto;
-        this.skills = skills;
-    }
-
+    // All getters and setters
     public Integer getUserAccountId() {
         return userAccountId;
     }
@@ -68,6 +110,7 @@ public class JobSeekerProfile {
         this.userId = userId;
     }
 
+    // Personal Information getters/setters
     public String getFirstName() {
         return firstName;
     }
@@ -82,6 +125,30 @@ public class JobSeekerProfile {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getCity() {
@@ -108,6 +175,39 @@ public class JobSeekerProfile {
         this.country = country;
     }
 
+    public Boolean getWillingToRelocate() {
+        return willingToRelocate;
+    }
+
+    public void setWillingToRelocate(Boolean willingToRelocate) {
+        this.willingToRelocate = willingToRelocate;
+    }
+
+    // Professional Information getters/setters
+    public String getCurrentJobTitle() {
+        return currentJobTitle;
+    }
+
+    public void setCurrentJobTitle(String currentJobTitle) {
+        this.currentJobTitle = currentJobTitle;
+    }
+
+    public String getExperience() {
+        return experience;
+    }
+
+    public void setExperience(String experience) {
+        this.experience = experience;
+    }
+
+    public String getEducation() {
+        return education;
+    }
+
+    public void setEducation(String education) {
+        this.education = education;
+    }
+
     public String getWorkAuthorization() {
         return workAuthorization;
     }
@@ -124,6 +224,55 @@ public class JobSeekerProfile {
         this.employmentType = employmentType;
     }
 
+    public String getExpectedSalary() {
+        return expectedSalary;
+    }
+
+    public void setExpectedSalary(String expectedSalary) {
+        this.expectedSalary = expectedSalary;
+    }
+
+    public LocalDate getAvailabilityDate() {
+        return availabilityDate;
+    }
+
+    public void setAvailabilityDate(LocalDate availabilityDate) {
+        this.availabilityDate = availabilityDate;
+    }
+
+    public String getLinkedinProfile() {
+        return linkedinProfile;
+    }
+
+    public void setLinkedinProfile(String linkedinProfile) {
+        this.linkedinProfile = linkedinProfile;
+    }
+
+    public String getGithubProfile() {
+        return githubProfile;
+    }
+
+    public void setGithubProfile(String githubProfile) {
+        this.githubProfile = githubProfile;
+    }
+
+    public String getPortfolioWebsite() {
+        return portfolioWebsite;
+    }
+
+    public void setPortfolioWebsite(String portfolioWebsite) {
+        this.portfolioWebsite = portfolioWebsite;
+    }
+
+    // Documents getters/setters
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
+    }
+
     public String getResume() {
         return resume;
     }
@@ -132,12 +281,36 @@ public class JobSeekerProfile {
         this.resume = resume;
     }
 
-    public String getProfilePhoto() {
-        return profilePhoto;
+    public String getResumeOriginalName() {
+        return resumeOriginalName;
     }
 
-    public void setProfilePhoto(String profilePhoto) {
-        this.profilePhoto = profilePhoto;
+    public void setResumeOriginalName(String resumeOriginalName) {
+        this.resumeOriginalName = resumeOriginalName;
+    }
+
+    public LocalDateTime getResumeUploadDate() {
+        return resumeUploadDate;
+    }
+
+    public void setResumeUploadDate(LocalDateTime resumeUploadDate) {
+        this.resumeUploadDate = resumeUploadDate;
+    }
+
+    public Long getResumeFileSize() {
+        return resumeFileSize;
+    }
+
+    public void setResumeFileSize(Long resumeFileSize) {
+        this.resumeFileSize = resumeFileSize;
+    }
+
+    public String getCoverLetter() {
+        return coverLetter;
+    }
+
+    public void setCoverLetter(String coverLetter) {
+        this.coverLetter = coverLetter;
     }
 
     public List<Skills> getSkills() {
@@ -158,16 +331,13 @@ public class JobSeekerProfile {
     public String toString() {
         return "JobSeekerProfile{" +
                 "userAccountId=" + userAccountId +
-                ", userId=" + userId +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
+                ", currentJobTitle='" + currentJobTitle + '\'' +
                 ", city='" + city + '\'' +
-                ", state='" + state + '\'' +
                 ", country='" + country + '\'' +
                 ", workAuthorization='" + workAuthorization + '\'' +
                 ", employmentType='" + employmentType + '\'' +
-                ", resume='" + resume + '\'' +
-                ", profilePhoto='" + profilePhoto + '\'' +
                 '}';
     }
 }

@@ -104,14 +104,9 @@ public class SecurityConfig {
                 .referrerPolicy(referrerPolicy -> referrerPolicy.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
             )
             
-            // Session Management - Stateless for API, stateful for web
+            // Session Management - STATELESS for React SPA
             .sessionManagement(sessions -> sessions
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                .sessionFixation(sessionFixation -> sessionFixation.migrateSession())
-                .invalidSessionUrl("/login?expired")
-                .maximumSessions(3)
-                .maxSessionsPreventsLogin(false)
-                .sessionRegistry(sessionRegistry())
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // FIXED: Pure JWT, no sessions
             )
             
             // Exception Handling for JWT
@@ -133,34 +128,14 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             
-            // Traditional Form Login (for web interface)
-            .formLogin(form -> form
-                .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .usernameParameter("email")
-                .passwordParameter("password")
-                .defaultSuccessUrl("/dashboard/", true)
-                .failureUrl("/login?error=true")
-                .permitAll()
-            )
+            // REMOVED: Traditional Form Login - Conflicts with React SPA
+            // Using JWT-only authentication for React frontend
             
-            // Logout Configuration
-            .logout(logout -> logout
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
-                .logoutSuccessUrl("/login?logout")
-                .deleteCookies("JSESSIONID", "remember-me")
-                .invalidateHttpSession(true)
-                .clearAuthentication(true)
-                .permitAll()
-            )
+            // REMOVED: Traditional Logout - Using API-based logout
+            // React handles logout via /api/auth/logout
             
-            // Remember Me
-            .rememberMe(remember -> remember
-                .key("uniqueAndSecret")
-                .tokenValiditySeconds(86400) // 24 hours
-                .userDetailsService(customUserDetailsService)
-                .rememberMeParameter("remember-me")
-            );
+            // REMOVED: Remember Me - JWT handles token persistence
+            ;
 
         // Add JWT filter before UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

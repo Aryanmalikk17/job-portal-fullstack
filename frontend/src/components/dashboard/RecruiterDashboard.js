@@ -3,6 +3,7 @@ import { Row, Col, Card, Button, Badge, Alert, Tab, Tabs, Spinner } from 'react-
 import { useNavigate } from 'react-router-dom';
 import { jobService } from '../../services/jobService';
 import LoadingSpinner from '../common/LoadingSpinner';
+import ApplicationStatusManager from '../applications/ApplicationStatusManager'; // Add new import
 import ApplicationCard from './ApplicationCard';
 import ApplicationDetailsModal from './ApplicationDetailsModal';
 import StatusUpdateModal from './StatusUpdateModal';
@@ -425,81 +426,20 @@ const RecruiterDashboard = ({ user }) => {
                                 <Badge bg="info" className="ms-2">{applications.length}</Badge>
                             </span>
                         }>
-                            {/* Applications Management Content */}
-                            <div className="p-0">
-                                <div className="p-3 border-bottom">
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <h5 className="mb-0">Manage Applications</h5>
-                                        <Button
-                                            variant="outline-primary"
-                                            size="sm"
-                                            onClick={loadApplicationsData}
-                                        >
-                                            <i className="fas fa-sync-alt me-2"></i>
-                                            Refresh
-                                        </Button>
+                            {/* Enhanced Applications Management with ApplicationStatusManager */}
+                            <div className="p-3">
+                                {user ? (
+                                    <ApplicationStatusManager 
+                                        userType={user.userType} 
+                                        userId={user.userId} 
+                                    />
+                                ) : (
+                                    <div className="text-center py-5">
+                                        <i className="fa fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                        <h4>Authentication Required</h4>
+                                        <p className="text-muted">Please log in to manage applications.</p>
                                     </div>
-                                </div>
-
-                                {/* Status Filter Tabs */}
-                                <Tabs
-                                    activeKey={activeTab}
-                                    onSelect={(key) => setActiveTab(key)}
-                                    className="border-bottom-0"
-                                >
-                                    {statusFilters.map(filter => (
-                                        <Tab 
-                                            key={filter.key}
-                                            eventKey={filter.key} 
-                                            title={
-                                                <span>
-                                                    {filter.label}
-                                                    {filter.key === 'all' ? (
-                                                        <Badge bg={filter.variant} className="ms-2">
-                                                            {applications.length}
-                                                        </Badge>
-                                                    ) : (
-                                                        <Badge bg={filter.variant} className="ms-2">
-                                                            {statistics[filter.key] || 0}
-                                                        </Badge>
-                                                    )}
-                                                </span>
-                                            }
-                                        >
-                                            {/* Applications List */}
-                                            <div className="applications-list p-3">
-                                                {filteredApplications.length > 0 ? (
-                                                    <Row>
-                                                        {filteredApplications.map((application) => (
-                                                            <Col lg={6} key={application.id} className="mb-3">
-                                                                <ApplicationCard
-                                                                    application={application}
-                                                                    onViewDetails={handleViewDetails}
-                                                                    onUpdateStatus={handleUpdateStatus}
-                                                                    formatDate={formatDate}
-                                                                    getStatusBadgeVariant={getStatusBadgeVariant}
-                                                                />
-                                                            </Col>
-                                                        ))}
-                                                    </Row>
-                                                ) : (
-                                                    <div className="no-applications text-center py-5">
-                                                        <div className="no-applications-icon mb-3">
-                                                            <i className="fas fa-inbox fa-3x text-muted"></i>
-                                                        </div>
-                                                        <h4 className="no-applications-title mb-2">No Applications Found</h4>
-                                                        <p className="no-applications-text text-muted mb-4">
-                                                            {activeTab === 'all' 
-                                                                ? "You haven't received any job applications yet."
-                                                                : `No applications with status "${statusFilters.find(f => f.key === activeTab)?.label}"`
-                                                            }
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </Tab>
-                                    ))}
-                                </Tabs>
+                                )}
                             </div>
                         </Tab>
                     </Tabs>

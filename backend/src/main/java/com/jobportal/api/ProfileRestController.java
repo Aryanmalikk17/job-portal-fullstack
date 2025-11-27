@@ -18,6 +18,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
@@ -35,6 +37,9 @@ public class ProfileRestController {
 
     @Autowired
     private RecruiterProfileService recruiterProfileService;
+
+    @Autowired
+    private com.jobportal.repository.JobSeekerProfileRepository jobSeekerProfileRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<UserProfileDto>> getCurrentUserProfile() {
@@ -58,10 +63,32 @@ public class ProfileRestController {
                 Optional<JobSeekerProfile> seekerProfile = jobSeekerProfileService.getOne(currentUser.getUserId());
                 if (seekerProfile.isPresent()) {
                     JobSeekerProfile profile = seekerProfile.get();
+                    
+                    // Personal Information
+                    profileDto.setPhone(profile.getPhone());
+                    profileDto.setDateOfBirth(profile.getDateOfBirth());
+                    profileDto.setGender(profile.getGender());
+                    profileDto.setCity(profile.getCity());
+                    profileDto.setState(profile.getState());
+                    profileDto.setCountry(profile.getCountry());
+                    profileDto.setWillingToRelocate(profile.getWillingToRelocate());
+                    
+                    // Professional Information
+                    profileDto.setCurrentJobTitle(profile.getCurrentJobTitle());
+                    profileDto.setExperience(profile.getExperience());
+                    profileDto.setEducation(profile.getEducation());
                     profileDto.setWorkAuthorization(profile.getWorkAuthorization());
                     profileDto.setEmploymentType(profile.getEmploymentType());
-                    profileDto.setResume(profile.getResume());
+                    profileDto.setExpectedSalary(profile.getExpectedSalary());
+                    profileDto.setAvailabilityDate(profile.getAvailabilityDate());
+                    profileDto.setLinkedinProfile(profile.getLinkedinProfile());
+                    profileDto.setGithubProfile(profile.getGithubProfile());
+                    profileDto.setPortfolioWebsite(profile.getPortfolioWebsite());
+                    
+                    // Documents
                     profileDto.setProfilePhoto(profile.getProfilePhoto());
+                    profileDto.setResume(profile.getResume());
+                    profileDto.setCoverLetter(profile.getCoverLetter());
                 }
             } else if ("Recruiter".equals(currentUser.getUserTypeId().getUserTypeName())) {
                 Optional<RecruiterProfile> recruiterProfile = recruiterProfileService.getOne(currentUser.getUserId());
@@ -86,10 +113,31 @@ public class ProfileRestController {
 
     @PutMapping("/job-seeker")
     public ResponseEntity<ApiResponse<UserProfileDto>> updateJobSeekerProfile(
+            // Personal Information
             @RequestParam(value = "firstName", required = false) String firstName,
             @RequestParam(value = "lastName", required = false) String lastName,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "dateOfBirth", required = false) String dateOfBirth,
+            @RequestParam(value = "gender", required = false) String gender,
+            @RequestParam(value = "city", required = false) String city,
+            @RequestParam(value = "state", required = false) String state,
+            @RequestParam(value = "country", required = false) String country,
+            @RequestParam(value = "willingToRelocate", required = false) Boolean willingToRelocate,
+            
+            // Professional Information
+            @RequestParam(value = "currentJobTitle", required = false) String currentJobTitle,
+            @RequestParam(value = "experience", required = false) String experience,
+            @RequestParam(value = "education", required = false) String education,
             @RequestParam(value = "workAuthorization", required = false) String workAuthorization,
             @RequestParam(value = "employmentType", required = false) String employmentType,
+            @RequestParam(value = "expectedSalary", required = false) String expectedSalary,
+            @RequestParam(value = "availabilityDate", required = false) String availabilityDate,
+            @RequestParam(value = "linkedinProfile", required = false) String linkedinProfile,
+            @RequestParam(value = "githubProfile", required = false) String githubProfile,
+            @RequestParam(value = "portfolioWebsite", required = false) String portfolioWebsite,
+            @RequestParam(value = "coverLetter", required = false) String coverLetter,
+            
+            // Documents
             @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto,
             @RequestParam(value = "resume", required = false) MultipartFile resume) {
         
@@ -114,24 +162,45 @@ public class ProfileRestController {
             }
             usersService.addNew(currentUser);
 
-            // Get or create job seeker profile
-            Optional<JobSeekerProfile> existingProfile = jobSeekerProfileService.getOne(currentUser.getUserId());
-            JobSeekerProfile profile;
-            
-            if (existingProfile.isPresent()) {
-                profile = existingProfile.get();
-            } else {
-                profile = new JobSeekerProfile();
-                profile.setUserAccountId(currentUser.getUserId());
-            }
+            // Check if profile exists - create profile object with updates
+            JobSeekerProfile profile = new JobSeekerProfile();
+            profile.setUserAccountId(currentUser.getUserId());
 
-            // Update profile fields
-            if (StringUtils.hasText(workAuthorization)) {
-                profile.setWorkAuthorization(workAuthorization);
+            // Update Personal Information
+            if (StringUtils.hasText(firstName)) profile.setFirstName(firstName);
+            if (StringUtils.hasText(lastName)) profile.setLastName(lastName);
+            if (StringUtils.hasText(phone)) profile.setPhone(phone);
+            if (StringUtils.hasText(dateOfBirth)) {
+                try {
+                    profile.setDateOfBirth(LocalDate.parse(dateOfBirth));
+                } catch (Exception e) {
+                    logger.warn("Invalid date format for dateOfBirth: {}", dateOfBirth);
+                }
             }
-            if (StringUtils.hasText(employmentType)) {
-                profile.setEmploymentType(employmentType);
+            if (StringUtils.hasText(gender)) profile.setGender(gender);
+            if (StringUtils.hasText(city)) profile.setCity(city);
+            if (StringUtils.hasText(state)) profile.setState(state);
+            if (StringUtils.hasText(country)) profile.setCountry(country);
+            if (willingToRelocate != null) profile.setWillingToRelocate(willingToRelocate);
+
+            // Update Professional Information
+            if (StringUtils.hasText(currentJobTitle)) profile.setCurrentJobTitle(currentJobTitle);
+            if (StringUtils.hasText(experience)) profile.setExperience(experience);
+            if (StringUtils.hasText(education)) profile.setEducation(education);
+            if (StringUtils.hasText(workAuthorization)) profile.setWorkAuthorization(workAuthorization);
+            if (StringUtils.hasText(employmentType)) profile.setEmploymentType(employmentType);
+            if (StringUtils.hasText(expectedSalary)) profile.setExpectedSalary(expectedSalary);
+            if (StringUtils.hasText(availabilityDate)) {
+                try {
+                    profile.setAvailabilityDate(LocalDate.parse(availabilityDate));
+                } catch (Exception e) {
+                    logger.warn("Invalid date format for availabilityDate: {}", availabilityDate);
+                }
             }
+            if (StringUtils.hasText(linkedinProfile)) profile.setLinkedinProfile(linkedinProfile);
+            if (StringUtils.hasText(githubProfile)) profile.setGithubProfile(githubProfile);
+            if (StringUtils.hasText(portfolioWebsite)) profile.setPortfolioWebsite(portfolioWebsite);
+            if (StringUtils.hasText(coverLetter)) profile.setCoverLetter(coverLetter);
 
             // Handle file uploads
             if (profilePhoto != null && !profilePhoto.isEmpty()) {
@@ -153,6 +222,9 @@ public class ProfileRestController {
                     String fileName = resume.getOriginalFilename();
                     FileUploadUtil.saveFile(uploadDir, fileName, resume);
                     profile.setResume(fileName);
+                    profile.setResumeOriginalName(resume.getOriginalFilename());
+                    profile.setResumeUploadDate(LocalDateTime.now());
+                    profile.setResumeFileSize(resume.getSize());
                 } catch (Exception e) {
                     logger.error("Error uploading resume", e);
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -160,19 +232,38 @@ public class ProfileRestController {
                 }
             }
 
-            jobSeekerProfileService.addNew(profile);
+            // Smart profile save: Use existing addNew method which now handles update vs insert properly
+            JobSeekerProfile savedProfile = jobSeekerProfileService.addNew(profile);
 
-            // Return updated profile
+            // Return updated profile with ALL fields
             UserProfileDto profileDto = new UserProfileDto();
             profileDto.setUserId(currentUser.getUserId());
             profileDto.setFirstName(currentUser.getFirstName());
             profileDto.setLastName(currentUser.getLastName());
             profileDto.setEmail(currentUser.getEmail());
             profileDto.setUserType(currentUser.getUserTypeId().getUserTypeName());
-            profileDto.setWorkAuthorization(profile.getWorkAuthorization());
-            profileDto.setEmploymentType(profile.getEmploymentType());
-            profileDto.setProfilePhoto(profile.getProfilePhoto());
-            profileDto.setResume(profile.getResume());
+            
+            // Add all profile fields to response
+            profileDto.setPhone(savedProfile.getPhone());
+            profileDto.setDateOfBirth(savedProfile.getDateOfBirth());
+            profileDto.setGender(savedProfile.getGender());
+            profileDto.setCity(savedProfile.getCity());
+            profileDto.setState(savedProfile.getState());
+            profileDto.setCountry(savedProfile.getCountry());
+            profileDto.setWillingToRelocate(savedProfile.getWillingToRelocate());
+            profileDto.setCurrentJobTitle(savedProfile.getCurrentJobTitle());
+            profileDto.setExperience(savedProfile.getExperience());
+            profileDto.setEducation(savedProfile.getEducation());
+            profileDto.setWorkAuthorization(savedProfile.getWorkAuthorization());
+            profileDto.setEmploymentType(savedProfile.getEmploymentType());
+            profileDto.setExpectedSalary(savedProfile.getExpectedSalary());
+            profileDto.setAvailabilityDate(savedProfile.getAvailabilityDate());
+            profileDto.setLinkedinProfile(savedProfile.getLinkedinProfile());
+            profileDto.setGithubProfile(savedProfile.getGithubProfile());
+            profileDto.setPortfolioWebsite(savedProfile.getPortfolioWebsite());
+            profileDto.setCoverLetter(savedProfile.getCoverLetter());
+            profileDto.setProfilePhoto(savedProfile.getProfilePhoto());
+            profileDto.setResume(savedProfile.getResume());
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Profile updated successfully", profileDto));
 

@@ -6,12 +6,12 @@ services:
     image: mysql:8.0
     container_name: jobportal-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: rootpassword123
       MYSQL_DATABASE: jobportal
       MYSQL_USER: jobportal
-      MYSQL_PASSWORD: jobportal
+      MYSQL_PASSWORD: jobportal123
     ports:
-      - "3306:3306"
+      - "3307:3306"  # Changed to avoid conflict with existing MySQL
     volumes:
       - mysql_data:/var/lib/mysql
       - ./DB_Scripts:/docker-entrypoint-initdb.d
@@ -22,12 +22,12 @@ services:
       timeout: 20s
       retries: 10
 
-  # Redis for Caching (Optional)
+  # Redis for Caching
   redis:
     image: redis:7-alpine
     container_name: jobportal-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"  # Changed to avoid potential conflicts
     volumes:
       - redis_data:/data
     networks:
@@ -36,18 +36,20 @@ services:
 
   # Job Portal Application
   app:
-    build: .
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: jobportal-app
     environment:
       SPRING_PROFILES_ACTIVE: prod
       DB_URL: jdbc:mysql://mysql:3306/jobportal
       DB_USERNAME: jobportal
-      DB_PASSWORD: jobportal
+      DB_PASSWORD: jobportal123
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
-      MAIL_USERNAME: ${MAIL_USERNAME}
-      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      JWT_SECRET: Y2hhbmdlVGhpc0luUHJvZHVjdGlvbkltbWVkaWF0ZWx5Rm9yU2VjdXJpdHlQdXJwb3Nlcw==
+      MAIL_USERNAME: ${MAIL_USERNAME:-test@example.com}
+      MAIL_PASSWORD: dummy-mail-password
     ports:
       - "8080:8080"
     volumes:
@@ -73,11 +75,12 @@ services:
     image: nginx:alpine
     container_name: jobportal-nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - "8081:80"    # Changed from 80 to avoid conflicts
+      - "8443:443"   # Changed from 443 to avoid conflicts
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./ssl:/etc/nginx/ssl
+      - ./frontend/build:/usr/share/nginx/html
     depends_on:
       - app
     networks:
@@ -106,13 +109,11 @@ services:
     image: grafana/grafana:latest
     container_name: jobportal-grafana
     ports:
-      - "3000:3000"
+      - "3001:3000"  # Changed from 3000 to avoid conflicts
     environment:
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
     depends_on:
       - prometheus
     networks:

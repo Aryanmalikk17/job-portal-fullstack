@@ -16,18 +16,48 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
+    const [localError, setLocalError] = useState(null); // Add local error state
 
     // Redirect if already authenticated
     useEffect(() => {
-        if (isAuthenticated) {
+        if (isAuthenticated && !isLoading) {
             const from = location.state?.from?.pathname || '/dashboard';
             navigate(from, { replace: true });
         }
-    }, [isAuthenticated, navigate, location.state?.from?.pathname]);
+    }, [isAuthenticated, isLoading]);
 
-    // Clear errors when component mounts - FIXED: Remove clearError from dependencies
+    // Clear errors when component mounts
     useEffect(() => {
-        clearError();
+        // Only clear errors on initial mount, not after every login attempt
+        const hasInitiallyMounted = sessionStorage.getItem('loginPageMounted');
+        if (!hasInitiallyMounted) {
+            clearError();
+            sessionStorage.setItem('loginPageMounted', 'true');
+            // Clear any old persisted errors on fresh page load
+            sessionStorage.removeItem('loginError');
+        }
+        
+        // Load any persisted error from sessionStorage ONLY if it's recent
+        const persistedError = sessionStorage.getItem('loginError');
+        const errorTimestamp = sessionStorage.getItem('loginErrorTime');
+        const now = Date.now();
+        
+        if (persistedError && errorTimestamp) {
+            const errorAge = now - parseInt(errorTimestamp);
+            // Only show error if it's less than 30 seconds old (recent login attempt)
+            if (errorAge < 30000) {
+                setLocalError(persistedError);
+            } else {
+                // Clear old errors
+                sessionStorage.removeItem('loginError');
+                sessionStorage.removeItem('loginErrorTime');
+            }
+        }
+        
+        // Clean up on unmount
+        return () => {
+            sessionStorage.removeItem('loginPageMounted');
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Only run on mount
 
@@ -68,13 +98,14 @@ const LoginPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        e.stopPropagation();
         
         if (!validateForm()) {
-            return;
+            return false;
         }
         
         setIsLoading(true);
-        clearError();
+        setLocalError(null);
         
         try {
             const result = await login({
@@ -84,14 +115,28 @@ const LoginPage = () => {
             });
             
             if (result.success) {
+                // Clear any persisted error before navigation
+                sessionStorage.removeItem('loginError');
                 const from = location.state?.from?.pathname || '/dashboard';
                 navigate(from, { replace: true });
+            } else {
+                // Persist error in both local state AND sessionStorage with timestamp
+                const errorMessage = result.error || 'Login failed. Please try again.';
+                setLocalError(errorMessage);
+                sessionStorage.setItem('loginError', errorMessage);
+                sessionStorage.setItem('loginErrorTime', Date.now().toString());
             }
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('Login submission error:', error);
+            const errorMessage = 'Login failed. Please try again.';
+            setLocalError(errorMessage);
+            sessionStorage.setItem('loginError', errorMessage);
+            sessionStorage.setItem('loginErrorTime', Date.now().toString());
         } finally {
             setIsLoading(false);
         }
+        
+        return false;
     };
 
     return (
@@ -169,14 +214,17 @@ const LoginPage = () => {
                                 </div>
                                 
                                 {/* Global Error Alert */}
-                                {error && (
+                                {(error || localError) && (
                                     <Alert variant="danger" className="alert-custom alert-error">
                                         <i className="fa fa-exclamation-triangle me-2"></i>
-                                        {error}
+                                        {localError || error}
                                     </Alert>
                                 )}
                                 
                                 <Form onSubmit={handleSubmit} className="auth-form" noValidate>
+                                    {/* Add debugging and additional prevention */}
+                                    <input type="hidden" name="preventBrowserSubmit" value="true" />
+                                    
                                     {/* Email Field */}
                                     <Form.Group className="mb-3">
                                         <Form.Label>Email Address</Form.Label>

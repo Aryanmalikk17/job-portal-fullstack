@@ -107,3 +107,36 @@ tmp/
 temp/
 *.tmp
 *.temp
+
+### SECURITY - Never commit these! ###
+# Environment files with real secrets
+.env.prod
+.env.secrets
+.env.staging
+
+# Secret files (real passwords, keys, tokens)
+secrets/
+secrets/*.txt
+secrets/*.key
+secrets/*.pem
+
+# SSL Certificates and private keys
+ssl/
+ssl/*.pem
+ssl/*.key
+ssl/*.crt
+ssl/*.cert
+nginx/ssl/
+
+# Docker production overrides with real values
+docker-compose.override.yml
+docker-compose.prod.override.yml
+
+# Backup files and data
+backups/
+data/
+
+# Monitoring data
+monitoring/data/
+prometheus/data/
+grafana/data/

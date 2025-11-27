@@ -31,7 +31,42 @@ public class RecruiterProfileService {
     }
 
     public RecruiterProfile addNew(RecruiterProfile recruiterProfile) {
-        return recruiterRepository.save(recruiterProfile);
+        // Check if profile already exists for this user_account_id
+        Integer userAccountId = recruiterProfile.getUserAccountId();
+        Optional<RecruiterProfile> existingProfile = recruiterRepository.findByUserAccountId(userAccountId);
+        
+        if (existingProfile.isPresent()) {
+            // Update existing profile
+            RecruiterProfile profileToUpdate = existingProfile.get();
+            
+            // Update only non-null fields
+            if (recruiterProfile.getFirstName() != null) {
+                profileToUpdate.setFirstName(recruiterProfile.getFirstName());
+            }
+            if (recruiterProfile.getLastName() != null) {
+                profileToUpdate.setLastName(recruiterProfile.getLastName());
+            }
+            if (recruiterProfile.getCity() != null) {
+                profileToUpdate.setCity(recruiterProfile.getCity());
+            }
+            if (recruiterProfile.getState() != null) {
+                profileToUpdate.setState(recruiterProfile.getState());
+            }
+            if (recruiterProfile.getCountry() != null) {
+                profileToUpdate.setCountry(recruiterProfile.getCountry());
+            }
+            if (recruiterProfile.getCompany() != null) {
+                profileToUpdate.setCompany(recruiterProfile.getCompany());
+            }
+            if (recruiterProfile.getProfilePhoto() != null) {
+                profileToUpdate.setProfilePhoto(recruiterProfile.getProfilePhoto());
+            }
+            
+            return recruiterRepository.save(profileToUpdate);
+        } else {
+            // Create new profile
+            return recruiterRepository.save(recruiterProfile);
+        }
     }
 
     public RecruiterProfile getCurrentRecruiterProfile() {

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useState } from 'react';
 import { authService } from '../services/authService';
 
 // Initial state
@@ -81,10 +81,13 @@ const AuthContext = createContext();
 // Auth provider component
 export const AuthProvider = ({ children }) => {
     const [state, dispatch] = useReducer(authReducer, initialState);
+    const [hasInitialized, setHasInitialized] = useState(false);
 
-    // Initialize auth state
+    // Initialize auth state - FIXED: Only run once on mount, never again
     useEffect(() => {
         const initializeAuth = async () => {
+            if (hasInitialized) return; // Prevent re-initialization
+            
             dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
             
             if (authService.isAuthenticated()) {
@@ -92,8 +95,15 @@ export const AuthProvider = ({ children }) => {
                     // FIXED: First try to get stored user data to avoid API call delay
                     const storedUser = authService.getStoredUser();
                     if (storedUser) {
-                        // Use stored user data immediately
-                        dispatch({ type: AUTH_ACTIONS.SET_USER, payload: storedUser });
+                        // Verify token is still valid before setting authenticated state
+                        try {
+                            await authService.verifyToken();
+                            dispatch({ type: AUTH_ACTIONS.SET_USER, payload: storedUser });
+                        } catch (error) {
+                            // Token invalid, clear storage and set as unauthenticated
+                            await authService.logout();
+                            dispatch({ type: AUTH_ACTIONS.LOGOUT });
+                        }
                     } else {
                         // If no stored data, try API call
                         const user = await authService.getCurrentUser();
@@ -108,6 +118,8 @@ export const AuthProvider = ({ children }) => {
             } else {
                 dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
             }
+            
+            setHasInitialized(true);
         };
 
         initializeAuth();
@@ -128,8 +140,9 @@ export const AuthProvider = ({ children }) => {
             dispatch({ type: AUTH_ACTIONS.LOGIN_SUCCESS, payload: user });
             return { success: true, user };
         } catch (error) {
-            dispatch({ type: AUTH_ACTIONS.LOGIN_FAILURE, payload: error.message });
-            return { success: false, error: error.message };
+            const errorMessage = error.message || 'Login failed. Please try again.';
+            dispatch({ type: AUTH_ACTIONS.LOGIN_FAILURE, payload: errorMessage });
+            return { success: false, error: errorMessage };
         }
     }, []);
 

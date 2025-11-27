@@ -45,6 +45,7 @@ export const authService = {
     // Login user
     login: async (credentials) => {
         try {
+            console.log('AuthService: Attempting login for:', credentials.email);
             const response = await api.post(AUTH_ENDPOINTS.LOGIN, credentials);
             
             if (response.data.token) {
@@ -65,9 +66,51 @@ export const authService = {
                 );
             }
             
+            console.log('AuthService: Login successful');
             return response.data;
         } catch (error) {
-            throw error.response?.data || { message: 'Login failed' };
+            console.log('AuthService: Login error caught:', error);
+            console.log('AuthService: Error response:', error.response);
+            
+            // Enhanced error handling for login failures
+            let errorMessage = 'Login failed. Please try again.';
+            
+            if (error.response) {
+                // Server responded with error status
+                const status = error.response.status;
+                const data = error.response.data;
+                
+                console.log('AuthService: Error status:', status, 'data:', data);
+                
+                if (status === 401) {
+                    // Invalid credentials
+                    errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+                } else if (status === 403) {
+                    // Account locked or disabled
+                    errorMessage = 'Your account has been locked or disabled. Please contact support.';
+                } else if (status === 429) {
+                    // Too many attempts
+                    errorMessage = 'Too many login attempts. Please try again later.';
+                } else if (data && typeof data === 'string') {
+                    // Server returned error message as string
+                    errorMessage = data;
+                } else if (data && data.message) {
+                    // Server returned error object with message
+                    errorMessage = data.message;
+                } else if (data && data.error) {
+                    // Server returned error object with error field
+                    errorMessage = data.error;
+                }
+            } else if (error.request) {
+                // Request was made but no response received
+                errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+            } else {
+                // Something else happened
+                errorMessage = error.message || 'An unexpected error occurred.';
+            }
+            
+            console.log('AuthService: Final error message:', errorMessage);
+            throw { message: errorMessage };
         }
     },
 

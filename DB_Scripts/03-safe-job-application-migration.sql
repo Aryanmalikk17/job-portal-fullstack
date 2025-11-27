@@ -72,10 +72,51 @@ UPDATE job_seeker_apply
 SET last_updated = COALESCE(last_updated, apply_date, NOW()) 
 WHERE last_updated IS NULL;
 
--- Step 7: Add indexes for better performance (ignore errors if they already exist)
-CREATE INDEX IF NOT EXISTS idx_job_seeker_apply_status ON job_seeker_apply(status);
-CREATE INDEX IF NOT EXISTS idx_job_seeker_apply_last_updated ON job_seeker_apply(last_updated);
-CREATE INDEX IF NOT EXISTS idx_job_post_activity_posted_by ON job_post_activity(posted_by_id);
+-- Step 7: Add indexes for better performance (with proper error handling)
+-- Check and create status index
+SET @index_exists = 0;
+SELECT COUNT(*) INTO @index_exists 
+FROM information_schema.STATISTICS 
+WHERE TABLE_SCHEMA = 'jobportal' 
+AND TABLE_NAME = 'job_seeker_apply' 
+AND INDEX_NAME = 'idx_job_seeker_apply_status';
+
+SET @sql = IF(@index_exists = 0, 
+    'CREATE INDEX idx_job_seeker_apply_status ON job_seeker_apply(status)',
+    'SELECT ''Index idx_job_seeker_apply_status already exists'' AS message');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Check and create last_updated index
+SET @index_exists = 0;
+SELECT COUNT(*) INTO @index_exists 
+FROM information_schema.STATISTICS 
+WHERE TABLE_SCHEMA = 'jobportal' 
+AND TABLE_NAME = 'job_seeker_apply' 
+AND INDEX_NAME = 'idx_job_seeker_apply_last_updated';
+
+SET @sql = IF(@index_exists = 0, 
+    'CREATE INDEX idx_job_seeker_apply_last_updated ON job_seeker_apply(last_updated)',
+    'SELECT ''Index idx_job_seeker_apply_last_updated already exists'' AS message');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Check and create posted_by index
+SET @index_exists = 0;
+SELECT COUNT(*) INTO @index_exists 
+FROM information_schema.STATISTICS 
+WHERE TABLE_SCHEMA = 'jobportal' 
+AND TABLE_NAME = 'job_post_activity' 
+AND INDEX_NAME = 'idx_job_post_activity_posted_by';
+
+SET @sql = IF(@index_exists = 0, 
+    'CREATE INDEX idx_job_post_activity_posted_by ON job_post_activity(posted_by_id)',
+    'SELECT ''Index idx_job_post_activity_posted_by already exists'' AS message');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- Step 8: Show final table structure
 SELECT 'Final table structure:' AS message;

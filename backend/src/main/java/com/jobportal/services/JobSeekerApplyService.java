@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jobportal.entity.JobPostActivity;
 import com.jobportal.entity.JobSeekerApply;
@@ -76,22 +77,61 @@ public class JobSeekerApplyService {
     }
 
     /**
-     * Update application status (for recruiters)
+     * Update application status (for recruiters) - ENHANCED with transaction management
      */
+    @Transactional
     public JobSeekerApply updateApplicationStatus(Integer applicationId, JobSeekerApply.ApplicationStatus newStatus, String recruiterNotes) {
         Optional<JobSeekerApply> applicationOpt = jobSeekerApplyRepository.findById(applicationId);
         if (applicationOpt.isEmpty()) {
-            throw new IllegalArgumentException("Application not found");
+            throw new IllegalArgumentException("Application not found with ID: " + applicationId);
         }
 
         JobSeekerApply application = applicationOpt.get();
+        
+        // Validate status transition
+        if (!isValidStatusTransition(application.getStatus(), newStatus)) {
+            throw new IllegalStateException("Invalid status transition from " + 
+                application.getStatus() + " to " + newStatus);
+        }
+        
+        // Update status and notes
+        JobSeekerApply.ApplicationStatus oldStatus = application.getStatus();
         application.setStatus(newStatus);
+        
         if (recruiterNotes != null && !recruiterNotes.trim().isEmpty()) {
             application.setRecruiterNotes(recruiterNotes);
         }
+        
         application.setLastUpdated(new Date());
 
-        return jobSeekerApplyRepository.save(application);
+        // Save with explicit flush to ensure immediate persistence
+        JobSeekerApply savedApplication = jobSeekerApplyRepository.save(application);
+        jobSeekerApplyRepository.flush();
+        
+        // Log the status change for audit trail
+        System.out.println("Application ID " + applicationId + " status updated from " + 
+            oldStatus + " to " + newStatus + " at " + new Date());
+        
+        return savedApplication;
+    }
+    
+    /**
+     * Validate if status transition is allowed
+     */
+    private boolean isValidStatusTransition(JobSeekerApply.ApplicationStatus currentStatus, 
+                                          JobSeekerApply.ApplicationStatus newStatus) {
+        // Allow any transition for now, but log invalid ones
+        if (currentStatus == JobSeekerApply.ApplicationStatus.HIRED && 
+            newStatus != JobSeekerApply.ApplicationStatus.HIRED) {
+            System.out.println("WARNING: Changing status from HIRED to " + newStatus);
+        }
+        
+        if (currentStatus == JobSeekerApply.ApplicationStatus.WITHDRAWN && 
+            newStatus != JobSeekerApply.ApplicationStatus.WITHDRAWN) {
+            System.out.println("WARNING: Changing status from WITHDRAWN to " + newStatus);
+        }
+        
+        return true; // Allow all transitions for flexibility
     }
 
     /**

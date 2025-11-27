@@ -36,13 +36,31 @@ export const profileService = {
             // Handle form data for file uploads
             const formData = new FormData();
             
-            // Add text fields
+            // Personal Information - Add ALL fields
             if (profileData.firstName) formData.append('firstName', profileData.firstName);
-            if (profileData.lastName) formData.append('lastName', profileData.lastName);  
+            if (profileData.lastName) formData.append('lastName', profileData.lastName);
+            if (profileData.phone) formData.append('phone', profileData.phone);
+            if (profileData.dateOfBirth) formData.append('dateOfBirth', profileData.dateOfBirth);
+            if (profileData.gender) formData.append('gender', profileData.gender);
+            if (profileData.city) formData.append('city', profileData.city);
+            if (profileData.state) formData.append('state', profileData.state);
+            if (profileData.country) formData.append('country', profileData.country);
+            if (profileData.willingToRelocate !== undefined) formData.append('willingToRelocate', profileData.willingToRelocate);
+            
+            // Professional Information - Add ALL fields
+            if (profileData.currentJobTitle) formData.append('currentJobTitle', profileData.currentJobTitle);
+            if (profileData.experience) formData.append('experience', profileData.experience);
+            if (profileData.education) formData.append('education', profileData.education);
             if (profileData.workAuthorization) formData.append('workAuthorization', profileData.workAuthorization);
             if (profileData.employmentType) formData.append('employmentType', profileData.employmentType);
+            if (profileData.expectedSalary) formData.append('expectedSalary', profileData.expectedSalary);
+            if (profileData.availabilityDate) formData.append('availabilityDate', profileData.availabilityDate);
+            if (profileData.linkedinProfile) formData.append('linkedinProfile', profileData.linkedinProfile);
+            if (profileData.githubProfile) formData.append('githubProfile', profileData.githubProfile);
+            if (profileData.portfolioWebsite) formData.append('portfolioWebsite', profileData.portfolioWebsite);
+            if (profileData.coverLetter) formData.append('coverLetter', profileData.coverLetter);
             
-            // Add file fields
+            // Documents - Add file fields
             if (profileData.profilePhoto instanceof File) {
                 formData.append('profilePhoto', profileData.profilePhoto);
             }

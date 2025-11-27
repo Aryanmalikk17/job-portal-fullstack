@@ -13,7 +13,7 @@ import JobDetailsPage from './pages/JobDetailsPage';
 import AddJobPage from './pages/AddJobPage';
 import ProfilePage from './pages/ProfilePage';
 import SavedJobsPage from './pages/SavedJobsPage';
-import MyApplications from './components/applications/MyApplications';
+import MyApplicationsPage from './pages/MyApplicationsPage'; // Updated import
 
 // Import styles
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -62,7 +62,7 @@ function App() {
             } />
             <Route path="/my-applications" element={
               <ProtectedRoute>
-                <MyApplications />
+                <MyApplicationsPage />
               </ProtectedRoute>
             } />
             
