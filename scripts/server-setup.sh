@@ -6,7 +6,7 @@ echo "🚀 Setting up production server for Job Portal deployment..."
 
 # Configuration
 PROJECT_DIR="/opt/jobportal"
-GITHUB_REPO="https://github.com/yourusername/job-portal2.0.git"  # Update this
+GITHUB_REPO="https://github.com/Aryanmalikk17/job-portal-fullstack.git"
 SERVER_USER="ubuntu"
 
 # Colors for output
