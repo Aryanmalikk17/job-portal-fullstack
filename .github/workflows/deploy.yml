@@ -100,6 +100,9 @@ jobs:
         MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
         MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
         
+        # Domain Configuration
+        DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
+        
         # Docker Images (from GitHub Container Registry)
         BACKEND_IMAGE=ghcr.io/${{ github.repository }}-backend:latest
         FRONTEND_IMAGE=ghcr.io/${{ github.repository }}-frontend:latest
@@ -130,24 +133,30 @@ jobs:
         MAIL_DEBUG=false
         EOF
 
+    - name: 🌐 Update Nginx configuration with domain
+      run: |
+        # Replace hardcoded domain with actual domain from secrets
+        sed -i "s/zplusejobs.com/${{ secrets.DOMAIN_NAME }}/g" nginx/nginx.prod.conf
+        sed -i "s/www.zplusejobs.com/www.${{ secrets.DOMAIN_NAME }}/g" nginx/nginx.prod.conf
+
     - name: 📦 Copy files to server
       run: |
         # Add server to known hosts
         ssh-keyscan -H ${{ secrets.DIGITALOCEAN_HOST }} >> ~/.ssh/known_hosts
         
         # Create deployment directory
-        ssh deploy@${{ secrets.DIGITALOCEAN_HOST }} "mkdir -p /opt/jobportal/deployment"
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.DIGITALOCEAN_HOST }} "mkdir -p /opt/jobportal/deployment"
         
         # Copy deployment files
-        scp docker-compose.prod.yml deploy@${{ secrets.DIGITALOCEAN_HOST }}:/opt/jobportal/
-        scp .env.prod deploy@${{ secrets.DIGITALOCEAN_HOST }}:/opt/jobportal/
-        scp -r nginx/ deploy@${{ secrets.DIGITALOCEAN_HOST }}:/opt/jobportal/
-        scp -r DB_Scripts/ deploy@${{ secrets.DIGITALOCEAN_HOST }}:/opt/jobportal/
-        scp -r scripts/ deploy@${{ secrets.DIGITALOCEAN_HOST }}:/opt/jobportal/
+        scp docker-compose.prod.yml ${{ secrets.SERVER_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/opt/jobportal/
+        scp .env.prod ${{ secrets.SERVER_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/opt/jobportal/
+        scp -r nginx/ ${{ secrets.SERVER_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/opt/jobportal/
+        scp -r DB_Scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/opt/jobportal/
+        scp -r scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/opt/jobportal/
 
     - name: 🐳 Deploy with Docker Compose
       run: |
-        ssh deploy@${{ secrets.DIGITALOCEAN_HOST }} << 'EOF'
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.DIGITALOCEAN_HOST }} << 'EOF'
         cd /opt/jobportal
         
         # Login to GitHub Container Registry
@@ -174,9 +183,16 @@ jobs:
         curl -f http://localhost:8080/actuator/health || echo "⚠️ Backend health check not yet available"
         EOF
 
+    - name: 🔐 Setup SSL Certificate
+      run: |
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.DIGITALOCEAN_HOST }} << 'EOF'
+        # Install SSL certificate for domain
+        sudo certbot --nginx -d ${{ secrets.DOMAIN_NAME }} -d www.${{ secrets.DOMAIN_NAME }} --non-interactive --agree-tos --email ${{ secrets.MAIL_USERNAME }}
+        EOF
+
     - name: 🧹 Cleanup old images
       run: |
-        ssh deploy@${{ secrets.DIGITALOCEAN_HOST }} << 'EOF'
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.DIGITALOCEAN_HOST }} << 'EOF'
         # Remove old Docker images to save space
         docker image prune -f
         docker container prune -f
@@ -185,8 +201,8 @@ jobs:
     - name: 📊 Deployment Summary
       run: |
         echo "🎉 Deployment completed successfully!"
-        echo "📱 Application: http://${{ secrets.DIGITALOCEAN_HOST }}"
-        echo "🔍 API Health: http://${{ secrets.DIGITALOCEAN_HOST }}:8080/actuator/health"
+        echo "📱 Application: https://${{ secrets.DOMAIN_NAME }}"
+        echo "🔍 API Health: https://${{ secrets.DOMAIN_NAME }}/api/actuator/health"
         echo "📧 Deployed by: ${{ github.actor }}"
         echo "🏷️ Commit: ${{ github.sha }}"
         echo "🕐 Time: $(date)"
