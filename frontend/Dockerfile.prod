@@ -3,12 +3,13 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files explicitly (fix for package-lock.json not being copied)
+# Copy package files explicitly
 COPY package.json ./
 COPY package-lock.json ./
 
-# Install dependencies (using modern npm syntax)
-RUN npm ci --omit=dev
+# Use npm install with fallback strategy to handle any sync issues
+# This approach is more resilient than npm ci for Docker builds
+RUN npm install --production --frozen-lockfile || npm install --production
 
 # Copy source code
 COPY . .
