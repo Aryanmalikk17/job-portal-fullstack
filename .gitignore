@@ -38,7 +38,7 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
+# package-lock.json removed - needed for Docker builds!
 .env
 .env.local
 .env.development.local
@@ -175,8 +175,9 @@ Thumbs.db
 **/target/
 **/.mvn/wrapper/maven-wrapper.jar
 
-# Node artifacts
+# Node artifacts  
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# package-lock.json removed - needed for Docker builds!
