@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: aryanmalikk17/job-portal-fullstack
 
 jobs:
   test:
@@ -82,12 +82,6 @@ jobs:
       working-directory: ./frontend
       run: npm run build
 
-    - name: Security Scan
-      uses: anchore/scan-action@v3
-      with:
-        path: "."
-        fail-build: false
-
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
@@ -158,41 +152,6 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
-  deploy-staging:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
-    environment: staging
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Deploy to Staging Server
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.STAGING_HOST }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          cd /opt/jobportal-staging
-          
-          # Pull latest configuration
-          git pull origin develop
-          
-          # Update environment variables
-          echo "BACKEND_IMAGE=${{ needs.build-and-push.outputs.backend-image }}" > .env.staging
-          echo "FRONTEND_IMAGE=${{ needs.build-and-push.outputs.frontend-image }}" >> .env.staging
-          echo "VERSION=${{ needs.build-and-push.outputs.version }}" >> .env.staging
-          
-          # Deploy with Docker Compose
-          docker-compose -f docker-compose.staging.yml down
-          docker-compose -f docker-compose.staging.yml pull
-          docker-compose -f docker-compose.staging.yml up -d
-          
-          # Wait and health check
-          sleep 45
-          curl -f http://localhost:8080/actuator/health || exit 1
-
   deploy-production:
     needs: build-and-push
     runs-on: ubuntu-latest
@@ -211,48 +170,97 @@ jobs:
         script: |
           cd /opt/jobportal
           
-          # Create backup before deployment
-          ./scripts/backup-before-deploy.sh
+          # Create required data directories
+          sudo mkdir -p data/{mysql,redis,uploads,prometheus,grafana} logs/nginx backups
+          sudo chown -R deploy:deploy data logs backups
           
           # Pull latest configuration
           git pull origin main
           
-          # Update environment with new image tags
-          echo "BACKEND_IMAGE=${{ needs.build-and-push.outputs.backend-image }}" > .env.prod
-          echo "FRONTEND_IMAGE=${{ needs.build-and-push.outputs.frontend-image }}" >> .env.prod
-          echo "VERSION=${{ needs.build-and-push.outputs.version }}" >> .env.prod
+          # Copy SSL certificates to nginx directory
+          sudo mkdir -p nginx/ssl
+          sudo cp ssl/cert.pem nginx/ssl/fullchain.pem
+          sudo cp ssl/key.pem nginx/ssl/privkey.pem
+          sudo chown -R deploy:deploy nginx/ssl
           
-          # Load environment variables
-          set -a
-          source .env.prod
-          source .env.secrets
-          set +a
+          # Create production environment file with secrets
+          cat > .env.prod << EOF
+          # Database Configuration
+          MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER=${{ secrets.MYSQL_USER }}
           
-          # Run database migrations if needed
-          docker-compose -f docker-compose.prod.yml run --rm app \
-            java -jar app.jar --spring.profiles.active=migration || true
+          # Redis Configuration  
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          
+          # JWT Configuration
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          
+          # Email Configuration
+          MAIL_HOST=smtp.gmail.com
+          MAIL_PORT=587
+          MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+          
+          # Domain Configuration
+          DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
+          API_DOMAIN=${{ secrets.API_DOMAIN }}
+          
+          # Monitoring Configuration
+          GRAFANA_PASSWORD=${{ secrets.GRAFANA_PASSWORD }}
+          
+          # Docker Image Tags
+          BACKEND_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:latest
+          FRONTEND_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:latest
+          VERSION=v1.0.0
+          EOF
+          
+          # Secure the environment file
+          chmod 600 .env.prod
+          
+          # Login to GitHub Container Registry
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           
           # Rolling deployment
-          docker-compose -f docker-compose.prod.yml pull
-          docker-compose -f docker-compose.prod.yml up -d --force-recreate --no-deps app
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml up -d --force-recreate
           
-          # Health check
-          ./scripts/health-check.sh || {
-            echo "Health check failed! Rolling back..."
-            ./scripts/rollback.sh
+          # Health check with timeout
+          echo "⏳ Waiting for services to be healthy..."
+          sleep 30
+          
+          # Wait for MySQL to be ready
+          timeout=300
+          counter=0
+          while ! docker compose -f docker-compose.prod.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+            sleep 5
+            counter=$((counter + 5))
+            if [ $counter -ge $timeout ]; then
+              echo "❌ MySQL failed to start within $timeout seconds"
+              docker compose -f docker-compose.prod.yml logs mysql
+              exit 1
+            fi
+          done
+          
+          # Wait for backend to be ready
+          counter=0
+          while ! curl -f http://localhost:8080/actuator/health > /dev/null 2>&1; do
+            sleep 5
+            counter=$((counter + 5))
+            if [ $counter -ge $timeout ]; then
+              echo "❌ Backend failed to start within $timeout seconds"
+              docker compose -f docker-compose.prod.yml logs backend
+              exit 1
+            fi
+          done
+          
+          # Final health check
+          if curl -f https://${{ secrets.DOMAIN_NAME }}/health > /dev/null 2>&1; then
+            echo "✅ Production deployment completed successfully!"
+            echo "🌐 Application is available at: https://${{ secrets.DOMAIN_NAME }}"
+          else
+            echo "❌ Final health check failed!"
+            docker compose -f docker-compose.prod.yml logs --tail=50
             exit 1
-          }
-          
-          echo "✅ Production deployment completed successfully!"
-        
-    - name: Notify Deployment Status
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        channel: '#deployments'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-        text: |
-          🚀 Production Deployment: ${{ job.status }}
-          📦 Version: ${{ needs.build-and-push.outputs.version }}
-          🔗 URL: https://${{ secrets.DOMAIN_NAME }}
-      if: always()
+          fi

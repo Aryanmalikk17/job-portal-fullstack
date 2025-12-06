@@ -80,6 +80,9 @@ Thumbs.db
 dist/
 build/
 target-root/
+backend/target/
+frontend/build/
+frontend/node_modules/
 
 ### Uploads and user content ###
 backend/photos/
@@ -140,3 +143,30 @@ data/
 monitoring/data/
 prometheus/data/
 grafana/data/
+
+# Build artifacts (these were causing slow upload!)
+backend/target/
+frontend/build/
+frontend/node_modules/
+
+# Logs (dozens of large log files)
+backend/logs/
+*.log
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files (keep .env.prod for deployment)
+.env
+.env.local
+.env.development
+
+# Temporary files
+*.tmp
+*.temp
