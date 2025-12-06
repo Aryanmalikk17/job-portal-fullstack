@@ -170,3 +170,13 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Maven artifacts
+**/target/
+**/.mvn/wrapper/maven-wrapper.jar
+
+# Node artifacts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
