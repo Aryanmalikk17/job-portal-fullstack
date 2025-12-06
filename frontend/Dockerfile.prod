@@ -3,8 +3,9 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files explicitly (fix for package-lock.json not being copied)
+COPY package.json ./
+COPY package-lock.json ./
 
 # Install dependencies (using modern npm syntax)
 RUN npm ci --omit=dev
