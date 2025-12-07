@@ -47,25 +47,33 @@ services:
     image: ${BACKEND_IMAGE:-ghcr.io/aryanmalikk17/job-portal-fullstack-backend:latest}
     container_name: jobportal-app-prod
     environment:
+      # Spring Profile Configuration - FIXED
       SPRING_PROFILES_ACTIVE: prod
+      # Database Configuration  
       DB_URL: jdbc:mysql://mysql:3306/jobportal
       DB_USERNAME: jobportal
       DB_PASSWORD: ${MYSQL_PASSWORD}
+      # Redis Configuration
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # Security Configuration
       JWT_SECRET: ${JWT_SECRET}
+      # Email Configuration
       MAIL_HOST: smtp.gmail.com
       MAIL_PORT: 587
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+      # Application Configuration
       UPLOAD_DIR: /app/uploads
       SERVER_PORT: 8080
+      # JVM Configuration - REMOVED conflicting profile setting
       JAVA_OPTS: >-
         -XX:+UseContainerSupport
         -XX:MaxRAMPercentage=75.0
         -XX:+UseG1GC
-        -Dspring.profiles.active=prod
+        -server
+        -Djava.security.egd=file:/dev/./urandom
     ports:
       - "8080:8080"
     volumes:
