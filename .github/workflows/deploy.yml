@@ -10,6 +10,8 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME_BACKEND: ${{ github.repository }}-backend
   IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
+  # Convert repository name to lowercase for Docker registry compatibility
+  REPO_LOWERCASE: ${{ github.repository_owner }}/${{ github.event.repository.name }}
 
 jobs:
   # Build and Push Docker Images
@@ -34,7 +36,7 @@ jobs:
       id: meta-backend
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
+        images: ${{ env.REGISTRY }}/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')-backend
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -45,7 +47,7 @@ jobs:
       id: meta-frontend
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
+        images: ${{ env.REGISTRY }}/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')-frontend
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -87,7 +89,10 @@ jobs:
 
     - name: 📋 Create environment file
       run: |
-        cat > .env.prod << 'EOF'
+        # Convert repository name to lowercase for Docker compatibility
+        REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+        
+        cat > .env.prod << EOF
         # Database Configuration
         MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
         MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
@@ -103,9 +108,9 @@ jobs:
         # Domain Configuration
         DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
         
-        # Docker Images (from GitHub Container Registry)
-        BACKEND_IMAGE=ghcr.io/${{ github.repository }}-backend:latest
-        FRONTEND_IMAGE=ghcr.io/${{ github.repository }}-frontend:latest
+        # Docker Images (lowercase for registry compatibility)
+        BACKEND_IMAGE=ghcr.io/${REPO_LOWER}-backend:latest
+        FRONTEND_IMAGE=ghcr.io/${REPO_LOWER}-frontend:latest
         
         # Application Configuration
         SERVER_PORT=8080
@@ -214,8 +219,14 @@ jobs:
     - name: 🔐 Setup SSL Certificate
       run: |
         ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-        # Install SSL certificate for domain
-        sudo certbot --nginx -d ${{ secrets.DOMAIN_NAME }} -d www.${{ secrets.DOMAIN_NAME }} --non-interactive --agree-tos --email ${{ secrets.MAIL_USERNAME }}
+        # Skip SSL setup if not running as root (avoid sudo password issues)
+        if [ "$EUID" -ne 0 ]; then
+          echo "⚠️ Skipping SSL setup - requires root access"
+          echo "💡 Manual SSL setup required after deployment"
+        else
+          # Install SSL certificate for domain (only if running as root)
+          certbot --nginx -d ${{ secrets.DOMAIN_NAME }} -d www.${{ secrets.DOMAIN_NAME }} --non-interactive --agree-tos --email ${{ secrets.MAIL_USERNAME }}
+        fi
         EOF
 
     - name: 🧹 Cleanup old images
