@@ -181,39 +181,33 @@ jobs:
           exit 1
         fi
         
-        # Ensure Docker Compose can read the environment file
-        export $(cat .env.prod | grep -v '^#' | xargs)
+        # CRITICAL FIX: Export environment variables to current shell
+        echo "🔧 Loading environment variables..."
+        set -a  # automatically export all variables
+        source .env.prod
+        set +a  # stop auto-exporting
+        
+        # Verify environment variables are loaded
+        echo "✅ Environment variables loaded:"
+        echo "MYSQL_PASSWORD: ${MYSQL_PASSWORD:0:10}..."
+        echo "JWT_SECRET: ${JWT_SECRET:0:20}..."
+        echo "REDIS_PASSWORD: ${REDIS_PASSWORD:0:10}..."
         
         # Login to GitHub Container Registry
         echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         
-        # Pull latest images
-        docker-compose -f docker-compose.prod.yml pull
-        
         # Stop existing containers
         docker-compose -f docker-compose.prod.yml down --remove-orphans
         
-        # Start new deployment with explicit env file
-        docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+        # Start new deployment with environment variables properly loaded
+        docker-compose -f docker-compose.prod.yml up -d
         
         # Wait for services to start
         echo "⏳ Waiting for services to start..."
-        sleep 30
+        sleep 45
         
         # Check container status
         echo "📊 Container status:"
-        docker-compose -f docker-compose.prod.yml ps
-        
-        # Check logs if containers are failing
-        echo "📋 Checking container logs..."
-        docker-compose -f docker-compose.prod.yml logs --tail=10 mysql || true
-        docker-compose -f docker-compose.prod.yml logs --tail=10 redis || true
-        
-        # Wait longer for health checks
-        echo "⏳ Waiting for health checks..."
-        sleep 60
-        
-        # Verify deployment
         docker-compose -f docker-compose.prod.yml ps
         
         # Test application health
