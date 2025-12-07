@@ -32,11 +32,15 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: 🔧 Prepare repository name (lowercase)
+      id: repo
+      run: echo "lowercase=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
     - name: 📦 Extract metadata (tags, labels) for Backend
       id: meta-backend
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')-backend
+        images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.lowercase }}-backend
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -47,7 +51,7 @@ jobs:
       id: meta-frontend
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')-frontend
+        images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.lowercase }}-frontend
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -87,11 +91,12 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
 
+    - name: 🔧 Prepare repository name (lowercase)
+      id: repo
+      run: echo "lowercase=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
     - name: 📋 Create environment file
       run: |
-        # Convert repository name to lowercase for Docker compatibility
-        REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-        
         cat > .env.prod << EOF
         # Database Configuration
         MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
@@ -109,8 +114,8 @@ jobs:
         DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
         
         # Docker Images (lowercase for registry compatibility)
-        BACKEND_IMAGE=ghcr.io/${REPO_LOWER}-backend:latest
-        FRONTEND_IMAGE=ghcr.io/${REPO_LOWER}-frontend:latest
+        BACKEND_IMAGE=ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest
+        FRONTEND_IMAGE=ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest
         
         # Application Configuration
         SERVER_PORT=8080
