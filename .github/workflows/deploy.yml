@@ -181,30 +181,41 @@ jobs:
           exit 1
         fi
         
-        # CRITICAL FIX: Export environment variables to current shell
-        echo "🔧 Loading environment variables..."
-        set -a  # automatically export all variables
-        source .env.prod
-        set +a  # stop auto-exporting
-        
-        # Verify environment variables are loaded
-        echo "✅ Environment variables loaded:"
-        echo "MYSQL_PASSWORD: ${MYSQL_PASSWORD:0:10}..."
-        echo "JWT_SECRET: ${JWT_SECRET:0:20}..."
-        echo "REDIS_PASSWORD: ${REDIS_PASSWORD:0:10}..."
+        # ALTERNATIVE FIX: Create a wrapper script that loads environment and runs docker-compose
+        cat > deploy.sh << 'DEPLOY_SCRIPT'
+#!/bin/bash
+set -e
+cd /opt/jobportal
+
+# Load environment variables
+export $(cat .env.prod | grep -v '^#' | grep -v '^$' | xargs)
+
+# Verify critical variables are loaded
+echo "🔧 Environment variables loaded:"
+echo "MYSQL_PASSWORD: ${MYSQL_PASSWORD:0:10}..."
+echo "JWT_SECRET: ${JWT_SECRET:0:20}..."
+echo "REDIS_PASSWORD: ${REDIS_PASSWORD:0:10}..."
+
+# Stop existing containers
+docker-compose -f docker-compose.prod.yml down --remove-orphans
+
+# Start with environment variables
+docker-compose -f docker-compose.prod.yml up -d
+
+echo "✅ Deployment completed"
+DEPLOY_SCRIPT
+
+        chmod +x deploy.sh
         
         # Login to GitHub Container Registry
         echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         
-        # Stop existing containers
-        docker-compose -f docker-compose.prod.yml down --remove-orphans
-        
-        # Start new deployment with environment variables properly loaded
-        docker-compose -f docker-compose.prod.yml up -d
+        # Run deployment script
+        ./deploy.sh
         
         # Wait for services to start
         echo "⏳ Waiting for services to start..."
-        sleep 45
+        sleep 60
         
         # Check container status
         echo "📊 Container status:"
