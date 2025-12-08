@@ -185,22 +185,23 @@ jobs:
         # Stop existing containers
         docker-compose -f docker-compose.prod.yml down --remove-orphans
         
-        # DIRECT APPROACH: Run docker-compose with explicit environment variables from GitHub secrets
-        echo "🔧 Starting deployment with direct environment injection..."
-        MYSQL_ROOT_PASSWORD="${{ secrets.MYSQL_ROOT_PASSWORD }}" \
-        MYSQL_PASSWORD="${{ secrets.MYSQL_PASSWORD }}" \
-        REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}" \
-        JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-        MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" \
-        MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
-        DOMAIN_NAME="${{ secrets.DOMAIN_NAME }}" \
-        BACKEND_IMAGE="ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest" \
-        FRONTEND_IMAGE="ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest" \
+        # HARDCODED VALUES APPROACH: Create temporary docker-compose with hardcoded values
+        echo "🔧 Creating temporary docker-compose with hardcoded values..."
+        sed -i 's/\${MYSQL_ROOT_PASSWORD}/${{ secrets.MYSQL_ROOT_PASSWORD }}/g' docker-compose.prod.yml
+        sed -i 's/\${MYSQL_PASSWORD}/${{ secrets.MYSQL_PASSWORD }}/g' docker-compose.prod.yml
+        sed -i 's/\${REDIS_PASSWORD}/${{ secrets.REDIS_PASSWORD }}/g' docker-compose.prod.yml
+        sed -i 's/\${JWT_SECRET}/${{ secrets.JWT_SECRET }}/g' docker-compose.prod.yml
+        sed -i 's/\${MAIL_USERNAME}/${{ secrets.MAIL_USERNAME }}/g' docker-compose.prod.yml
+        sed -i 's/\${MAIL_PASSWORD}/${{ secrets.MAIL_PASSWORD }}/g' docker-compose.prod.yml
+        sed -i 's/\${BACKEND_IMAGE}/ghcr.io\/${{ steps.repo.outputs.lowercase }}-backend:latest/g' docker-compose.prod.yml
+        sed -i 's/\${FRONTEND_IMAGE}/ghcr.io\/${{ steps.repo.outputs.lowercase }}-frontend:latest/g' docker-compose.prod.yml
+        
+        echo "🚀 Starting deployment with hardcoded values..."
         docker-compose -f docker-compose.prod.yml up -d
         
         # Wait for services to start
         echo "⏳ Waiting for services to start..."
-        sleep 60
+        sleep 90
         
         # Check container status
         echo "📊 Container status:"
