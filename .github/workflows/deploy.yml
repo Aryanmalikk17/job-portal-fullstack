@@ -174,8 +174,6 @@ jobs:
         if [ -f .env.prod ]; then
           echo "✅ .env.prod file exists"
           echo "📊 File size: $(wc -c < .env.prod) bytes"
-          echo "📋 First few lines:"
-          head -5 .env.prod
         else
           echo "❌ .env.prod file not found!"
           exit 1
@@ -184,28 +182,33 @@ jobs:
         # Login to GitHub Container Registry
         echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         
-        # Load environment variables and run deployment
-        export $(cat .env.prod | grep -v '^#' | grep -v '^$' | xargs)
-        
-        # Verify critical variables are loaded
-        echo "🔧 Environment variables loaded:"
-        echo "MYSQL_PASSWORD: \${MYSQL_PASSWORD:0:10}..."
-        echo "JWT_SECRET: \${JWT_SECRET:0:20}..."
-        echo "REDIS_PASSWORD: \${REDIS_PASSWORD:0:10}..."
-        
         # Stop existing containers
         docker-compose -f docker-compose.prod.yml down --remove-orphans
         
-        # Start with environment variables
+        # DIRECT APPROACH: Run docker-compose with explicit environment variables
+        echo "🔧 Starting deployment with direct environment injection..."
+        MYSQL_ROOT_PASSWORD="${{ secrets.MYSQL_ROOT_PASSWORD }}" \
+        MYSQL_PASSWORD="${{ secrets.MYSQL_PASSWORD }}" \
+        REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}" \
+        JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+        MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" \
+        MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
+        DOMAIN_NAME="${{ secrets.DOMAIN_NAME }}" \
+        BACKEND_IMAGE="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')-backend:latest" \
+        FRONTEND_IMAGE="ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')-frontend:latest" \
         docker-compose -f docker-compose.prod.yml up -d
         
-        # Wait for services to start
-        echo "⏳ Waiting for services to start..."
-        sleep 60
+        # Verify no environment variable warnings
+        echo "🔍 Checking deployment status..."
+        sleep 30
         
         # Check container status
         echo "📊 Container status:"
         docker-compose -f docker-compose.prod.yml ps
+        
+        # Wait longer for backend startup
+        echo "⏳ Waiting for backend to complete startup..."
+        sleep 60
         
         # Test application health
         curl -f http://localhost/health || echo "⚠️ Health check endpoint not yet available"
