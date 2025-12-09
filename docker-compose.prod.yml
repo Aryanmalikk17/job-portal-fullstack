@@ -37,11 +37,9 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
 
-  # Job Portal Backend Application
+  # Job Portal Backend Application (Using pre-built image from GitHub Container Registry)
   backend:
-    build: 
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ${BACKEND_IMAGE}
     container_name: jobportal-backend-prod
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
@@ -78,11 +76,9 @@ services:
       retries: 5
       start_period: 60s
 
-  # Frontend Application
+  # Frontend Application (Using pre-built image from GitHub Container Registry)
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
+    image: ${FRONTEND_IMAGE}
     container_name: jobportal-frontend-prod
     networks:
       - jobportal-network-prod

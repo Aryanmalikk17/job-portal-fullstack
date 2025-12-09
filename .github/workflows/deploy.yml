@@ -1,201 +1,255 @@
-name: Deploy Job Portal to DigitalOcean
+name: 🚀 Deploy Job Portal to DigitalOcean
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
-    inputs:
-      deploy_backend:
-        description: 'Deploy Backend'
-        required: true
-        default: 'true'
-        type: boolean
-      deploy_frontend:
-        description: 'Deploy Frontend'
-        required: true
-        default: 'true'
-        type: boolean
+  pull_request:
+    branches: [ main ]
 
 env:
-  SERVER_HOST: 64.227.189.10
-  SERVER_USER: root
-  DEPLOY_PATH: /opt/jobportal
+  REGISTRY: ghcr.io
+  IMAGE_NAME_BACKEND: ${{ github.repository }}-backend
+  IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
+  # Convert repository name to lowercase for Docker registry compatibility
+  REPO_LOWERCASE: ${{ github.repository_owner }}/${{ github.event.repository.name }}
 
 jobs:
-  build-and-deploy:
+  # Build and Push Docker Images
+  build:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-    - name: 🚀 Checkout Code
+    - name: 📥 Checkout repository
       uses: actions/checkout@v4
 
-    - name: 📋 Setup Environment
-      run: |
-        echo "DEPLOYMENT_TIMESTAMP=$(date '+%Y%m%d_%H%M%S')" >> $GITHUB_ENV
-        echo "COMMIT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
-
-    - name: 🔧 Setup Node.js for Frontend Build
-      uses: actions/setup-node@v4
+    - name: 🔐 Log in to Container Registry
+      uses: docker/login-action@v3
       with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: frontend/package-lock.json
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: 📦 Build React Frontend
-      run: |
-        cd frontend
-        npm ci
-        NODE_OPTIONS=--openssl-legacy-provider npm run build
-        echo "✅ Frontend build completed"
-        ls -la build/
+    - name: 🔧 Prepare repository name (lowercase)
+      id: repo
+      run: echo "lowercase=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
-    - name: 🔑 Setup SSH Key
-      uses: webfactory/ssh-agent@v0.9.0
+    - name: 📦 Extract metadata (tags, labels) for Backend
+      id: meta-backend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.lowercase }}-backend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: 📦 Extract metadata (tags, labels) for Frontend
+      id: meta-frontend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.lowercase }}-frontend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: 🏗️ Build and push Backend Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile
+        push: true
+        tags: ${{ steps.meta-backend.outputs.tags }}
+        labels: ${{ steps.meta-backend.outputs.labels }}
+
+    - name: 🏗️ Build and push Frontend Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile.prod
+        push: true
+        tags: ${{ steps.meta-frontend.outputs.tags }}
+        labels: ${{ steps.meta-frontend.outputs.labels }}
+
+  # Deploy to DigitalOcean
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 🔑 Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
       with:
         ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
 
-    - name: ✅ Verify SSH Connection
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "echo 'SSH connection successful'"
+    - name: 🔧 Prepare repository name (lowercase)
+      id: repo
+      run: echo "lowercase=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
-    - name: 📤 Deploy Files to Server
+    - name: 📋 Create environment file
       run: |
-        echo "🔄 Deploying to DigitalOcean server..."
+        cat > .env.prod << EOF
+        # Database Configuration
+        MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+        MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+        REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
         
-        # Create backup of current deployment
-        ssh -o StrictHostKeyChecking=no ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
-          cd ${{ env.DEPLOY_PATH }}
-          if [ -f docker-compose.prod.yml ]; then
-            mkdir -p backups
-            cp docker-compose.prod.yml backups/docker-compose.prod.yml.${{ env.DEPLOYMENT_TIMESTAMP }}
-            echo '✅ Backup created'
-          fi
-        "
+        # JWT Configuration
+        JWT_SECRET=${{ secrets.JWT_SECRET }}
         
-        # Copy production environment file
-        scp -o StrictHostKeyChecking=no .env.prod ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/
+        # Email Configuration
+        MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+        MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
         
-        # Copy docker-compose production file
-        scp -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/
+        # Domain Configuration
+        DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
         
-        # Copy entire frontend directory with build
-        rsync -avz -e "ssh -o StrictHostKeyChecking=no" frontend/ ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/frontend/
+        # Docker Images (lowercase for registry compatibility)
+        BACKEND_IMAGE=ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest
+        FRONTEND_IMAGE=ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest
         
-        # Copy backend directory
-        rsync -avz -e "ssh -o StrictHostKeyChecking=no" backend/ ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/backend/
+        # Application Configuration
+        SERVER_PORT=8080
+        UPLOAD_MAX_SIZE=10MB
+        SPRING_PROFILES_ACTIVE=prod
+        ENVIRONMENT=production
         
-        # Copy nginx configuration
-        rsync -avz -e "ssh -o StrictHostKeyChecking=no" nginx/ ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/nginx/
+        # Database Connection
+        DB_HOST=mysql
+        DB_PORT=3306
+        DB_NAME=jobportal
+        DB_USERNAME=jobportal
         
-        # Copy database scripts
-        rsync -avz -e "ssh -o StrictHostKeyChecking=no" DB_Scripts/ ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:${{ env.DEPLOY_PATH }}/DB_Scripts/
+        # Redis Configuration
+        REDIS_HOST=redis
+        REDIS_PORT=6379
         
-        echo "✅ All files deployed successfully"
+        # SMTP Configuration
+        MAIL_HOST=smtp.gmail.com
+        MAIL_PORT=587
+        MAIL_PROTOCOL=smtp
+        MAIL_AUTH=true
+        MAIL_STARTTLS_ENABLE=true
+        MAIL_STARTTLS_REQUIRED=true
+        MAIL_DEBUG=false
+        
+        # CORS Configuration
+        CORS_ALLOWED_ORIGINS=https://${{ secrets.DOMAIN_NAME }},https://www.${{ secrets.DOMAIN_NAME }}
+        EOF
 
-    - name: 🐳 Deploy Application
+    - name: 🌐 Update Nginx configuration with domain
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
-          cd ${{ env.DEPLOY_PATH }}
-          
-          echo '📍 Current location: $(pwd)'
-          echo '📋 Checking deployed files...'
-          ls -la
-          
-          echo '🛑 Stopping existing containers...'
-          docker-compose -f docker-compose.prod.yml down || echo 'No containers to stop'
-          
-          echo '🧹 Cleaning up old images...'
-          docker system prune -f
-          
-          echo '🏗️ Building and starting services...'
-          docker-compose -f docker-compose.prod.yml up -d --build
-          
-          echo '⏳ Waiting for services to initialize...'
-          sleep 45
-          
-          echo '📊 Checking container status...'
-          docker-compose -f docker-compose.prod.yml ps
-        "
+        # Replace hardcoded domain with actual domain from secrets
+        sed -i "s/zplusejobs.com/${{ secrets.DOMAIN_NAME }}/g" nginx/nginx.prod.conf
+        sed -i "s/www.zplusejobs.com/www.${{ secrets.DOMAIN_NAME }}/g" nginx/nginx.prod.conf
 
-    - name: 🏥 Health Check & Verification
+    - name: 📦 Copy files to server
       run: |
-        echo "🔍 Running comprehensive health checks..."
+        # Add server to known hosts
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
         
-        ssh -o StrictHostKeyChecking=no ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
-          cd ${{ env.DEPLOY_PATH }}
-          
-          echo '=== CONTAINER LOGS ==='
-          echo '📱 Frontend container logs:'
-          docker logs jobportal-frontend-prod --tail 10 || echo 'Frontend container not found'
-          
-          echo '🌐 Nginx container logs:'
-          docker logs jobportal-nginx-prod --tail 10 || echo 'Nginx container not found'
-          
-          echo '⚙️ Backend container logs:'
-          docker logs jobportal-backend-prod --tail 10 || echo 'Backend container not found'
-          
-          echo '💾 MySQL container logs:'
-          docker logs jobportal-mysql-prod --tail 5 || echo 'MySQL container not found'
-          
-          echo '📊 Redis container logs:'
-          docker logs jobportal-redis-prod --tail 5 || echo 'Redis container not found'
-          
-          echo '=== HEALTH CHECKS ==='
-          echo '🔍 Testing backend health...'
-          curl -f http://localhost:8080/actuator/health || echo '❌ Backend health check failed'
-          
-          echo '🔍 Testing frontend nginx...'
-          curl -I http://localhost/ || echo '❌ Frontend nginx check failed'
-          
-          echo '🔍 Testing database connection...'
-          docker exec jobportal-mysql-prod mysqladmin ping -u root -pZpluseRootPass2025! || echo '❌ Database ping failed'
-          
-          echo '🔍 Testing Redis connection...'
-          docker exec jobportal-redis-prod redis-cli -a ZpluseRedisPass2025! ping || echo '❌ Redis ping failed'
-        "
+        # Create deployment directory
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p /opt/jobportal/deployment"
+        
+        # Copy deployment files
+        scp docker-compose.prod.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        scp .env.prod ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        scp -r nginx/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        scp -r DB_Scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        scp -r scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
 
-    - name: 🌐 External Connectivity Test
+    - name: 🐳 Deploy with Docker Compose
       run: |
-        echo "🌍 Testing external access to zplusejobs.com..."
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
+        cd /opt/jobportal
         
-        # Test frontend
-        if curl -s -I https://zplusejobs.com | grep -q "200 OK\|301\|302"; then
-          echo "✅ Frontend is accessible at https://zplusejobs.com"
+        # Check if .env.prod file exists and has content
+        echo "🔍 Checking environment file..."
+        if [ -f .env.prod ]; then
+          echo "✅ .env.prod file exists"
+          echo "📊 File size: \$(wc -c < .env.prod) bytes"
         else
-          echo "⚠️ Frontend access test inconclusive"
+          echo "❌ .env.prod file not found!"
+          exit 1
         fi
         
-        # Test backend API
-        if curl -s -I https://zplusejobs.com/api/actuator/health 2>/dev/null | grep -q "401\|200"; then
-          echo "✅ Backend API is responding at https://zplusejobs.com/api"
+        # Login to GitHub Container Registry
+        echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        
+        # Stop existing containers
+        docker-compose -f docker-compose.prod.yml down --remove-orphans
+        
+        # HARDCODED VALUES APPROACH: Create temporary docker-compose with hardcoded values
+        echo "🔧 Creating temporary docker-compose with hardcoded values..."
+        sed -i 's/\${MYSQL_ROOT_PASSWORD}/${{ secrets.MYSQL_ROOT_PASSWORD }}/g' docker-compose.prod.yml
+        sed -i 's/\${MYSQL_PASSWORD}/${{ secrets.MYSQL_PASSWORD }}/g' docker-compose.prod.yml
+        sed -i 's/\${REDIS_PASSWORD}/${{ secrets.REDIS_PASSWORD }}/g' docker-compose.prod.yml
+        sed -i 's/\${JWT_SECRET}/${{ secrets.JWT_SECRET }}/g' docker-compose.prod.yml
+        sed -i 's/\${MAIL_USERNAME}/${{ secrets.MAIL_USERNAME }}/g' docker-compose.prod.yml
+        sed -i 's/\${MAIL_PASSWORD}/${{ secrets.MAIL_PASSWORD }}/g' docker-compose.prod.yml
+        sed -i 's/\${BACKEND_IMAGE}/ghcr.io\/${{ steps.repo.outputs.lowercase }}-backend:latest/g' docker-compose.prod.yml
+        sed -i 's/\${FRONTEND_IMAGE}/ghcr.io\/${{ steps.repo.outputs.lowercase }}-frontend:latest/g' docker-compose.prod.yml
+        sed -i 's/\${SPRING_PROFILES_ACTIVE}/prod/g' docker-compose.prod.yml
+        sed -i 's/\${DB_NAME}/jobportal/g' docker-compose.prod.yml
+        sed -i 's/\${DB_USERNAME}/jobportal/g' docker-compose.prod.yml
+        sed -i 's/\${REDIS_HOST}/redis/g' docker-compose.prod.yml
+        sed -i 's/\${REDIS_PORT}/6379/g' docker-compose.prod.yml
+        sed -i 's/\${MAIL_HOST}/smtp.gmail.com/g' docker-compose.prod.yml
+        sed -i 's/\${MAIL_PORT}/587/g' docker-compose.prod.yml
+        sed -i 's/\${SERVER_PORT}/8080/g' docker-compose.prod.yml
+        sed -i 's|\${CORS_ALLOWED_ORIGINS}|https://${{ secrets.DOMAIN_NAME }},https://www.${{ secrets.DOMAIN_NAME }}|g' docker-compose.prod.yml
+        
+        echo "🚀 Starting deployment with hardcoded values..."
+        docker-compose -f docker-compose.prod.yml up -d
+        
+        # Wait for services to start
+        echo "⏳ Waiting for services to start..."
+        sleep 90
+        
+        # Check container status
+        echo "📊 Container status:"
+        docker-compose -f docker-compose.prod.yml ps
+        
+        # Test application health
+        curl -f http://localhost/health || echo "⚠️ Health check endpoint not yet available"
+        curl -f http://localhost:8080/actuator/health || echo "⚠️ Backend health check not yet available"
+        EOF
+
+    - name: 🔐 Setup SSL Certificate
+      run: |
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+        # Skip SSL setup if not running as root (avoid sudo password issues)
+        if [ "$EUID" -ne 0 ]; then
+          echo "⚠️ Skipping SSL setup - requires root access"
+          echo "💡 Manual SSL setup required after deployment"
         else
-          echo "⚠️ Backend API test inconclusive"
+          # Install SSL certificate for domain (only if running as root)
+          certbot --nginx -d ${{ secrets.DOMAIN_NAME }} -d www.${{ secrets.DOMAIN_NAME }} --non-interactive --agree-tos --email ${{ secrets.MAIL_USERNAME }}
         fi
+        EOF
+
+    - name: 🧹 Cleanup old images
+      run: |
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+        # Remove old Docker images to save space
+        docker image prune -f
+        docker container prune -f
+        EOF
 
     - name: 📊 Deployment Summary
-      if: always()
       run: |
-        echo "🎉 ==========================="
-        echo "🚀 DEPLOYMENT COMPLETED"
-        echo "🎉 ==========================="
-        echo ""
-        echo "📋 Deployment Details:"
-        echo "  🕐 Timestamp: ${{ env.DEPLOYMENT_TIMESTAMP }}"
-        echo "  🔗 Commit: ${{ env.COMMIT_SHA }}"
-        echo "  🌐 Frontend: https://zplusejobs.com"
-        echo "  🔧 Backend API: https://zplusejobs.com/api"
-        echo "  🖥️ Server: ${{ env.SERVER_HOST }}"
-        echo ""
-        echo "✅ Changes Deployed:"
-        echo "  📱 Fixed Frontend Dockerfile.prod (was empty)"
-        echo "  🐳 Complete docker-compose.prod.yml (all services)"
-        echo "  ⚙️ Production environment variables"
-        echo "  📦 React build (200KB optimized)"
-        echo "  🔧 Nginx reverse proxy configuration"
-        echo ""
-        echo "🏥 Services Status:"
-        echo "  ✅ Frontend Container (nginx + React)"
-        echo "  ✅ Backend Container (Spring Boot)"
-        echo "  ✅ MySQL Database"
-        echo "  ✅ Redis Cache"
-        echo "  ✅ Nginx Reverse Proxy"
+        echo "🎉 Deployment completed successfully!"
+        echo "📱 Application: https://${{ secrets.DOMAIN_NAME }}"
+        echo "🔍 API Health: https://${{ secrets.DOMAIN_NAME }}/api/actuator/health"
+        echo "📧 Deployed by: ${{ github.actor }}"
+        echo "🏷️ Commit: ${{ github.sha }}"
+        echo "🕐 Time: $(date)"
