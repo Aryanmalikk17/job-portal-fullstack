@@ -38,7 +38,7 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-# package-lock.json removed - needed for Docker builds!
+package-lock.json
 .env
 .env.local
 .env.development.local
@@ -80,9 +80,6 @@ Thumbs.db
 dist/
 build/
 target-root/
-backend/target/
-frontend/build/
-frontend/node_modules/
 
 ### Uploads and user content ###
 backend/photos/
@@ -110,74 +107,3 @@ tmp/
 temp/
 *.tmp
 *.temp
-
-### SECURITY - Never commit these! ###
-# Environment files with real secrets
-.env.prod
-.env.secrets
-.env.staging
-
-# Secret files (real passwords, keys, tokens)
-secrets/
-secrets/*.txt
-secrets/*.key
-secrets/*.pem
-
-# SSL Certificates and private keys
-ssl/
-ssl/*.pem
-ssl/*.key
-ssl/*.crt
-ssl/*.cert
-nginx/ssl/
-
-# Docker production overrides with real values
-docker-compose.override.yml
-docker-compose.prod.override.yml
-
-# Backup files and data
-backups/
-data/
-
-# Monitoring data
-monitoring/data/
-prometheus/data/
-grafana/data/
-
-# Build artifacts (these were causing slow upload!)
-backend/target/
-frontend/build/
-frontend/node_modules/
-
-# Logs (dozens of large log files)
-backend/logs/
-*.log
-
-# IDE files
-.idea/
-.vscode/
-*.iml
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Environment files (keep .env.prod for deployment)
-.env
-.env.local
-.env.development
-
-# Temporary files
-*.tmp
-*.temp
-
-# Maven artifacts
-**/target/
-**/.mvn/wrapper/maven-wrapper.jar
-
-# Node artifacts  
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-# package-lock.json removed - needed for Docker builds!
