@@ -48,7 +48,7 @@ public class ProfileRestController {
     @Autowired
     private com.jobportal.repository.JobSeekerProfileRepository jobSeekerProfileRepository;
 
-    @GetMapping
+    @GetMapping("/profile")
     public ResponseEntity<ApiResponse<UserProfileDto>> getCurrentUserProfile() {
         try {
             Users currentUser = usersService.getCurrentUser();
