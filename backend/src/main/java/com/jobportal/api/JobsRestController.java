@@ -31,8 +31,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/jobs")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"})
+@RequestMapping("/api")
+@CrossOrigin(origins = {
+    "http://localhost:3000", 
+    "http://127.0.0.1:3000",
+    "https://zplusejobs.com",
+    "https://www.zplusejobs.com",
+    "http://zplusejobs.com",
+    "http://www.zplusejobs.com"
+})
 public class JobsRestController {
 
     private static final Logger logger = LoggerFactory.getLogger(JobsRestController.class);

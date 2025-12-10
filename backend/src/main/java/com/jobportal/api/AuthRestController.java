@@ -28,7 +28,14 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"})
+@CrossOrigin(origins = {
+    "http://localhost:3000", 
+    "http://127.0.0.1:3000",
+    "https://zplusejobs.com",
+    "https://www.zplusejobs.com",
+    "http://zplusejobs.com",
+    "http://www.zplusejobs.com"
+})
 public class AuthRestController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthRestController.class);

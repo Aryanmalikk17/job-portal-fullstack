@@ -16,8 +16,15 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"})
+@RequestMapping("/api/job-data")
+@CrossOrigin(origins = {
+    "http://localhost:3000", 
+    "http://127.0.0.1:3000",
+    "https://zplusejobs.com",
+    "https://www.zplusejobs.com",
+    "http://zplusejobs.com",
+    "http://www.zplusejobs.com"
+})
 public class JobDataRestController {
 
     private static final Logger logger = LoggerFactory.getLogger(JobDataRestController.class);

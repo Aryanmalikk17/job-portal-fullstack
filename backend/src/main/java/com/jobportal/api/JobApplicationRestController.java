@@ -34,8 +34,15 @@ import com.jobportal.services.RecruiterProfileService;
 import com.jobportal.services.UsersService;
 
 @RestController
-@RequestMapping("/api/applications")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001"})
+@RequestMapping("/api/job-applications")
+@CrossOrigin(origins = {
+    "http://localhost:3000", 
+    "http://127.0.0.1:3000",
+    "https://zplusejobs.com",
+    "https://www.zplusejobs.com",
+    "http://zplusejobs.com",
+    "http://www.zplusejobs.com"
+})
 public class JobApplicationRestController {
 
     private final JobSeekerApplyService jobSeekerApplyService;
