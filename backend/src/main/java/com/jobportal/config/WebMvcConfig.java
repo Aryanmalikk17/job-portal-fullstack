@@ -15,7 +15,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                     "http://localhost:3000", 
                     "http://127.0.0.1:3000",
-                    "http://localhost:3001"
+                    "http://localhost:3001",
+                    "https://zplusejobs.com", // Production HTTPS
+                    "https://www.zplusejobs.com", // Production HTTPS (www)
+                    "http://zplusejobs.com",  // Production HTTP
+                    "http://www.zplusejobs.com" // Production HTTP (www)
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
@@ -27,7 +31,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins(
                     "http://localhost:3000", 
                     "http://127.0.0.1:3000",
-                    "http://localhost:3001"
+                    "http://localhost:3001",
+                    "https://zplusejobs.com", // Production HTTPS
+                    "https://www.zplusejobs.com", // Production HTTPS (www)
+                    "http://zplusejobs.com",  // Production HTTP
+                    "http://www.zplusejobs.com" // Production HTTP (www)
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")

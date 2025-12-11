@@ -69,7 +69,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000", "http://127.0.0.1:3000"));
+        // FIXED: Add production domains to CORS configuration
+        configuration.setAllowedOriginPatterns(List.of(
+            "http://localhost:3000", 
+            "http://127.0.0.1:3000",
+            "https://zplusejobs.com",
+            "https://www.zplusejobs.com",
+            "http://zplusejobs.com",
+            "http://www.zplusejobs.com"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
