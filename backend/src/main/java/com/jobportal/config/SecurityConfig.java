@@ -131,9 +131,11 @@ public class SecurityConfig {
                 .requestMatchers("/dashboard/", "/dashboard").authenticated()
                 // API Authorization Rules
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/jobs", "/api/jobs/search", "/api/jobs/*").permitAll() // FIXED: Explicitly allow public job endpoints
                 .requestMatchers("/api/profile/**", "/api/jobs/*/apply", "/api/jobs/*/save", "/api/saved-jobs/**").authenticated()
                 .requestMatchers("/api/jobs/create", "/api/jobs/*/edit", "/api/jobs/*/delete").hasAuthority("Recruiter")
-                .anyRequest().authenticated()
+                .requestMatchers("/api/**").authenticated() // FIXED: Changed from anyRequest() to /api/** only
+                .anyRequest().permitAll() // FIXED: Allow all other requests (static resources, etc.)
             )
             
             // REMOVED: Traditional Form Login - Conflicts with React SPA
