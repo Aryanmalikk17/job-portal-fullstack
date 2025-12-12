@@ -175,81 +175,83 @@ jobs:
         scp -r DB_Scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
         scp -r scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
 
-    - name: 🐳 Deploy with Docker Compose - PROPERLY FIXED
+    - name: 🐳 Deploy with Docker Compose - FIXED YAML SYNTAX
       run: |
-        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'DEPLOY_EOF'
+        # Create deployment script with proper variable substitution
+        cat > deploy-script.sh << 'SCRIPT_EOF'
+        #!/bin/bash
+        set -e
         cd /opt/jobportal
         
-        # Login to GitHub Container Registry (Fixed variable escaping)
-        echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin
+        # Login to GitHub Container Registry
+        echo "LOGIN_TOKEN" | docker login ghcr.io -u "LOGIN_USER" --password-stdin
         
         # Stop existing containers
         echo "🛑 Stopping existing containers..."
         docker-compose -f docker-compose.prod.yml down --remove-orphans || true
         
-        # Pull latest images (Fixed variable references)
+        # Pull latest images
         echo "📥 Pulling latest Docker images..."
-        docker pull 'ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest'
-        docker pull 'ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest'
+        docker pull "BACKEND_IMAGE_URL"
+        docker pull "FRONTEND_IMAGE_URL"
         
-        # Clean up
+        # Clean up old containers
         docker container prune -f
         
-        # Create environment file with all required variables (Fixed heredoc)
-        echo "🔧 Creating complete environment configuration..."
-        cat > .env.deploy << 'ENV_DELIMITER'
-MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
-MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
-REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
-JWT_SECRET=${{ secrets.JWT_SECRET }}
-MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-BACKEND_IMAGE=ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest
-FRONTEND_IMAGE=ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest
-SPRING_PROFILES_ACTIVE=prod
-DB_NAME=jobportal
-DB_USERNAME=jobportal
-REDIS_HOST=redis
-REDIS_PORT=6379
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-SERVER_PORT=8080
-CORS_ALLOWED_ORIGINS=https://${{ secrets.DOMAIN_NAME }},https://www.${{ secrets.DOMAIN_NAME }}
-ENV_DELIMITER
-        
-        # Verify environment file
-        echo "✅ Environment file created with $(wc -l < .env.deploy) variables"
-        echo "📋 Environment variables preview:"
-        grep -E "^(SPRING_PROFILES_ACTIVE|DB_NAME|DB_USERNAME|REDIS_HOST|MAIL_HOST|SERVER_PORT)=" .env.deploy
+        # Create environment file with secrets
+        cat > .env.deploy << 'ENV_EOF'
+        MYSQL_ROOT_PASSWORD=MYSQL_ROOT_PASS_VALUE
+        MYSQL_PASSWORD=MYSQL_PASS_VALUE
+        REDIS_PASSWORD=REDIS_PASS_VALUE
+        JWT_SECRET=JWT_SECRET_VALUE
+        MAIL_USERNAME=MAIL_USER_VALUE
+        MAIL_PASSWORD=MAIL_PASS_VALUE
+        BACKEND_IMAGE=BACKEND_IMAGE_URL
+        FRONTEND_IMAGE=FRONTEND_IMAGE_URL
+        SPRING_PROFILES_ACTIVE=prod
+        DB_NAME=jobportal
+        DB_USERNAME=jobportal
+        REDIS_HOST=redis
+        REDIS_PORT=6379
+        MAIL_HOST=smtp.gmail.com
+        MAIL_PORT=587
+        SERVER_PORT=8080
+        CORS_ALLOWED_ORIGINS=CORS_ORIGINS_VALUE
+        ENV_EOF
         
         # Deploy with environment file
-        echo "🚀 Starting deployment with environment file..."
+        echo "🚀 Starting deployment..."
         docker-compose -f docker-compose.prod.yml --env-file .env.deploy up -d --force-recreate
         
-        # Wait for services
-        echo "⏳ Waiting for services to start..."
+        # Wait and verify
+        echo "⏳ Waiting for services..."
         sleep 90
-        
-        # Verify deployment
-        echo "📊 Container status:"
         docker-compose -f docker-compose.prod.yml ps
         
-        # Verify environment variables reached containers
-        echo "🔍 Verifying backend environment variables:"
-        docker exec jobportal-backend-prod printenv | grep -E "(SPRING_PROFILES_ACTIVE|DB_USERNAME|JWT_SECRET)" | head -3 || echo "Backend not ready yet"
+        # Test health
+        curl -f http://localhost:8080/actuator/health || echo "⚠️ Backend starting..."
         
-        # Test application health
-        echo "🧪 Testing application endpoints..."
-        sleep 30
-        curl -f http://localhost:8080/actuator/health || echo "⚠️ Backend health check pending"
-        curl -f http://localhost/ || echo "⚠️ Frontend health check pending"
-        
-        # Clean up environment file for security
-        echo "🧹 Cleaning up environment file..."
+        # Cleanup
         rm -f .env.deploy
+        echo "✅ Deployment completed!"
+        SCRIPT_EOF
         
-        echo "✅ Deployment completed successfully!"
-        DEPLOY_EOF
+        # Replace placeholders with actual values
+        sed -i "s/LOGIN_TOKEN/${{ secrets.GITHUB_TOKEN }}/g" deploy-script.sh
+        sed -i "s/LOGIN_USER/${{ github.actor }}/g" deploy-script.sh
+        sed -i "s|BACKEND_IMAGE_URL|ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest|g" deploy-script.sh
+        sed -i "s|FRONTEND_IMAGE_URL|ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest|g" deploy-script.sh
+        sed -i "s/MYSQL_ROOT_PASS_VALUE/${{ secrets.MYSQL_ROOT_PASSWORD }}/g" deploy-script.sh
+        sed -i "s/MYSQL_PASS_VALUE/${{ secrets.MYSQL_PASSWORD }}/g" deploy-script.sh
+        sed -i "s/REDIS_PASS_VALUE/${{ secrets.REDIS_PASSWORD }}/g" deploy-script.sh
+        sed -i "s/JWT_SECRET_VALUE/${{ secrets.JWT_SECRET }}/g" deploy-script.sh
+        sed -i "s/MAIL_USER_VALUE/${{ secrets.MAIL_USERNAME }}/g" deploy-script.sh
+        sed -i "s/MAIL_PASS_VALUE/${{ secrets.MAIL_PASSWORD }}/g" deploy-script.sh
+        sed -i "s|CORS_ORIGINS_VALUE|https://${{ secrets.DOMAIN_NAME }},https://www.${{ secrets.DOMAIN_NAME }}|g" deploy-script.sh
+        
+        # Copy and execute deployment script
+        scp deploy-script.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "chmod +x /opt/jobportal/deploy-script.sh && /opt/jobportal/deploy-script.sh"
 
     - name: 🔐 Setup SSL Certificate
       run: |
