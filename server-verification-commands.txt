@@ -1,0 +1,167 @@
+# Step 1: Basic Server Verification Commands
+# Run these commands one by one on your DigitalOcean server
+
+echo "🔍 STEP 1: BASIC VERIFICATION"
+echo "=============================="
+
+# Check current directory
+pwd
+
+# Navigate to deployment directory
+cd /opt/jobportal
+
+# List all files in deployment directory
+echo "📁 Files in deployment directory:"
+ls -la
+
+# Check if docker-compose.prod.yml exists
+echo "📋 Docker Compose Production File:"
+ls -la docker-compose.prod.yml
+
+echo "🐳 STEP 2: DOCKER SYSTEM STATUS"
+echo "==============================="
+
+# Check Docker version
+docker --version
+
+# Check Docker Compose version
+docker-compose --version
+
+# Check Docker daemon status
+systemctl status docker
+
+# List all Docker containers (running and stopped)
+echo "📊 All Docker Containers:"
+docker ps -a
+
+# List only running containers
+echo "🔄 Currently Running Containers:"
+docker ps
+
+echo "🎯 STEP 3: JOB PORTAL CONTAINERS"
+echo "================================"
+
+# Check specific Job Portal containers
+echo "📋 Expected Job Portal Containers Status:"
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Image}}" | grep jobportal
+
+# Check if all expected containers are running
+echo "🔍 Individual Container Check:"
+docker ps | grep jobportal-mysql-prod && echo "✅ MySQL - Running" || echo "❌ MySQL - Not Running"
+docker ps | grep jobportal-redis-prod && echo "✅ Redis - Running" || echo "❌ Redis - Not Running" 
+docker ps | grep jobportal-backend-prod && echo "✅ Backend - Running" || echo "❌ Backend - Not Running"
+docker ps | grep jobportal-frontend-prod && echo "✅ Frontend - Running" || echo "❌ Frontend - Not Running"
+docker ps | grep jobportal-nginx-prod && echo "✅ Nginx - Running" || echo "❌ Nginx - Not Running"
+
+# Check container health status
+echo "🏥 Container Health Status:"
+docker ps --format "table {{.Names}}\t{{.Status}}" | grep jobportal
+
+echo "📋 STEP 4: DOCKER IMAGES AND NETWORKS"
+echo "====================================="
+
+# Check all Docker images
+echo "🖼️ All Docker Images:"
+docker images
+
+# Check specifically for Job Portal images
+echo "🎯 Job Portal Images:"
+docker images | grep jobportal
+
+# Check GitHub Container Registry images
+echo "📦 GitHub Container Registry Images:"
+docker images | grep ghcr.io
+
+# Check Docker networks
+echo "🌐 Docker Networks:"
+docker network ls
+
+# Check Job Portal network
+echo "🔗 Job Portal Network:"
+docker network ls | grep jobportal
+
+# Check Docker volumes
+echo "💾 Docker Volumes:"
+docker volume ls
+
+echo "🏥 STEP 5: APPLICATION HEALTH TESTS"
+echo "==================================="
+
+# Test Frontend (Nginx) locally
+echo "🌐 Testing Frontend (Nginx):"
+curl -I http://localhost/
+
+# Test Backend API locally  
+echo "⚙️ Testing Backend API:"
+curl -I http://localhost:8080/actuator/health
+
+# Test MySQL database connectivity
+echo "💾 Testing MySQL Database:"
+docker exec jobportal-mysql-prod mysqladmin ping -u root -pZpluseRootPass2025! || echo "MySQL connection failed"
+
+# Test Redis cache connectivity
+echo "📊 Testing Redis Cache:"
+docker exec jobportal-redis-prod redis-cli -a ZpluseRedisPass2025! ping || echo "Redis connection failed"
+
+# Test external domain access
+echo "🌍 Testing External Domain Access:"
+curl -I https://zplusejobs.com/
+
+# Check port availability
+echo "🔌 Checking Port Status:"
+netstat -tlnp | grep :80
+netstat -tlnp | grep :443
+netstat -tlnp | grep :8080
+netstat -tlnp | grep :3306
+netstat -tlnp | grep :6379
+
+echo "📝 STEP 6: CONTAINER LOGS ANALYSIS"
+echo "=================================="
+
+# Check recent logs for each container (last 20 lines)
+echo "🔍 MySQL Container Logs:"
+docker logs jobportal-mysql-prod --tail 20
+
+echo "🔍 Redis Container Logs:"
+docker logs jobportal-redis-prod --tail 20
+
+echo "🔍 Backend Container Logs:"
+docker logs jobportal-backend-prod --tail 20
+
+echo "🔍 Frontend Container Logs:"
+docker logs jobportal-frontend-prod --tail 20
+
+echo "🔍 Nginx Container Logs:"
+docker logs jobportal-nginx-prod --tail 20
+
+# Check for any error patterns in logs
+echo "⚠️ Checking for errors in container logs:"
+docker logs jobportal-backend-prod 2>&1 | grep -i error | tail -5
+docker logs jobportal-nginx-prod 2>&1 | grep -i error | tail -5
+
+echo "📊 STEP 7: SYSTEM RESOURCES AND PERFORMANCE"
+echo "==========================================="
+
+# Check system memory usage
+echo "💾 Memory Usage:"
+free -h
+
+# Check disk usage
+echo "💽 Disk Usage:"
+df -h
+
+# Check Docker system usage
+echo "🐳 Docker System Usage:"
+docker system df
+
+# Check system load
+echo "⚡ System Load:"
+uptime
+
+# Check running processes
+echo "🔄 Top Processes:"
+top -bn1 | head -20
+
+# Check if any containers are consuming too much memory
+echo "🔍 Container Resource Usage:"
+docker stats --no-stream
