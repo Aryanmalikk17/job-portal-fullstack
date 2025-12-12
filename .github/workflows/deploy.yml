@@ -175,62 +175,81 @@ jobs:
         scp -r DB_Scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
         scp -r scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
 
-    - name: 🐳 Deploy with Docker Compose
+    - name: 🐳 Deploy with Docker Compose - PROPERLY FIXED
       run: |
-        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'DEPLOY_EOF'
         cd /opt/jobportal
         
-        # Check if .env.prod file exists and has content
-        echo "🔍 Checking environment file..."
-        if [ -f .env.prod ]; then
-          echo "✅ .env.prod file exists"
-          echo "📊 File size: \$(wc -c < .env.prod) bytes"
-        else
-          echo "❌ .env.prod file not found!"
-          exit 1
-        fi
-        
         # Login to GitHub Container Registry
-        echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         
         # Stop existing containers
-        docker-compose -f docker-compose.prod.yml down --remove-orphans
+        echo "🛑 Stopping existing containers..."
+        docker-compose -f docker-compose.prod.yml down --remove-orphans || true
         
-        # HARDCODED VALUES APPROACH: Create temporary docker-compose with hardcoded values
-        echo "🔧 Creating temporary docker-compose with hardcoded values..."
-        sed -i 's/\${MYSQL_ROOT_PASSWORD}/${{ secrets.MYSQL_ROOT_PASSWORD }}/g' docker-compose.prod.yml
-        sed -i 's/\${MYSQL_PASSWORD}/${{ secrets.MYSQL_PASSWORD }}/g' docker-compose.prod.yml
-        sed -i 's/\${REDIS_PASSWORD}/${{ secrets.REDIS_PASSWORD }}/g' docker-compose.prod.yml
-        sed -i 's/\${JWT_SECRET}/${{ secrets.JWT_SECRET }}/g' docker-compose.prod.yml
-        sed -i 's/\${MAIL_USERNAME}/${{ secrets.MAIL_USERNAME }}/g' docker-compose.prod.yml
-        sed -i 's/\${MAIL_PASSWORD}/${{ secrets.MAIL_PASSWORD }}/g' docker-compose.prod.yml
-        sed -i 's/\${BACKEND_IMAGE}/ghcr.io\/${{ steps.repo.outputs.lowercase }}-backend:latest/g' docker-compose.prod.yml
-        sed -i 's/\${FRONTEND_IMAGE}/ghcr.io\/${{ steps.repo.outputs.lowercase }}-frontend:latest/g' docker-compose.prod.yml
-        sed -i 's/\${SPRING_PROFILES_ACTIVE}/prod/g' docker-compose.prod.yml
-        sed -i 's/\${DB_NAME}/jobportal/g' docker-compose.prod.yml
-        sed -i 's/\${DB_USERNAME}/jobportal/g' docker-compose.prod.yml
-        sed -i 's/\${REDIS_HOST}/redis/g' docker-compose.prod.yml
-        sed -i 's/\${REDIS_PORT}/6379/g' docker-compose.prod.yml
-        sed -i 's/\${MAIL_HOST}/smtp.gmail.com/g' docker-compose.prod.yml
-        sed -i 's/\${MAIL_PORT}/587/g' docker-compose.prod.yml
-        sed -i 's/\${SERVER_PORT}/8080/g' docker-compose.prod.yml
-        sed -i 's|\${CORS_ALLOWED_ORIGINS}|https://${{ secrets.DOMAIN_NAME }},https://www.${{ secrets.DOMAIN_NAME }}|g' docker-compose.prod.yml
+        # Pull latest images
+        echo "📥 Pulling latest Docker images..."
+        docker pull ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest
+        docker pull ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest
         
-        echo "🚀 Starting deployment with hardcoded values..."
-        docker-compose -f docker-compose.prod.yml up -d
+        # Clean up
+        docker container prune -f
         
-        # Wait for services to start
+        # Create environment file with all required variables
+        echo "🔧 Creating complete environment configuration..."
+        cat > .env.deploy << 'ENV_EOF'
+MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+JWT_SECRET=${{ secrets.JWT_SECRET }}
+MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+BACKEND_IMAGE=ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest
+FRONTEND_IMAGE=ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest
+SPRING_PROFILES_ACTIVE=prod
+DB_NAME=jobportal
+DB_USERNAME=jobportal
+REDIS_HOST=redis
+REDIS_PORT=6379
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+SERVER_PORT=8080
+CORS_ALLOWED_ORIGINS=https://${{ secrets.DOMAIN_NAME }},https://www.${{ secrets.DOMAIN_NAME }}
+ENV_EOF
+        
+        # Verify environment file
+        echo "✅ Environment file created with $(wc -l < .env.deploy) variables"
+        echo "📋 Environment variables preview:"
+        grep -E "^(SPRING_PROFILES_ACTIVE|DB_NAME|DB_USERNAME|REDIS_HOST|MAIL_HOST|SERVER_PORT)=" .env.deploy
+        
+        # Deploy with environment file
+        echo "🚀 Starting deployment with environment file..."
+        docker-compose -f docker-compose.prod.yml --env-file .env.deploy up -d --force-recreate
+        
+        # Wait for services
         echo "⏳ Waiting for services to start..."
         sleep 90
         
-        # Check container status
+        # Verify deployment
         echo "📊 Container status:"
         docker-compose -f docker-compose.prod.yml ps
         
+        # Verify environment variables reached containers
+        echo "🔍 Verifying backend environment variables:"
+        docker exec jobportal-backend-prod printenv | grep -E "(SPRING_PROFILES_ACTIVE|DB_USERNAME|JWT_SECRET)" | head -3 || echo "Backend not ready yet"
+        
         # Test application health
-        curl -f http://localhost/health || echo "⚠️ Health check endpoint not yet available"
-        curl -f http://localhost:8080/actuator/health || echo "⚠️ Backend health check not yet available"
-        EOF
+        echo "🧪 Testing application endpoints..."
+        sleep 30
+        curl -f http://localhost:8080/actuator/health || echo "⚠️ Backend health check pending"
+        curl -f http://localhost/ || echo "⚠️ Frontend health check pending"
+        
+        # Clean up environment file for security
+        echo "🧹 Cleaning up environment file..."
+        rm -f .env.deploy
+        
+        echo "✅ Deployment completed successfully!"
+        DEPLOY_EOF
 
     - name: 🔐 Setup SSL Certificate
       run: |
