@@ -168,7 +168,7 @@ jobs:
         # Create deployment directory with timeout
         timeout 30 ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p /opt/jobportal/deployment"
         
-        # Copy deployment files with timeout and exclusions
+        # Copy deployment files with timeout (fixed syntax)
         echo "🔄 Copying docker-compose.prod.yml..."
         timeout 60 scp -o ConnectTimeout=30 docker-compose.prod.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
         
@@ -181,8 +181,8 @@ jobs:
         echo "🔄 Copying database scripts..."
         timeout 60 scp -r -o ConnectTimeout=30 DB_Scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
         
-        echo "🔄 Copying deployment scripts..."
-        timeout 60 scp -r -o ConnectTimeout=30 --exclude='*.log' --exclude='logs/' scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        echo "🔄 Copying deployment scripts (excluding logs)..."
+        timeout 60 rsync -avz -e "ssh -o ConnectTimeout=30" --exclude='*.log' --exclude='logs/' scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/scripts/
         
         echo "✅ All files copied successfully"
 
