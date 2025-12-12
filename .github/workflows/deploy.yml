@@ -75,6 +75,14 @@ jobs:
         push: true
         tags: ${{ steps.meta-frontend.outputs.tags }}
         labels: ${{ steps.meta-frontend.outputs.labels }}
+        build-args: |
+          REACT_APP_API_BASE_URL=https://${{ secrets.DOMAIN_NAME }}/api
+          REACT_APP_JWT_STORAGE_KEY=zpluse_jwt_token
+          REACT_APP_USER_STORAGE_KEY=zpluse_user_info
+          REACT_APP_REFRESH_TOKEN_KEY=zpluse_refresh_token
+          REACT_APP_APP_NAME=Zpluse Jobs Finder
+          REACT_APP_ENVIRONMENT=production
+          GENERATE_SOURCEMAP=false
 
   # Deploy to DigitalOcean
   deploy:

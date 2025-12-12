@@ -10,10 +10,31 @@ COPY package*.json ./
 # Install dependencies (use npm install instead of npm ci for better compatibility)
 RUN npm install --production=false
 
+# Copy environment files BEFORE copying source code
+COPY .env.production ./
+
 # Copy source code
 COPY . .
 
-# Build the React app for production
+# Set build arguments to pass environment variables
+ARG REACT_APP_API_BASE_URL=https://zplusejobs.com/api
+ARG REACT_APP_JWT_STORAGE_KEY=zpluse_jwt_token
+ARG REACT_APP_USER_STORAGE_KEY=zpluse_user_info
+ARG REACT_APP_REFRESH_TOKEN_KEY=zpluse_refresh_token
+ARG REACT_APP_APP_NAME="Zpluse Jobs Finder"
+ARG REACT_APP_ENVIRONMENT=production
+ARG GENERATE_SOURCEMAP=false
+
+# Export environment variables for React build
+ENV REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
+ENV REACT_APP_JWT_STORAGE_KEY=${REACT_APP_JWT_STORAGE_KEY}
+ENV REACT_APP_USER_STORAGE_KEY=${REACT_APP_USER_STORAGE_KEY}
+ENV REACT_APP_REFRESH_TOKEN_KEY=${REACT_APP_REFRESH_TOKEN_KEY}
+ENV REACT_APP_APP_NAME=${REACT_APP_APP_NAME}
+ENV REACT_APP_ENVIRONMENT=${REACT_APP_ENVIRONMENT}
+ENV GENERATE_SOURCEMAP=${GENERATE_SOURCEMAP}
+
+# Build the React app for production with environment variables
 RUN NODE_OPTIONS=--openssl-legacy-provider npm run build
 
 # Production stage with Nginx
