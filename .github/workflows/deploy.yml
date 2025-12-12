@@ -162,18 +162,29 @@ jobs:
 
     - name: 📦 Copy files to server
       run: |
-        # Add server to known hosts
+        # Add server to known hosts with timeout
         ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
         
-        # Create deployment directory
-        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p /opt/jobportal/deployment"
+        # Create deployment directory with timeout
+        timeout 30 ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p /opt/jobportal/deployment"
         
-        # Copy deployment files
-        scp docker-compose.prod.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
-        scp .env.prod ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
-        scp -r nginx/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
-        scp -r DB_Scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
-        scp -r scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        # Copy deployment files with timeout and exclusions
+        echo "🔄 Copying docker-compose.prod.yml..."
+        timeout 60 scp -o ConnectTimeout=30 docker-compose.prod.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        
+        echo "🔄 Copying .env.prod..."
+        timeout 60 scp -o ConnectTimeout=30 .env.prod ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        
+        echo "🔄 Copying nginx configuration..."
+        timeout 60 scp -r -o ConnectTimeout=30 nginx/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        
+        echo "🔄 Copying database scripts..."
+        timeout 60 scp -r -o ConnectTimeout=30 DB_Scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        
+        echo "🔄 Copying deployment scripts..."
+        timeout 60 scp -r -o ConnectTimeout=30 --exclude='*.log' --exclude='logs/' scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        
+        echo "✅ All files copied successfully"
 
     - name: 🐳 Deploy with Docker Compose - FIXED YAML SYNTAX
       run: |
