@@ -186,34 +186,30 @@ jobs:
         
         echo "✅ All files copied successfully"
 
-    - name: 🐳 Deploy with Docker Compose - FIXED YAML SYNTAX
+    - name: 🐳 Deploy with Docker Compose - FIXED DOCKER PERMISSIONS
       run: |
-        # Create deployment script with proper variable substitution
+        # Create deployment script with Docker permission fix
         cat > deploy-script.sh << 'SCRIPT_EOF'
         #!/bin/bash
         set -e
         cd /opt/jobportal
         
-        # Ensure Docker credentials directory exists with proper permissions
-        mkdir -p ~/.docker || true
-        chmod 755 ~/.docker || true
+        # Use temporary Docker config to avoid permission issues
+        export DOCKER_CONFIG=/tmp/.docker-$RANDOM
+        mkdir -p $DOCKER_CONFIG
         
-        # Login to GitHub Container Registry with proper error handling
+        # Login to GitHub Container Registry without home directory access
         echo "🔐 Logging into GitHub Container Registry..."
-        echo "LOGIN_TOKEN" | docker login ghcr.io -u "LOGIN_USER" --password-stdin || {
-            echo "⚠️ Docker login failed, trying alternative approach..."
-            # Alternative: Use docker login without credential storage
-            echo "LOGIN_TOKEN" | docker login ghcr.io -u "LOGIN_USER" --password-stdin --password-stdin
-        }
+        echo "LOGIN_TOKEN" | docker --config $DOCKER_CONFIG login ghcr.io -u "LOGIN_USER" --password-stdin
         
         # Stop existing containers
         echo "🛑 Stopping existing containers..."
         docker-compose -f docker-compose.prod.yml down --remove-orphans || true
         
-        # Pull latest images
+        # Pull latest images using temporary config
         echo "📥 Pulling latest Docker images..."
-        docker pull "BACKEND_IMAGE_URL"
-        docker pull "FRONTEND_IMAGE_URL"
+        docker --config $DOCKER_CONFIG pull "BACKEND_IMAGE_URL"
+        docker --config $DOCKER_CONFIG pull "FRONTEND_IMAGE_URL"
         
         # Clean up old containers
         docker container prune -f
@@ -253,6 +249,7 @@ jobs:
         
         # Cleanup
         rm -f .env.deploy
+        rm -rf $DOCKER_CONFIG
         echo "✅ Deployment completed!"
         SCRIPT_EOF
         
