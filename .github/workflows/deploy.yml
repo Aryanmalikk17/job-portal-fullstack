@@ -186,9 +186,9 @@ jobs:
         
         echo "✅ All files copied successfully"
 
-    - name: 🐳 Deploy with Docker Compose - FIXED DOCKER PERMISSIONS
+    - name: 🐳 Deploy with Docker Compose - FIXED ENVIRONMENT VARIABLES
       run: |
-        # Create deployment script with Docker permission fix
+        # Create deployment script with proper environment variable handling
         cat > deploy-script.sh << 'SCRIPT_EOF'
         #!/bin/bash
         set -e
@@ -198,46 +198,54 @@ jobs:
         export DOCKER_CONFIG=/tmp/.docker-$RANDOM
         mkdir -p $DOCKER_CONFIG
         
-        # Login to GitHub Container Registry without home directory access
+        # Login to GitHub Container Registry
         echo "🔐 Logging into GitHub Container Registry..."
         echo "LOGIN_TOKEN" | docker --config $DOCKER_CONFIG login ghcr.io -u "LOGIN_USER" --password-stdin
         
-        # Stop existing containers
-        echo "🛑 Stopping existing containers..."
-        docker-compose -f docker-compose.prod.yml down --remove-orphans || true
+        # CRITICAL FIX: Stop and remove ALL existing containers completely
+        echo "🛑 Completely removing existing containers..."
+        docker-compose -f docker-compose.prod.yml down --remove-orphans --volumes || true
+        docker container stop $(docker container ls -aq) 2>/dev/null || true
+        docker container rm $(docker container ls -aq) 2>/dev/null || true
         
         # Pull latest images using temporary config
         echo "📥 Pulling latest Docker images..."
         docker --config $DOCKER_CONFIG pull "BACKEND_IMAGE_URL"
         docker --config $DOCKER_CONFIG pull "FRONTEND_IMAGE_URL"
         
-        # Clean up old containers
+        # Clean up old containers and networks
         docker container prune -f
+        docker network prune -f
         
-        # Create environment file with secrets
-        cat > .env.deploy << 'ENV_EOF'
-        MYSQL_ROOT_PASSWORD=MYSQL_ROOT_PASS_VALUE
-        MYSQL_PASSWORD=MYSQL_PASS_VALUE
-        REDIS_PASSWORD=REDIS_PASS_VALUE
-        JWT_SECRET=JWT_SECRET_VALUE
-        MAIL_USERNAME=MAIL_USER_VALUE
-        MAIL_PASSWORD=MAIL_PASS_VALUE
-        BACKEND_IMAGE=BACKEND_IMAGE_URL
-        FRONTEND_IMAGE=FRONTEND_IMAGE_URL
-        SPRING_PROFILES_ACTIVE=prod
-        DB_NAME=jobportal
-        DB_USERNAME=jobportal
-        REDIS_HOST=redis
-        REDIS_PORT=6379
-        MAIL_HOST=smtp.gmail.com
-        MAIL_PORT=587
-        SERVER_PORT=8080
-        CORS_ALLOWED_ORIGINS=CORS_ORIGINS_VALUE
-        ENV_EOF
+        # CRITICAL FIX: Export environment variables instead of using .env file
+        echo "🔧 Setting up environment variables..."
+        export MYSQL_ROOT_PASSWORD="MYSQL_ROOT_PASS_VALUE"
+        export MYSQL_PASSWORD="MYSQL_PASS_VALUE"
+        export REDIS_PASSWORD="REDIS_PASS_VALUE"
+        export JWT_SECRET="JWT_SECRET_VALUE"
+        export MAIL_USERNAME="MAIL_USER_VALUE"
+        export MAIL_PASSWORD="MAIL_PASS_VALUE"
+        export BACKEND_IMAGE="BACKEND_IMAGE_URL"
+        export FRONTEND_IMAGE="FRONTEND_IMAGE_URL"
+        export SPRING_PROFILES_ACTIVE="prod"
+        export DB_NAME="jobportal"
+        export DB_USERNAME="jobportal"
+        export REDIS_HOST="redis"
+        export REDIS_PORT="6379"
+        export MAIL_HOST="smtp.gmail.com"
+        export MAIL_PORT="587"
+        export SERVER_PORT="8080"
+        export CORS_ALLOWED_ORIGINS="CORS_ORIGINS_VALUE"
         
-        # Deploy with environment file
-        echo "🚀 Starting deployment..."
-        docker-compose -f docker-compose.prod.yml --env-file .env.deploy up -d --force-recreate
+        # Verify environment variables are set
+        echo "✅ Environment variables configured:"
+        echo "BACKEND_IMAGE=$BACKEND_IMAGE"
+        echo "SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE"
+        echo "DB_NAME=$DB_NAME"
+        
+        # Deploy with exported environment variables
+        echo "🚀 Starting deployment with environment variables..."
+        docker-compose -f docker-compose.prod.yml up -d --force-recreate
         
         # Wait and verify
         echo "⏳ Waiting for services..."
@@ -248,7 +256,6 @@ jobs:
         curl -f http://localhost:8080/actuator/health || echo "⚠️ Backend starting..."
         
         # Cleanup
-        rm -f .env.deploy
         rm -rf $DOCKER_CONFIG
         echo "✅ Deployment completed!"
         SCRIPT_EOF
