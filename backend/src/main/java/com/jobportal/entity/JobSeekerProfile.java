@@ -10,6 +10,7 @@ import java.util.List;
 public class JobSeekerProfile {
 
     @Id
+    @Column(name = "user_account_id")
     private Integer userAccountId;
 
     @OneToOne
@@ -323,7 +324,7 @@ public class JobSeekerProfile {
 
     @Transient
     public String getPhotosImagePath() {
-        if (profilePhoto == null || userAccountId == null) return null;
+        if (profilePhoto == null || userAccountId == 0) return null;
         return "photos/candidate/" + userAccountId + "/" + profilePhoto;
     }
 

@@ -34,12 +34,15 @@ public class JobSeekerProfileService {
      */
     public JobSeekerProfile createProfile(JobSeekerProfile jobSeekerProfile) {
         Integer userAccountId = jobSeekerProfile.getUserAccountId();
-        Optional<JobSeekerProfile> existingProfile = jobSeekerProfileRepository.findByUserAccountId(userAccountId);
+        System.out.println("createProfile called for user: " + userAccountId);
         
-        if (existingProfile.isPresent()) {
+        // Use findById for reliability as it uses the PK directly
+        if (userAccountId != null && jobSeekerProfileRepository.existsById(userAccountId)) {
+            System.out.println("Profile already exists for user: " + userAccountId);
             throw new IllegalStateException("Profile already exists for user: " + userAccountId);
         }
         
+        System.out.println("Saving new profile for user: " + userAccountId);
         return jobSeekerProfileRepository.save(jobSeekerProfile);
     }
 
@@ -48,10 +51,11 @@ public class JobSeekerProfileService {
      * Throws exception if profile doesn't exist
      */
     public JobSeekerProfile updateProfile(Integer userAccountId, JobSeekerProfile updates) {
-        JobSeekerProfile existingProfile = jobSeekerProfileRepository
-            .findByUserAccountId(userAccountId)
+        System.out.println("updateProfile called for user: " + userAccountId);
+        JobSeekerProfile existingProfile = jobSeekerProfileRepository.findById(userAccountId)
             .orElseThrow(() -> new IllegalStateException("No profile found for user: " + userAccountId));
         
+        System.out.println("Found existing profile for user: " + userAccountId + ". Applying updates.");
         // Apply selective updates - only update non-null fields
         applyProfileUpdates(existingProfile, updates);
         
@@ -102,12 +106,16 @@ public class JobSeekerProfileService {
     public JobSeekerProfile addNew(JobSeekerProfile jobSeekerProfile) {
         // Check if profile already exists for this user_account_id
         Integer userAccountId = jobSeekerProfile.getUserAccountId();
-        Optional<JobSeekerProfile> existingProfile = jobSeekerProfileRepository.findByUserAccountId(userAccountId);
+        System.out.println("addNew called for user: " + userAccountId);
+        
+        Optional<JobSeekerProfile> existingProfile = jobSeekerProfileRepository.findById(userAccountId);
         
         if (existingProfile.isPresent()) {
+            System.out.println("addNew: Profile found, updating.");
             // Update existing profile using the new method
             return updateProfile(userAccountId, jobSeekerProfile);
         } else {
+            System.out.println("addNew: Profile NOT found, creating new.");
             // Create new profile using the new method
             return createProfile(jobSeekerProfile);
         }
