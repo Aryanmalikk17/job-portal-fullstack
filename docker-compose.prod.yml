@@ -7,7 +7,7 @@ services:
     container_name: jobportal-mysql-prod
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: jobportal
+      MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: jobportal
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
