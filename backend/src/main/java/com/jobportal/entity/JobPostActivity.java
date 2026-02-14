@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class JobPostActivity {
@@ -24,6 +25,9 @@ public class JobPostActivity {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "jobCompanyId", referencedColumnName = "Id")
     private JobCompany jobCompanyId;
+    
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
+    private List<JobSeekerApply> jobSeekerApplyList;
 
     //@Transient
     private Boolean isActive = true;

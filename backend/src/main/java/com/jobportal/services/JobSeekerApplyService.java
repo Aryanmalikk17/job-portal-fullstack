@@ -180,7 +180,10 @@ public class JobSeekerApplyService {
      * Get recent applications for a recruiter (last 30 days)
      */
     public List<JobSeekerApply> getRecentApplicationsForRecruiter(Integer recruiterId) {
-        return jobSeekerApplyRepository.findRecentApplicationsByRecruiterId(recruiterId);
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.DAY_OF_MONTH, -30);
+        java.util.Date date30DaysAgo = cal.getTime();
+        return jobSeekerApplyRepository.findRecentApplicationsByRecruiterId(recruiterId, date30DaysAgo);
     }
 
     /**

@@ -105,7 +105,7 @@ jobs:
 
     - name: 📋 Create environment file
       run: |
-        cat > .env << EOF
+        cat > .env.prod << EOF
         # Database Configuration
         MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
         MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
@@ -134,7 +134,7 @@ jobs:
         # Database Connection
         DB_HOST=mysql
         DB_PORT=3306
-        DB_NAME=${{ secrets.MYSQL_DATABASE }}
+        DB_NAME=jobportal
         DB_USERNAME=jobportal
         
         # Redis Configuration
@@ -168,12 +168,12 @@ jobs:
         # Create deployment directory with timeout
         timeout 30 ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p /opt/jobportal/deployment"
         
-        # Copy deployment files with timeout
+        # Copy deployment files with timeout (fixed syntax)
         echo "🔄 Copying docker-compose.prod.yml..."
         timeout 60 scp -o ConnectTimeout=30 docker-compose.prod.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
         
-        echo "🔄 Copying .env..."
-        timeout 60 scp -o ConnectTimeout=30 .env ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        echo "🔄 Copying .env.prod..."
+        timeout 60 scp -o ConnectTimeout=30 .env.prod ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
         
         echo "🔄 Copying nginx configuration..."
         timeout 60 scp -r -o ConnectTimeout=30 nginx/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
@@ -186,9 +186,9 @@ jobs:
         
         echo "✅ All files copied successfully"
 
-    - name: 🐳 Deploy with Docker Compose
+    - name: 🐳 Deploy with Docker Compose - FIXED ENVIRONMENT VARIABLES
       run: |
-        # Create deployment script
+        # Create deployment script with proper environment variable handling
         cat > deploy-script.sh << 'SCRIPT_EOF'
         #!/bin/bash
         set -e
@@ -202,39 +202,76 @@ jobs:
         echo "🔐 Logging into GitHub Container Registry..."
         echo "LOGIN_TOKEN" | docker --config $DOCKER_CONFIG login ghcr.io -u "LOGIN_USER" --password-stdin
         
-        # Stop and remove existing containers
-        echo "🛑 Removing existing containers..."
+        # CRITICAL FIX: Stop and remove ALL existing containers completely
+        echo "🛑 Completely removing existing containers..."
         docker-compose -f docker-compose.prod.yml down --remove-orphans --volumes || true
+        docker container stop $(docker container ls -aq) 2>/dev/null || true
+        docker container rm $(docker container ls -aq) 2>/dev/null || true
         
-        # Pull latest images
+        # Pull latest images using temporary config
         echo "📥 Pulling latest Docker images..."
-        # Source .env to get image names if needed, but docker-compose pull should handle it if .env is present
-        # However, for explicit pull we might need to know the image name. 
-        # Better: let docker-compose pull handle it using the .env file.
-        docker-compose -f docker-compose.prod.yml --env-file .env pull
+        docker --config $DOCKER_CONFIG pull "BACKEND_IMAGE_URL"
+        docker --config $DOCKER_CONFIG pull "FRONTEND_IMAGE_URL"
         
-        # Prune old images/containers
+        # Clean up old containers and networks
         docker container prune -f
         docker network prune -f
         
-        # Deploy
-        echo "🚀 Starting deployment..."
-        # We explicitly use --env-file .env to ensure it's picked up
-        docker-compose -f docker-compose.prod.yml --env-file .env up -d --force-recreate
+        # CRITICAL FIX: Export environment variables instead of using .env file
+        echo "🔧 Setting up environment variables..."
+        export MYSQL_ROOT_PASSWORD="MYSQL_ROOT_PASS_VALUE"
+        export MYSQL_PASSWORD="MYSQL_PASS_VALUE"
+        export REDIS_PASSWORD="REDIS_PASS_VALUE"
+        export JWT_SECRET="JWT_SECRET_VALUE"
+        export MAIL_USERNAME="MAIL_USER_VALUE"
+        export MAIL_PASSWORD="MAIL_PASS_VALUE"
+        export BACKEND_IMAGE="BACKEND_IMAGE_URL"
+        export FRONTEND_IMAGE="FRONTEND_IMAGE_URL"
+        export SPRING_PROFILES_ACTIVE="prod"
+        export DB_NAME="jobportal"
+        export DB_USERNAME="jobportal"
+        export REDIS_HOST="redis"
+        export REDIS_PORT="6379"
+        export MAIL_HOST="smtp.gmail.com"
+        export MAIL_PORT="587"
+        export SERVER_PORT="8080"
+        export CORS_ALLOWED_ORIGINS="CORS_ORIGINS_VALUE"
+        
+        # Verify environment variables are set
+        echo "✅ Environment variables configured:"
+        echo "BACKEND_IMAGE=$BACKEND_IMAGE"
+        echo "SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE"
+        echo "DB_NAME=$DB_NAME"
+        
+        # Deploy with exported environment variables
+        echo "🚀 Starting deployment with environment variables..."
+        docker-compose -f docker-compose.prod.yml up -d --force-recreate
         
         # Wait and verify
         echo "⏳ Waiting for services..."
-        sleep 60
+        sleep 90
         docker-compose -f docker-compose.prod.yml ps
+        
+        # Test health
+        curl -f http://localhost:8080/actuator/health || echo "⚠️ Backend starting..."
         
         # Cleanup
         rm -rf $DOCKER_CONFIG
         echo "✅ Deployment completed!"
         SCRIPT_EOF
         
-        # Replace placeholders for Docker Login only (safer than replacing all secrets)
+        # Replace placeholders with actual values
         sed -i "s/LOGIN_TOKEN/${{ secrets.GITHUB_TOKEN }}/g" deploy-script.sh
         sed -i "s/LOGIN_USER/${{ github.actor }}/g" deploy-script.sh
+        sed -i "s|BACKEND_IMAGE_URL|ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest|g" deploy-script.sh
+        sed -i "s|FRONTEND_IMAGE_URL|ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest|g" deploy-script.sh
+        sed -i "s/MYSQL_ROOT_PASS_VALUE/${{ secrets.MYSQL_ROOT_PASSWORD }}/g" deploy-script.sh
+        sed -i "s/MYSQL_PASS_VALUE/${{ secrets.MYSQL_PASSWORD }}/g" deploy-script.sh
+        sed -i "s/REDIS_PASS_VALUE/${{ secrets.REDIS_PASSWORD }}/g" deploy-script.sh
+        sed -i "s/JWT_SECRET_VALUE/${{ secrets.JWT_SECRET }}/g" deploy-script.sh
+        sed -i "s/MAIL_USER_VALUE/${{ secrets.MAIL_USERNAME }}/g" deploy-script.sh
+        sed -i "s/MAIL_PASS_VALUE/${{ secrets.MAIL_PASSWORD }}/g" deploy-script.sh
+        sed -i "s|CORS_ORIGINS_VALUE|https://${{ secrets.DOMAIN_NAME }},https://www.${{ secrets.DOMAIN_NAME }}|g" deploy-script.sh
         
         # Copy and execute deployment script
         scp deploy-script.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/

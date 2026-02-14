@@ -58,11 +58,11 @@ log "Recruiter Registered. Token received."
 log "---------------------------------------------------"
 log "Step 2: Create Job Post"
 # Note: Adjust fields based on actual JobPostActivity entity
-JOB_JSON="{\"jobTitle\":\"Software Engineer ${TIMESTAMP}\",\"descriptionOfJob\":\"Test Job Description\",\"remote\":\"Remote\",\"jobType\":\"Full-time\",\"salary\":\"100000\",\"jobLocationId\":1,\"jobCompanyId\":1}"
+JOB_JSON="{\"jobTitle\":\"Software Engineer ${TIMESTAMP}\",\"description\":\"Test Job Description\",\"remote\":\"Remote\",\"jobType\":\"Full-time\",\"salary\":\"100000\",\"jobLocationId\":1,\"companyId\":1}"
 
 # Using /api/jobs/add-new based on standard naming, verify endpoint if this fails
 # Previous context suggests /api/jobs might be the endpoint
-JOB_RES=$(curl -s -X POST ${API_URL}/api/jobs/create \
+JOB_RES=$(curl -s -X POST ${API_URL}/api/jobs/add-new \
   -H "Authorization: Bearer $REC_TOKEN" \
   -H "Content-Type: application/json" \
   -d "$JOB_JSON")

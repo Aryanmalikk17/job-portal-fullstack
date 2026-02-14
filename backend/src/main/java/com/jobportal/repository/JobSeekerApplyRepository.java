@@ -45,12 +45,12 @@ public interface JobSeekerApplyRepository extends JpaRepository<JobSeekerApply, 
     Long countApplicationsByRecruiterId(@Param("recruiterId") Integer recruiterId);
 
     // Find recent applications (last 30 days) for a recruiter
-    @Query(value = "SELECT * FROM job_seeker_apply jsa " +
-           "JOIN job_post_activity jpa ON jsa.job = jpa.job_post_id " +
-           "WHERE jpa.posted_by_id = :recruiterId " +
-           "AND jsa.apply_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) " +
-           "ORDER BY jsa.apply_date DESC", nativeQuery = true)
-    List<JobSeekerApply> findRecentApplicationsByRecruiterId(@Param("recruiterId") Integer recruiterId);
+    @Query("SELECT jsa FROM JobSeekerApply jsa " +
+           "JOIN jsa.job j " +
+           "WHERE j.postedById.userId = :recruiterId " +
+           "AND jsa.applyDate >= :date " +
+           "ORDER BY jsa.applyDate DESC")
+    List<JobSeekerApply> findRecentApplicationsByRecruiterId(@Param("recruiterId") Integer recruiterId, @Param("date") java.util.Date date);
 
     // Get applications grouped by status for a recruiter
     @Query("SELECT jsa.status, COUNT(jsa) FROM JobSeekerApply jsa WHERE jsa.job.postedById.userId = :recruiterId GROUP BY jsa.status")
