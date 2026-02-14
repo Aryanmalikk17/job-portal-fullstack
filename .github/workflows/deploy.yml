@@ -134,7 +134,7 @@ jobs:
         # Database Connection
         DB_HOST=mysql
         DB_PORT=3306
-        DB_NAME=jobportal
+        DB_NAME=jobportal_db
         DB_USERNAME=jobportal
         
         # Redis Configuration

@@ -43,7 +43,7 @@ services:
     container_name: jobportal-backend-prod
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${MYSQL_PASSWORD}
       REDIS_HOST: ${REDIS_HOST}
