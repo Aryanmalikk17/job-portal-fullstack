@@ -1,47 +1,18 @@
 package com.jobportal.config;
 
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * MVC configuration for static resources and view controllers.
+ * CORS is handled centrally by SecurityConfig.corsConfigurationSource().
+ */
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins(
-                    "http://localhost:3000", 
-                    "http://127.0.0.1:3000",
-                    "http://localhost:3001",
-                    "https://zplusejobs.com", // Production HTTPS
-                    "https://www.zplusejobs.com", // Production HTTPS (www)
-                    "http://zplusejobs.com",  // Production HTTP
-                    "http://www.zplusejobs.com" // Production HTTP (www)
-                )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                .allowedHeaders("*")
-                .allowCredentials(true)
-                .maxAge(3600);
-        
-        // Specific mapping for API endpoints
-        registry.addMapping("/api/**")
-                .allowedOrigins(
-                    "http://localhost:3000", 
-                    "http://127.0.0.1:3000",
-                    "http://localhost:3001",
-                    "https://zplusejobs.com", // Production HTTPS
-                    "https://www.zplusejobs.com", // Production HTTPS (www)
-                    "http://zplusejobs.com",  // Production HTTP
-                    "http://www.zplusejobs.com" // Production HTTP (www)
-                )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                .allowedHeaders("*")
-                .allowCredentials(true)
-                .maxAge(3600);
-    }
+    // CORS removed — managed exclusively by SecurityConfig.corsConfigurationSource()
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

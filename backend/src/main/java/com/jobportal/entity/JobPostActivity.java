@@ -8,6 +8,14 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
+@NamedEntityGraph(
+    name = "JobPostActivity.withDetails",
+    attributeNodes = {
+        @NamedAttributeNode("jobLocationId"),
+        @NamedAttributeNode("jobCompanyId"),
+        @NamedAttributeNode("postedById")
+    }
+)
 public class JobPostActivity {
 
     @Id

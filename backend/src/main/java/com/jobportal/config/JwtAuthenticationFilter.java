@@ -83,11 +83,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Log the path for debugging
         logger.debug("Checking filter for path: {} with method: {}", path, method);
         
-        // Exclude authentication endpoints and static assets
+        // Exclude authentication endpoints, public API paths, and static assets
         if (path.startsWith("/api/auth/login") || 
             path.startsWith("/api/auth/register") ||
+            path.startsWith("/api/auth/logout") ||
             path.startsWith("/api/register/") ||
             path.startsWith("/api/public/") ||
+            path.equals("/api/jobs") ||
+            path.startsWith("/api/jobs/search") ||
             path.startsWith("/actuator/") ||
             path.startsWith("/swagger-ui/") ||
             path.startsWith("/v3/api-docs/") ||

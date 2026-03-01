@@ -8,7 +8,8 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
-    timeout: 10000, // 10 seconds timeout
+    timeout: parseInt(process.env.REACT_APP_API_TIMEOUT, 10) || 10000,
+    withCredentials: true, // Required for CORS with credentials
 });
 
 // Request interceptor to add JWT token
@@ -31,12 +32,14 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
-        // Don't redirect to login if we're already on login page or making a login request
-        const isLoginRequest = error.config?.url?.includes('/auth/login');
-        const isOnLoginPage = window.location.pathname === '/login';
+        // Don't redirect to login if we're on auth-related pages or making auth requests
+        const isAuthRequest = error.config?.url?.includes('/auth/login') ||
+                              error.config?.url?.includes('/auth/register');
+        const isOnAuthPage = window.location.pathname === '/login' ||
+                             window.location.pathname === '/register';
         
-        if (error.response?.status === 401 && !isLoginRequest && !isOnLoginPage) {
-            // Token expired or invalid - only redirect if not already logging in
+        if (error.response?.status === 401 && !isAuthRequest && !isOnAuthPage) {
+            // Token expired or invalid — only redirect if not already on auth flow
             localStorage.removeItem(process.env.REACT_APP_JWT_STORAGE_KEY || 'jwt-token');
             localStorage.removeItem(process.env.REACT_APP_USER_STORAGE_KEY || 'user-info');
             window.location.href = '/login';

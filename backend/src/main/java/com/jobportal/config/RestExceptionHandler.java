@@ -140,20 +140,23 @@ public class RestExceptionHandler {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message = "An unexpected error occurred";
         
+        // Only expose safe, recognized error messages — never raw exception text
         if (ex.getMessage() != null) {
-            if (ex.getMessage().contains("not found")) {
+            String exMsg = ex.getMessage().toLowerCase();
+            if (exMsg.contains("not found")) {
                 status = HttpStatus.NOT_FOUND;
-                message = ex.getMessage();
-            } else if (ex.getMessage().contains("already exists") || 
-                       ex.getMessage().contains("already applied") ||
-                       ex.getMessage().contains("already saved")) {
+                message = "The requested resource was not found";
+            } else if (exMsg.contains("already exists") || 
+                       exMsg.contains("already applied") ||
+                       exMsg.contains("already saved")) {
                 status = HttpStatus.CONFLICT;
-                message = ex.getMessage();
-            } else if (ex.getMessage().contains("Invalid") || 
-                       ex.getMessage().contains("required")) {
+                message = "This resource already exists";
+            } else if (exMsg.contains("invalid") || 
+                       exMsg.contains("required")) {
                 status = HttpStatus.BAD_REQUEST;
-                message = ex.getMessage();
+                message = "Invalid request. Please check your input.";
             }
+            // All other RuntimeExceptions keep the generic message — no stack trace leak
         }
         
         Map<String, Object> response = createErrorResponse(status, message, request.getRequestURI());

@@ -22,7 +22,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+/**
+ * Exception handler for Thymeleaf (server-rendered) controllers ONLY.
+ * REST API exceptions are handled by RestExceptionHandler (com.jobportal.api).
+ */
+@ControllerAdvice(basePackages = "com.jobportal.controllers")
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);

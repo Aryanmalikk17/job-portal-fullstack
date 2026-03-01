@@ -32,8 +32,9 @@ public class Users {
     @Size(max = 100, message = "Email must not exceed 100 characters")
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters")
+    // Password validation is in RegisterRequestDto/LoginRequest DTOs, NOT here.
+    // After BCrypt encoding the password is ~60 chars, which would fail @Size constraints.
+    @Column(length = 255)
     private String password;
 
     @NotBlank(message = "First name is required")

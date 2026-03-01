@@ -24,10 +24,10 @@ public class JwtTokenProvider {
     private String jwtSecret;
 
     @Value("${app.jwt.expiration}")
-    private int jwtExpirationInMs;
+    private long jwtExpirationInMs;
 
     @Value("${app.jwt.refresh-expiration}")
-    private int refreshExpirationInMs;
+    private long refreshExpirationInMs;
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);

@@ -2,6 +2,7 @@ package com.jobportal.repository;
 
 import com.jobportal.entity.IRecruiterJobs;
 import com.jobportal.entity.JobPostActivity;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +11,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface JobPostActivityRepository extends JpaRepository<JobPostActivity, Integer> {
+
+    @Override
+    @EntityGraph(value = "JobPostActivity.withDetails", type = EntityGraph.EntityGraphType.LOAD)
+    java.util.List<JobPostActivity> findAll();
 
     @Query(value = " SELECT COUNT(s.user_id) as totalCandidates,j.jobPostId as job_post_id,j.jobTitle as job_title,l.id as locationId,l.city,l.state,l.country,c.id as companyId,c.name FROM JobPostActivity j " +
             " inner join j.jobLocationId l " +
