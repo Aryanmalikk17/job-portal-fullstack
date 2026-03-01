@@ -83,6 +83,7 @@ CREATE TABLE `job_post_activity` (
   `job_company_id` int DEFAULT NULL,
   `job_location_id` int DEFAULT NULL,
   `posted_by_id` int DEFAULT NULL,
+  `is_active` bit(1) DEFAULT NULL,
   PRIMARY KEY (`job_post_id`),
   KEY `FKpjpv059hollr4tk92ms09s6is` (`job_company_id`),
   KEY `FK44003mnvj29aiijhsc6ftsgxe` (`job_location_id`),
