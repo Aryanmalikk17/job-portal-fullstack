@@ -34,7 +34,7 @@ import com.jobportal.services.RecruiterProfileService;
 import com.jobportal.services.UsersService;
 
 @RestController
-@RequestMapping("/api/job-applications")
+@RequestMapping("/api/applications")
 @CrossOrigin(origins = {
     "http://localhost:3000", 
     "http://127.0.0.1:3000",

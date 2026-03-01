@@ -3,7 +3,7 @@ import api from './api';
 const JOBS_ENDPOINTS = {
     GET_ALL: '/jobs',
     GET_BY_ID: (id) => `/jobs/${id}`,
-    CREATE_JOB: '/jobs',
+    CREATE_JOB: '/jobs/create',
     SAVE_JOB: (id) => `/jobs/${id}/save`,
     APPLY_JOB: (id) => `/jobs/${id}/apply`,
     UPDATE_JOB: (id) => `/jobs/${id}`,

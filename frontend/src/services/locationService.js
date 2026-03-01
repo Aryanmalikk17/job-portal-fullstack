@@ -1,9 +1,9 @@
 import api from './api';
 
 const LOCATION_ENDPOINTS = {
-    GET_ALL: '/locations',
-    CREATE_OR_GET: '/locations',
-    SEARCH: '/locations/search',
+    GET_ALL: '/job-data/locations',
+    CREATE_OR_GET: '/job-data/locations',
+    SEARCH: '/job-data/locations/search',
 };
 
 export const locationService = {

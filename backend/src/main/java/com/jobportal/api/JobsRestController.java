@@ -31,7 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/jobs")
 @CrossOrigin(origins = {
     "http://localhost:3000", 
     "http://127.0.0.1:3000",

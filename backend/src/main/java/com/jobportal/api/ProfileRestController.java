@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/profile")
 @CrossOrigin(origins = {
     "http://localhost:3000", 
     "http://127.0.0.1:3000",
@@ -48,7 +48,7 @@ public class ProfileRestController {
     @Autowired
     private com.jobportal.repository.JobSeekerProfileRepository jobSeekerProfileRepository;
 
-    @GetMapping("/profile")
+    @GetMapping("")
     public ResponseEntity<ApiResponse<UserProfileDto>> getCurrentUserProfile() {
         try {
             Users currentUser = usersService.getCurrentUser();

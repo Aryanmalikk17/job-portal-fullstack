@@ -1,0 +1,304 @@
+name: 🚀 Deploy Job Portal to DigitalOcean
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_BACKEND: ${{ github.repository }}-backend
+  IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
+  # Convert repository name to lowercase for Docker registry compatibility
+  REPO_LOWERCASE: ${{ github.repository_owner }}/${{ github.event.repository.name }}
+
+jobs:
+  # Build and Push Docker Images
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 🔐 Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: 🔧 Prepare repository name (lowercase)
+      id: repo
+      run: echo "lowercase=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+    - name: 📦 Extract metadata (tags, labels) for Backend
+      id: meta-backend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.lowercase }}-backend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: 📦 Extract metadata (tags, labels) for Frontend
+      id: meta-frontend
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.lowercase }}-frontend
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: 🏗️ Build and push Backend Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile
+        push: true
+        tags: ${{ steps.meta-backend.outputs.tags }}
+        labels: ${{ steps.meta-backend.outputs.labels }}
+
+    - name: 🏗️ Build and push Frontend Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile.prod
+        push: true
+        tags: ${{ steps.meta-frontend.outputs.tags }}
+        labels: ${{ steps.meta-frontend.outputs.labels }}
+        build-args: |
+          REACT_APP_API_BASE_URL=https://${{ secrets.DOMAIN_NAME }}/api
+          REACT_APP_JWT_STORAGE_KEY=zpluse_jwt_token
+          REACT_APP_USER_STORAGE_KEY=zpluse_user_info
+          REACT_APP_REFRESH_TOKEN_KEY=zpluse_refresh_token
+          REACT_APP_APP_NAME=Zpluse Jobs Finder
+          REACT_APP_ENVIRONMENT=production
+          GENERATE_SOURCEMAP=false
+
+  # Deploy to DigitalOcean
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+
+    - name: 🔑 Setup SSH
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+    - name: 🔧 Prepare repository name (lowercase)
+      id: repo
+      run: echo "lowercase=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+    - name: 📋 Create environment file
+      run: |
+        cat > .env.prod << EOF
+        # Database Configuration
+        MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+        MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+        REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+        
+        # JWT Configuration
+        JWT_SECRET=${{ secrets.JWT_SECRET }}
+        
+        # Email Configuration
+        MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+        MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+        
+        # Domain Configuration
+        DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
+        
+        # Docker Images (lowercase for registry compatibility)
+        BACKEND_IMAGE=ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest
+        FRONTEND_IMAGE=ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest
+        
+        # Application Configuration
+        SERVER_PORT=8080
+        UPLOAD_MAX_SIZE=10MB
+        SPRING_PROFILES_ACTIVE=prod
+        ENVIRONMENT=production
+        
+        # Database Connection
+        DB_HOST=mysql
+        DB_PORT=3306
+        DB_NAME=jobportal
+        DB_USERNAME=jobportal
+        
+        # Redis Configuration
+        REDIS_HOST=redis
+        REDIS_PORT=6379
+        
+        # SMTP Configuration
+        MAIL_HOST=smtp.gmail.com
+        MAIL_PORT=587
+        MAIL_PROTOCOL=smtp
+        MAIL_AUTH=true
+        MAIL_STARTTLS_ENABLE=true
+        MAIL_STARTTLS_REQUIRED=true
+        MAIL_DEBUG=false
+        
+        # CORS Configuration
+        CORS_ALLOWED_ORIGINS=https://${{ secrets.DOMAIN_NAME }},https://www.${{ secrets.DOMAIN_NAME }}
+        EOF
+
+    - name: 🌐 Update Nginx configuration with domain
+      run: |
+        # Replace hardcoded domain with actual domain from secrets
+        sed -i "s/zplusejobs.com/${{ secrets.DOMAIN_NAME }}/g" nginx/nginx.prod.conf
+        sed -i "s/www.zplusejobs.com/www.${{ secrets.DOMAIN_NAME }}/g" nginx/nginx.prod.conf
+
+    - name: 📦 Copy files to server
+      run: |
+        # Add server to known hosts with timeout
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        
+        # Create deployment directory with timeout
+        timeout 30 ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p /opt/jobportal/deployment"
+        
+        # Copy deployment files with timeout (fixed syntax)
+        echo "🔄 Copying docker-compose.prod.yml..."
+        timeout 60 scp -o ConnectTimeout=30 docker-compose.prod.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        
+        echo "🔄 Copying .env.prod..."
+        timeout 60 scp -o ConnectTimeout=30 .env.prod ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        
+        echo "🔄 Copying nginx configuration..."
+        timeout 60 scp -r -o ConnectTimeout=30 nginx/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        
+        echo "🔄 Copying database scripts..."
+        timeout 60 scp -r -o ConnectTimeout=30 DB_Scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        
+        echo "🔄 Copying deployment scripts (excluding logs)..."
+        timeout 60 rsync -avz -e "ssh -o ConnectTimeout=30" --exclude='*.log' --exclude='logs/' scripts/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/scripts/
+        
+        echo "✅ All files copied successfully"
+
+    - name: 🐳 Deploy with Docker Compose - FIXED YAML SYNTAX
+      run: |
+        # Create deployment script with proper variable substitution
+        cat > deploy-script.sh << 'SCRIPT_EOF'
+        #!/bin/bash
+        set -e
+        cd /opt/jobportal
+        
+        # Ensure Docker credentials directory exists with proper permissions
+        mkdir -p ~/.docker || true
+        chmod 755 ~/.docker || true
+        
+        # Login to GitHub Container Registry with proper error handling
+        echo "🔐 Logging into GitHub Container Registry..."
+        echo "LOGIN_TOKEN" | docker login ghcr.io -u "LOGIN_USER" --password-stdin || {
+            echo "⚠️ Docker login failed, trying alternative approach..."
+            # Alternative: Use docker login without credential storage
+            echo "LOGIN_TOKEN" | docker login ghcr.io -u "LOGIN_USER" --password-stdin --password-stdin
+        }
+        
+        # Stop existing containers
+        echo "🛑 Stopping existing containers..."
+        docker-compose -f docker-compose.prod.yml down --remove-orphans || true
+        
+        # Pull latest images
+        echo "📥 Pulling latest Docker images..."
+        docker pull "BACKEND_IMAGE_URL"
+        docker pull "FRONTEND_IMAGE_URL"
+        
+        # Clean up old containers
+        docker container prune -f
+        
+        # Create environment file with secrets
+        cat > .env.deploy << 'ENV_EOF'
+        MYSQL_ROOT_PASSWORD=MYSQL_ROOT_PASS_VALUE
+        MYSQL_PASSWORD=MYSQL_PASS_VALUE
+        REDIS_PASSWORD=REDIS_PASS_VALUE
+        JWT_SECRET=JWT_SECRET_VALUE
+        MAIL_USERNAME=MAIL_USER_VALUE
+        MAIL_PASSWORD=MAIL_PASS_VALUE
+        BACKEND_IMAGE=BACKEND_IMAGE_URL
+        FRONTEND_IMAGE=FRONTEND_IMAGE_URL
+        SPRING_PROFILES_ACTIVE=prod
+        DB_NAME=jobportal
+        DB_USERNAME=jobportal
+        REDIS_HOST=redis
+        REDIS_PORT=6379
+        MAIL_HOST=smtp.gmail.com
+        MAIL_PORT=587
+        SERVER_PORT=8080
+        CORS_ALLOWED_ORIGINS=CORS_ORIGINS_VALUE
+        ENV_EOF
+        
+        # Deploy with environment file
+        echo "🚀 Starting deployment..."
+        docker-compose -f docker-compose.prod.yml --env-file .env.deploy up -d --force-recreate
+        
+        # Wait and verify
+        echo "⏳ Waiting for services..."
+        sleep 90
+        docker-compose -f docker-compose.prod.yml ps
+        
+        # Test health
+        curl -f http://localhost:8080/actuator/health || echo "⚠️ Backend starting..."
+        
+        # Cleanup
+        rm -f .env.deploy
+        echo "✅ Deployment completed!"
+        SCRIPT_EOF
+        
+        # Replace placeholders with actual values
+        sed -i "s/LOGIN_TOKEN/${{ secrets.GITHUB_TOKEN }}/g" deploy-script.sh
+        sed -i "s/LOGIN_USER/${{ github.actor }}/g" deploy-script.sh
+        sed -i "s|BACKEND_IMAGE_URL|ghcr.io/${{ steps.repo.outputs.lowercase }}-backend:latest|g" deploy-script.sh
+        sed -i "s|FRONTEND_IMAGE_URL|ghcr.io/${{ steps.repo.outputs.lowercase }}-frontend:latest|g" deploy-script.sh
+        sed -i "s/MYSQL_ROOT_PASS_VALUE/${{ secrets.MYSQL_ROOT_PASSWORD }}/g" deploy-script.sh
+        sed -i "s/MYSQL_PASS_VALUE/${{ secrets.MYSQL_PASSWORD }}/g" deploy-script.sh
+        sed -i "s/REDIS_PASS_VALUE/${{ secrets.REDIS_PASSWORD }}/g" deploy-script.sh
+        sed -i "s/JWT_SECRET_VALUE/${{ secrets.JWT_SECRET }}/g" deploy-script.sh
+        sed -i "s/MAIL_USER_VALUE/${{ secrets.MAIL_USERNAME }}/g" deploy-script.sh
+        sed -i "s/MAIL_PASS_VALUE/${{ secrets.MAIL_PASSWORD }}/g" deploy-script.sh
+        sed -i "s|CORS_ORIGINS_VALUE|https://${{ secrets.DOMAIN_NAME }},https://www.${{ secrets.DOMAIN_NAME }}|g" deploy-script.sh
+        
+        # Copy and execute deployment script
+        scp deploy-script.sh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/opt/jobportal/
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "chmod +x /opt/jobportal/deploy-script.sh && /opt/jobportal/deploy-script.sh"
+
+    - name: 🔐 Setup SSL Certificate
+      run: |
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+        # Skip SSL setup if not running as root (avoid sudo password issues)
+        if [ "$EUID" -ne 0 ]; then
+          echo "⚠️ Skipping SSL setup - requires root access"
+          echo "💡 Manual SSL setup required after deployment"
+        else
+          # Install SSL certificate for domain (only if running as root)
+          certbot --nginx -d ${{ secrets.DOMAIN_NAME }} -d www.${{ secrets.DOMAIN_NAME }} --non-interactive --agree-tos --email ${{ secrets.MAIL_USERNAME }}
+        fi
+        EOF
+
+    - name: 🧹 Cleanup old images
+      run: |
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+        # Remove old Docker images to save space
+        docker image prune -f
+        docker container prune -f
+        EOF
+
+    - name: 📊 Deployment Summary
+      run: |
+        echo "🎉 Deployment completed successfully!"
+        echo "📱 Application: https://${{ secrets.DOMAIN_NAME }}"
+        echo "🔍 API Health: https://${{ secrets.DOMAIN_NAME }}/api/actuator/health"
+        echo "📧 Deployed by: ${{ github.actor }}"
+        echo "🏷️ Commit: ${{ github.sha }}"
+        echo "🕐 Time: $(date)"

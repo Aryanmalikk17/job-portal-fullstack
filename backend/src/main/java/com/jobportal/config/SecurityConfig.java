@@ -157,7 +157,7 @@ public class SecurityConfig {
                 // API Authorization Rules
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/jobs", "/api/jobs/search", "/api/jobs/*").permitAll()
-                .requestMatchers("/api/profile/**", "/api/jobs/*/apply", "/api/jobs/*/save", "/api/saved-jobs/**").authenticated()
+                .requestMatchers("/api/profile/**", "/api/applications/**", "/api/jobs/*/apply", "/api/jobs/*/save", "/api/saved-jobs/**").authenticated()
                 .requestMatchers("/api/jobs/create", "/api/jobs/*/edit", "/api/jobs/*/delete").hasAuthority("Recruiter")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()

@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 // CORS handled centrally by SecurityConfig.corsConfigurationSource()
 public class AuthRestController {
 
@@ -45,7 +45,7 @@ public class AuthRestController {
     @Autowired
     private UsersTypeService usersTypeService;
 
-    @PostMapping("/auth/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
             logger.info("Login attempt for email: {}", loginRequest.getEmail());
@@ -96,7 +96,7 @@ public class AuthRestController {
         }
     }
 
-    @PostMapping("/auth/register")
+    @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequestDto registerRequest) {
         return processRegistration(registerRequest);
     }
@@ -162,7 +162,7 @@ public class AuthRestController {
         }
     }
 
-    @PostMapping("/auth/logout")
+    @PostMapping("/logout")
     public ResponseEntity<ApiResponse<String>> logout() {
         try {
             SecurityContextHolder.clearContext();
@@ -174,7 +174,7 @@ public class AuthRestController {
         }
     }
 
-    @GetMapping("/auth/user")
+    @GetMapping("/user")
     public ResponseEntity<ApiResponse<UserProfileDto>> getCurrentUser() {
         try {
             Users currentUser = usersService.getCurrentUser();
@@ -201,13 +201,13 @@ public class AuthRestController {
     }
 
     // Change from POST to GET for frontend compatibility
-    @GetMapping("/auth/verify")
+    @GetMapping("/verify")
     public ResponseEntity<ApiResponse<Boolean>> verifyTokenGet(@RequestHeader(value = "Authorization", required = false) String token) {
         return processTokenVerification(token);
     }
 
     // Keep POST version for backward compatibility
-    @PostMapping("/auth/verify")
+    @PostMapping("/verify")
     public ResponseEntity<ApiResponse<Boolean>> verifyTokenPost(@RequestHeader(value = "Authorization", required = false) String token) {
         return processTokenVerification(token);
     }

@@ -1,9 +1,9 @@
 import api from './api';
 
 const COMPANY_ENDPOINTS = {
-    GET_ALL: '/companies',
-    CREATE_OR_GET: '/companies',
-    SEARCH: '/companies/search',
+    GET_ALL: '/job-data/companies',
+    CREATE_OR_GET: '/job-data/companies',
+    SEARCH: '/job-data/companies/search',
 };
 
 export const companyService = {
