@@ -93,7 +93,7 @@ export const profileService = {
             // Add text fields
             if (profileData.firstName) formData.append('firstName', profileData.firstName);
             if (profileData.lastName) formData.append('lastName', profileData.lastName);
-            if (profileData.company) formData.append('company', profileData.company);
+            if (profileData.companyName) formData.append('company', profileData.companyName);
             if (profileData.city) formData.append('city', profileData.city);
             if (profileData.state) formData.append('state', profileData.state);
             if (profileData.country) formData.append('country', profileData.country);

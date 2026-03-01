@@ -9,7 +9,7 @@ const RegisterPage = () => {
         lastName: '',
         email: '',
         password: '',
-        userTypeId: 2, // Default to Job Seeker
+        userTypeId: 1, // Default to Job Seeker
         agreeTerms: false
     });
     const [userType, setUserType] = useState('jobseeker'); // 'jobseeker' or 'recruiter'
@@ -84,7 +84,7 @@ const RegisterPage = () => {
         setUserType(type);
         setFormData(prev => ({
             ...prev,
-            userTypeId: type === 'jobseeker' ? 2 : 1
+            userTypeId: type === 'jobseeker' ? 1 : 2
         }));
     };
 
