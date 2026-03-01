@@ -23,6 +23,11 @@ services:
       timeout: 20s
       retries: 10
       interval: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Redis for Caching
   redis:
@@ -36,6 +41,11 @@ services:
       - jobportal-network-prod
     restart: unless-stopped
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Job Portal Backend Application (Using pre-built image from GitHub Container Registry)
   backend:
@@ -75,6 +85,11 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Frontend Application (Using pre-built image from GitHub Container Registry)
   frontend:
@@ -92,6 +107,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Nginx Reverse Proxy (Main Entry Point)
   nginx:
@@ -115,6 +135,11 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   mysql_data_prod:
