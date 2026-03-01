@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start": "NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
+    "build": "DISABLE_ESLINT_PLUGIN=true NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -47,6 +47,6 @@
   },
   "devDependencies": {},
   "overrides": {
-    "ajv": "8.18.0"
+    "ajv": "^6.12.6"
   }
 }
