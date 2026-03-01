@@ -32,6 +32,8 @@ CREATE TABLE `job_company` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+INSERT INTO `job_company` (`id`, `name`, `logo`) VALUES (1, 'TechCorp Solutions', 'default-logo.png');
+
 
 CREATE TABLE `job_location` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -40,6 +42,8 @@ CREATE TABLE `job_location` (
   `state` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `job_location` (`id`, `city`, `state`, `country`) VALUES (1, 'Bangalore', 'Karnataka', 'India');
 
 
 CREATE TABLE `job_seeker_profile` (
@@ -70,6 +74,13 @@ CREATE TABLE `recruiter_profile` (
   PRIMARY KEY (`user_account_id`),
   CONSTRAINT `FK42q4eb7jw1bvw3oy83vc05ft6` FOREIGN KEY (`user_account_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Seed Recruiter (for posted_by_id=3)
+INSERT INTO `users` (`user_id`, `email`, `is_active`, `password`, `registration_date`, `user_type_id`) 
+VALUES (3, 'recruiter@example.com', 1, '$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.TVuHGC2', NOW(), 1);
+
+INSERT INTO `recruiter_profile` (`user_account_id`, `first_name`, `last_name`, `company`) 
+VALUES (3, 'Admin', 'Recruiter', 'TechCorp');
 
 
 CREATE TABLE `job_post_activity` (
