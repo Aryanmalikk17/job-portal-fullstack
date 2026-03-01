@@ -16,12 +16,12 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
     @EntityGraph(value = "JobPostActivity.withDetails", type = EntityGraph.EntityGraphType.LOAD)
     java.util.List<JobPostActivity> findAll();
 
-    @Query(value = " SELECT COUNT(s) as totalCandidates,j.jobPostId as job_post_id,j.jobTitle as job_title,l.id as locationId,l.city,l.state,l.country,c.id as companyId,c.name FROM JobPostActivity j " +
+    @Query(value = " SELECT COUNT(s.id) as totalCandidates,j.jobPostId as job_post_id,j.jobTitle as job_title,l.id as locationId,l.city,l.state,l.country,c.id as companyId,c.name FROM JobPostActivity j " +
             " inner join j.jobLocationId l " +
             " INNER join j.jobCompanyId c  " +
             " left join j.jobSeekerApplyList s " +
             " where j.postedById.userId = :recruiter " +
-            " GROUP By j.jobPostId" )
+            " GROUP By j.jobPostId, j.jobTitle, l.id, l.city, l.state, l.country, c.id, c.name" )
     List<IRecruiterJobs> getRecruiterJobs(@Param("recruiter") int recruiter);
 
     @Query(value = "SELECT j FROM JobPostActivity j INNER JOIN j.jobLocationId l  WHERE j" +
