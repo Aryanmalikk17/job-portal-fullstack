@@ -743,7 +743,7 @@ const AddJobPage = () => {
 
             <style jsx>{`
                 .add-job-page {
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
                     min-height: 100vh;
                     padding: 2rem 0;
                 }
@@ -793,7 +793,7 @@ const AddJobPage = () => {
                 .icon-circle {
                     width: 80px;
                     height: 80px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
@@ -811,7 +811,7 @@ const AddJobPage = () => {
                     width: 80px;
                     height: 80px;
                     border-radius: 50%;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
                     opacity: 0.3;
                     animation: pulse 2s infinite;
                 }
@@ -830,7 +830,7 @@ const AddJobPage = () => {
                 .header-title {
                     font-size: 2.5rem;
                     font-weight: 700;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     background-clip: text;
@@ -859,7 +859,7 @@ const AddJobPage = () => {
                 }
 
                 .progress-percentage {
-                    color: #667eea;
+                    color: #34C1D9;
                     font-weight: 600;
                 }
 
@@ -898,7 +898,7 @@ const AddJobPage = () => {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: #667eea;
+                    color: #34C1D9;
                     font-size: 1.1rem;
                 }
 
@@ -978,7 +978,7 @@ const AddJobPage = () => {
                 .section-icon {
                     width: 50px;
                     height: 50px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
                     border-radius: 12px;
                     display: flex;
                     align-items: center;
@@ -1042,13 +1042,13 @@ const AddJobPage = () => {
                 }
 
                 .form-control-enhanced:focus, .form-select-enhanced:focus {
-                    border-color: #667eea;
+                    border-color: #34C1D9;
                     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
                     outline: none;
                 }
 
                 .form-control-enhanced.success, .form-select-enhanced.success {
-                    border-color: #10b981;
+                    border-color: #34C1D9;
                     background-color: rgba(16, 185, 129, 0.05);
                 }
 
@@ -1077,7 +1077,7 @@ const AddJobPage = () => {
                 }
 
                 .form-help.success {
-                    color: #059669;
+                    color: #2AA8BD;
                 }
 
                 .form-help i {
@@ -1107,12 +1107,12 @@ const AddJobPage = () => {
                 }
 
                 .editor-wrapper:focus-within {
-                    border-color: #667eea;
+                    border-color: #34C1D9;
                     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
                 }
 
                 .editor-enhanced.success .editor-wrapper {
-                    border-color: #10b981;
+                    border-color: #34C1D9;
                 }
 
                 .editor-enhanced.error .editor-wrapper {
@@ -1178,7 +1178,7 @@ const AddJobPage = () => {
                 }
 
                 .reach-icon {
-                    color: #667eea;
+                    color: #34C1D9;
                     font-size: 1.1rem;
                 }
 
@@ -1194,13 +1194,13 @@ const AddJobPage = () => {
                 }
 
                 .reach-number {
-                    color: #667eea;
+                    color: #34C1D9;
                     font-weight: 700;
                     font-size: 1rem;
                 }
 
                 .btn-post-enhanced {
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
                     border: none;
                     border-radius: 12px;
                     padding: 0.75rem 2rem;

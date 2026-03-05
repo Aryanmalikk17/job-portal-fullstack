@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { jobService } from '../../services/jobService';
 import FilterSidebar from './FilterSidebar';
 import JobCard from '../jobs/JobCard';
-import LoadingSpinner from '../common/LoadingSpinner';
+import SkeletonCard from '../common/SkeletonCard';
 
 const JobSeekerDashboard = ({ user }) => {
     const navigate = useNavigate();
@@ -218,7 +218,18 @@ const JobSeekerDashboard = ({ user }) => {
     };
 
     if (loading) {
-        return <LoadingSpinner />;
+        return (
+            <div className="job-seeker-dashboard">
+                {/* Welcome header skeleton */}
+                <div className="dashboard-header mb-4">
+                    <div className="skeleton" style={{ height: 96, borderRadius: 20, marginBottom: '1rem' }} />
+                </div>
+                {/* Search card skeleton */}
+                <div className="skeleton" style={{ height: 80, borderRadius: 20, marginBottom: '1.5rem' }} />
+                {/* Job card skeletons */}
+                <SkeletonCard count={6} cols={6} />
+            </div>
+        );
     }
 
     return (

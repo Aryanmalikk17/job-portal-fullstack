@@ -39,19 +39,25 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    // Strictly public endpoints — no authentication required
     private final String[] PUBLIC_URLS = {
-        "/", "/global-search/**", "/register", "/register/**", "/webjars/**", 
-        "/resources/**", "/assets/**", "/css/**", "/summernote/**", "/js/**", 
+        "/", "/global-search/**", "/register", "/register/**", "/webjars/**",
+        "/resources/**", "/assets/**", "/css/**", "/summernote/**", "/js/**",
         "/*.css", "/*.js", "/*.js.map", "/fonts/**", "/images/**", "/favicon.ico",
         "/api/public/**", "/actuator/health", "/actuator/info",
-        // Additional static resource paths
-        "/static/**", "/public/**", "/img/**", 
+        "/static/**", "/public/**", "/img/**",
         "/font-awesome/**", "/bootstrap/**", "/jquery/**",
-        // REST API endpoints that don't require authentication
-        "/api/auth/login", "/api/auth/register", "/api/auth/logout", 
-        "/api/jobs", "/api/jobs/search", "/api/jobs/{id}",
-        // Swagger/OpenAPI documentation
+        // Auth endpoints — always public
+        "/api/auth/login", "/api/auth/register", "/api/auth/logout",
+        // Swagger/OpenAPI
         "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**"
+    };
+
+    // Public job-browsing endpoints — GET only, no auth needed.
+    // DO NOT add /api/jobs/* here — that would match apply/save/candidates!
+    private final String[] PUBLIC_JOBS_URLS = {
+        "/api/jobs",
+        "/api/jobs/search"
     };
 
     @Bean
@@ -147,18 +153,43 @@ public class SecurityConfig {
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
             )
             
-            // Authorization Rules
+            // Authorization Rules — Order matters: most specific first
             .authorizeHttpRequests(auth -> auth
+                // ── Public: no auth needed ──
                 .requestMatchers(PUBLIC_URLS).permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/recruiter/**", "/dashboard/add", "/dashboard/edit/**").hasAuthority("Recruiter")
-                .requestMatchers("/job-seeker-profile/**", "/job-seeker-apply/**", "/job-seeker-save/**").hasAuthority("Job Seeker")
-                .requestMatchers("/dashboard/", "/dashboard").authenticated()
-                // API Authorization Rules
+                .requestMatchers(PUBLIC_JOBS_URLS).permitAll()
+
+                // ── Public job browsing: individual job view (GET only) ──
+                // IMPORTANT: use GET method matcher so POST /api/jobs (create) still requires auth
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/jobs/{id}").permitAll()
+
+                // ── Auth endpoints ──
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/jobs", "/api/jobs/search", "/api/jobs/*").permitAll()
-                .requestMatchers("/api/profile/**", "/api/applications/**", "/api/jobs/*/apply", "/api/jobs/*/save", "/api/saved-jobs/**").authenticated()
-                .requestMatchers("/api/jobs/create", "/api/jobs/*/edit", "/api/jobs/*/delete").hasAuthority("Recruiter")
+
+                // ── Recruiter-only endpoints ──
+                .requestMatchers("/recruiter/**", "/dashboard/add", "/dashboard/edit/**").hasAuthority("Recruiter")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/jobs").hasAuthority("Recruiter")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/jobs/create").hasAuthority("Recruiter")
+                .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/jobs/{id}").hasAuthority("Recruiter")
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/jobs/{id}").hasAuthority("Recruiter")
+                .requestMatchers("/api/jobs/recruiter").hasAuthority("Recruiter")
+
+                // ── Job Seeker-only endpoints ──
+                .requestMatchers("/job-seeker-profile/**", "/job-seeker-apply/**", "/job-seeker-save/**").hasAuthority("Job Seeker")
+                .requestMatchers("/api/saved-jobs/**").hasAuthority("Job Seeker")
+                .requestMatchers("/api/applications/my-applications").hasAuthority("Job Seeker")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/jobs/{id}/apply").hasAuthority("Job Seeker")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/jobs/{id}/save").hasAuthority("Job Seeker")
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/jobs/{id}/unsave").hasAuthority("Job Seeker")
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/applications/{id}/withdraw").hasAuthority("Job Seeker")
+
+                // ── Authenticated: any logged-in user ──
+                .requestMatchers("/dashboard/", "/dashboard").authenticated()
+                .requestMatchers("/api/profile/**").authenticated()
+                .requestMatchers("/api/applications/**").authenticated()
+                .requestMatchers("/api/jobs/{id}/candidates").authenticated()
+                .requestMatchers("/api/jobs/{id}/status").authenticated()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             );

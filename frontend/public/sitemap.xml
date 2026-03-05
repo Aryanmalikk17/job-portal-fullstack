@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Homepage — highest priority -->
+  <url>
+    <loc>https://zplusejobs.com/</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Registration — important for new user acquisition -->
+  <url>
+    <loc>https://zplusejobs.com/register</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Login -->
+  <url>
+    <loc>https://zplusejobs.com/login</loc>
+    <lastmod>2026-03-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!--
+    NOTE: Individual job detail pages (/jobs/{id}) are NOT listed here
+    because they are dynamic. Instead, they are rendered with inline
+    JSON-LD JobPosting schema so Google Jobs can discover and index them
+    directly via Googlebot crawling from the homepage and API.
+
+    To generate a dynamic sitemap including all live job URLs, add a
+    Spring Boot endpoint at GET /sitemap.xml that queries job_post_activity
+    and returns the full XML. See the implementation guide in the walkthrough.
+  -->
+
+</urlset>

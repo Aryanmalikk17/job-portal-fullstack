@@ -473,9 +473,9 @@ const RecruiterDashboard = ({ user }) => {
                 }
 
                 .dashboard-main-tabs .nav-link.active {
-                    color: #3b82f6;
+                    color: #34C1D9;
                     background-color: transparent;
-                    border-bottom: 3px solid #3b82f6;
+                    border-bottom: 3px solid #34C1D9;
                 }
 
                 .job-card {
@@ -507,7 +507,7 @@ const RecruiterDashboard = ({ user }) => {
                     background: #f0fdf4;
                     padding: 0.5rem;
                     border-radius: 6px;
-                    border-left: 3px solid #10b981;
+                    border-left: 3px solid #34C1D9;
                 }
 
                 .no-jobs, .no-applications {

@@ -1,6 +1,6 @@
 /* Saved Jobs Page Modern Styles */
 .saved-jobs-page {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
     min-height: 100vh;
     padding-bottom: 2rem;
 }
@@ -59,7 +59,7 @@
 .stat-card {
     text-align: center;
     padding: 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
     border-radius: 15px;
     color: white;
     min-width: 100px;
@@ -69,7 +69,7 @@
 .stat-number {
     font-size: 2rem;
     font-weight: 700;
-    color: #ffd700;
+    color: #34C1D9;
 }
 
 .stat-label {
@@ -122,7 +122,7 @@
 }
 
 .search-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
     border: none;
     padding: 0.75rem 1rem;
     transition: all 0.3s ease;
@@ -144,7 +144,7 @@
 }
 
 .modern-select:focus {
-    border-color: #667eea;
+    border-color: #34C1D9;
     box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
 }
 
@@ -199,12 +199,12 @@
     width: 1.2em;
     height: 1.2em;
     border-radius: 0.3em;
-    border: 2px solid #667eea;
+    border: 2px solid #34C1D9;
 }
 
 .select-all-checkbox .form-check-input:checked {
-    background-color: #667eea;
-    border-color: #667eea;
+    background-color: #34C1D9;
+    border-color: #34C1D9;
 }
 
 .selection-text {
@@ -240,8 +240,8 @@
 }
 
 .options-dropdown:hover {
-    border-color: #667eea;
-    color: #667eea;
+    border-color: #34C1D9;
+    color: #34C1D9;
 }
 
 /* Jobs Grid */
@@ -275,7 +275,7 @@
 
 .custom-pagination .page-link {
     border: none;
-    color: #667eea;
+    color: #34C1D9;
     padding: 0.75rem 1rem;
     margin: 0 0.25rem;
     border-radius: 10px;
@@ -285,12 +285,12 @@
 
 .custom-pagination .page-link:hover {
     background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+    color: #34C1D9;
     transform: translateY(-1px);
 }
 
 .custom-pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
     border: none;
     color: white;
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
@@ -329,7 +329,7 @@
 }
 
 .no-results-state .empty-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
     box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
 }
 
@@ -352,7 +352,7 @@
 }
 
 .cta-button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
     border: none;
     border-radius: 12px;
     padding: 1rem 2rem;
@@ -586,7 +586,7 @@
 .modern-search-input:focus,
 .modern-select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: #34C1D9;
     box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
 }
 

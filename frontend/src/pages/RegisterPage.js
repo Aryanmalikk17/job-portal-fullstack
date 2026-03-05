@@ -84,7 +84,7 @@ const RegisterPage = () => {
         setUserType(type);
         setFormData(prev => ({
             ...prev,
-            userTypeId: type === 'jobseeker' ? 1 : 2
+            userTypeId: type === 'jobseeker' ? 2 : 1  // DB: 1=Recruiter, 2=Job Seeker
         }));
     };
 

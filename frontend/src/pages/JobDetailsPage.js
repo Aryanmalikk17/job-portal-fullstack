@@ -67,6 +67,78 @@ const JobDetailsPage = () => {
         loadJobDetails();
     }, [loadJobDetails]);
 
+    // Inject JSON-LD JobPosting schema for Google Jobs indexing
+    useEffect(() => {
+        if (!job) return;
+
+        const scriptId = 'job-posting-jsonld';
+        // Remove any existing script to avoid duplicates on re-renders
+        const existing = document.getElementById(scriptId);
+        if (existing) existing.remove();
+
+        const locationCity = job.jobLocationId?.city || job.location || '';
+        const locationCountry = job.jobLocationId?.country || 'IN';
+        const salary = job.salary || '';
+        const isRemote = job.remote === 'Remote-Only' || job.remote === 'Partial-Remote';
+
+        const jsonLd = {
+            '@context': 'https://schema.org/',
+            '@type': 'JobPosting',
+            title: job.jobTitle || '',
+            description: job.descriptionOfJob || '',
+            identifier: {
+                '@type': 'PropertyValue',
+                name: job.jobCompanyId?.name || 'Zpluse Jobs',
+                value: String(job.jobPostId || ''),
+            },
+            datePosted: job.postedDate
+                ? new Date(job.postedDate).toISOString().split('T')[0]
+                : new Date().toISOString().split('T')[0],
+            // Google recommends a validThrough 6 months out if not explicitly set
+            validThrough: new Date(new Date().setMonth(new Date().getMonth() + 6))
+                .toISOString().split('T')[0],
+            employmentType: (job.jobType || 'FULL_TIME').toUpperCase().replace(/[- ]/g, '_'),
+            hiringOrganization: {
+                '@type': 'Organization',
+                name: job.jobCompanyId?.name || 'Zpluse Jobs',
+                sameAs: 'https://zplusejobs.com',
+            },
+            jobLocation: {
+                '@type': 'Place',
+                address: {
+                    '@type': 'PostalAddress',
+                    addressLocality: locationCity,
+                    addressCountry: locationCountry,
+                },
+            },
+            ...(isRemote ? { jobLocationType: 'TELECOMMUTE' } : {}),
+            ...(salary ? {
+                baseSalary: {
+                    '@type': 'MonetaryAmount',
+                    currency: 'INR',
+                    value: {
+                        '@type': 'QuantitativeValue',
+                        value: salary,
+                        unitText: 'YEAR',
+                    },
+                },
+            } : {}),
+            url: `https://zplusejobs.com/jobs/${job.jobPostId}`,
+            directApply: true,
+        };
+
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.id = scriptId;
+        script.text = JSON.stringify(jsonLd);
+        document.head.appendChild(script);
+
+        return () => {
+            const el = document.getElementById(scriptId);
+            if (el) el.remove();
+        };
+    }, [job]);
+
     // Enhanced error handling function
     const handleApiError = (err, context) => {
         let errorMessage = 'An unexpected error occurred';

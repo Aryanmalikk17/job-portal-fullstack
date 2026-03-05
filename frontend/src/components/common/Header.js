@@ -36,7 +36,7 @@ const Header = () => {
                         style={{
                             width: '40px',
                             height: '40px',
-                            background: 'linear-gradient(135deg, #ffd700 0%, #ff8c00 100%)',
+                            background: 'linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%)',
                             borderRadius: '8px',
                             display: 'flex',
                             alignItems: 'center',

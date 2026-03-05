@@ -1,7 +1,7 @@
 import api from './api';
 
 const JOBS_ENDPOINTS = {
-    GET_ALL: '/',
+    GET_ALL: '/jobs',
     GET_BY_ID: (id) => `/jobs/${id}`,
     CREATE_JOB: '/jobs/create',
     SAVE_JOB: (id) => `/jobs/${id}/save`,
@@ -172,6 +172,20 @@ export const jobService = {
             return response.data;
         } catch (error) {
             throw error.response?.data || { message: 'Failed to unsave job' };
+        }
+    },
+
+    // Get candidates for a specific job (Recruiter only) — called by JobDetailsPage
+    getJobCandidates: async (jobId) => {
+        try {
+            const response = await api.get(JOBS_ENDPOINTS.GET_CANDIDATES(jobId));
+            if (response.data && response.data.success && response.data.data) {
+                return response.data.data;
+            }
+            return Array.isArray(response.data) ? response.data : [];
+        } catch (error) {
+            console.error('Error fetching job candidates:', error);
+            throw error.response?.data || { message: 'Failed to fetch candidates' };
         }
     },
 

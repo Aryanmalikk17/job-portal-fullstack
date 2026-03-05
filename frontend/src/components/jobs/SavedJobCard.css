@@ -14,17 +14,17 @@
 .saved-job-card:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     transform: translateY(-2px);
-    border-color: #3b82f6;
+    border-color: #34C1D9;
 }
 
 .saved-job-card.selected {
-    border-color: #3b82f6;
+    border-color: #34C1D9;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
     background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%);
 }
 
 .saved-job-card.applied {
-    border-left: 4px solid #10b981;
+    border-left: 4px solid #34C1D9;
     background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
 }
 
@@ -58,8 +58,8 @@
 }
 
 .job-selection .form-check-input:checked {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
+    background-color: #34C1D9;
+    border-color: #34C1D9;
 }
 
 /* Company Logo */
@@ -82,7 +82,7 @@
     width: 56px;
     height: 56px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #34C1D9 0%, #1A8FA3 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -123,7 +123,7 @@
 }
 
 .job-title-link:hover {
-    color: #3b82f6;
+    color: #34C1D9;
     text-decoration: none;
 }
 
@@ -217,7 +217,7 @@
 }
 
 .description-show-more {
-    color: #3b82f6;
+    color: #34C1D9;
     cursor: pointer;
     font-weight: 600;
     font-size: 14px;
@@ -270,7 +270,7 @@
 }
 
 .applied-date i {
-    color: #10b981;
+    color: #34C1D9;
 }
 
 .deadline-info i {
@@ -288,7 +288,7 @@
 }
 
 .deadline-info.text-info {
-    color: #3b82f6 !important;
+    color: #34C1D9 !important;
     font-weight: 600;
 }
 
@@ -309,7 +309,7 @@
 }
 
 .apply-btn {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #34C1D9 0%, #2AA8BD 100%);
     border: none;
     border-radius: 8px;
     padding: 10px 20px;
@@ -321,15 +321,15 @@
 }
 
 .apply-btn:hover {
-    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    background: linear-gradient(135deg, #2AA8BD 0%, #1A8FA3 100%);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
     transform: translateY(-1px);
 }
 
 .applied-btn {
     background: #f0fdf4;
-    border-color: #10b981;
-    color: #10b981;
+    border-color: #34C1D9;
+    color: #34C1D9;
     border-radius: 8px;
     padding: 10px 20px;
     font-weight: 600;
@@ -338,8 +338,8 @@
 }
 
 .view-btn {
-    border-color: #3b82f6;
-    color: #3b82f6;
+    border-color: #34C1D9;
+    color: #34C1D9;
     border-radius: 8px;
     padding: 8px 16px;
     font-weight: 600;
@@ -351,7 +351,7 @@
 }
 
 .view-btn:hover {
-    background: #3b82f6;
+    background: #34C1D9;
     color: #ffffff;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
@@ -568,7 +568,7 @@
 
 /* Focus states for accessibility */
 .saved-job-card:focus-within {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid #34C1D9;
     outline-offset: 2px;
 }
 
@@ -576,6 +576,6 @@
 .view-btn:focus,
 .apply-btn:focus,
 .options-btn:focus {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid #34C1D9;
     outline-offset: 2px;
 }
