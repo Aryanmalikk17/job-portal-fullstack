@@ -167,7 +167,7 @@ public class ProfileRestController {
             if (StringUtils.hasText(lastName)) {
                 currentUser.setLastName(lastName);
             }
-            usersService.addNew(currentUser);
+            usersService.updateUser(currentUser);
 
             // FIXED: Get existing managed entity or create new one to avoid Duplicate PK insert
             Optional<JobSeekerProfile> existingOpt = jobSeekerProfileService.getOne(currentUser.getUserId());
@@ -316,7 +316,7 @@ public class ProfileRestController {
             if (StringUtils.hasText(lastName)) {
                 currentUser.setLastName(lastName);
             }
-            usersService.addNew(currentUser);
+            usersService.updateUser(currentUser);
 
             // Get or create recruiter profile
             Optional<RecruiterProfile> existingProfile = recruiterProfileService.getOne(currentUser.getUserId());

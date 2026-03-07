@@ -51,6 +51,13 @@ public class UsersService {
         return savedUser;
     }
 
+    /**
+     * Update an existing user without changing password or triggering profile creation
+     */
+    public Users updateUser(Users user) {
+        return usersRepository.save(user);
+    }
+
     public Object getCurrentUserProfile() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
