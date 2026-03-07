@@ -239,7 +239,12 @@ public class JobApplicationRestController {
 
             List<JobSeekerApply> applications = jobSeekerApplyService.getCandidatesJobs(jobSeekerOpt.get());
             List<ApplicationResponse> response = applications.stream()
-                .map(ApplicationResponse::fromEntity)
+                .map(app -> {
+                    ApplicationResponse dto = ApplicationResponse.fromEntity(app);
+                    // SECURITY: Never expose recruiter notes to the applicant
+                    dto.setRecruiterNotes(null);
+                    return dto;
+                })
                 .toList();
 
             return ResponseEntity.ok(response);
