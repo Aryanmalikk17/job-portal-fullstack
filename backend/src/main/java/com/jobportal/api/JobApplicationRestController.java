@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -387,6 +389,7 @@ public class JobApplicationRestController {
     /**
      * Update application status (recruiter only)
      */
+    @Transactional
     @PutMapping("/{applicationId}/status")
     public ResponseEntity<?> updateApplicationStatus(@PathVariable Integer applicationId,
                                                    @RequestBody ApplicationStatusUpdateRequest request) {

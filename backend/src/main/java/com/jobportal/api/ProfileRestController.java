@@ -169,9 +169,15 @@ public class ProfileRestController {
             }
             usersService.addNew(currentUser);
 
-            // Check if profile exists - create profile object with updates
-            JobSeekerProfile profile = new JobSeekerProfile();
-            profile.setUserAccountId(currentUser.getUserId());
+            // FIXED: Get existing managed entity or create new one to avoid Duplicate PK insert
+            Optional<JobSeekerProfile> existingOpt = jobSeekerProfileService.getOne(currentUser.getUserId());
+            JobSeekerProfile profile;
+            if (existingOpt.isPresent()) {
+                profile = existingOpt.get();
+            } else {
+                profile = new JobSeekerProfile();
+                profile.setUserAccountId(currentUser.getUserId());
+            }
 
             // Update Personal Information
             if (StringUtils.hasText(firstName)) profile.setFirstName(firstName);
@@ -239,8 +245,8 @@ public class ProfileRestController {
                 }
             }
 
-            // Smart profile save: Use existing addNew method which now handles update vs insert properly
-            JobSeekerProfile savedProfile = jobSeekerProfileService.addNew(profile);
+            // FIXED: Save the managed entity directly via repository to avoid duplicate PK
+            JobSeekerProfile savedProfile = jobSeekerProfileRepository.save(profile);
 
             // Return updated profile with ALL fields
             UserProfileDto profileDto = new UserProfileDto();
@@ -351,7 +357,8 @@ public class ProfileRestController {
                 }
             }
 
-            recruiterProfileService.addNew(profile);
+            // FIXED: Save the managed entity directly to avoid duplicate PK insert
+            profile = recruiterProfileService.save(profile);
 
             // Return updated profile
             UserProfileDto profileDto = new UserProfileDto();

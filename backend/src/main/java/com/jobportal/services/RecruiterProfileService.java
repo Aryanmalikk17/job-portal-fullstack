@@ -69,6 +69,13 @@ public class RecruiterProfileService {
         }
     }
 
+    /**
+     * Save a managed profile entity directly (avoids re-fetching in addNew)
+     */
+    public RecruiterProfile save(RecruiterProfile profile) {
+        return recruiterRepository.save(profile);
+    }
+
     public RecruiterProfile getCurrentRecruiterProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {

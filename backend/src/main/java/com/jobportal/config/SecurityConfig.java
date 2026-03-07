@@ -185,6 +185,7 @@ public class SecurityConfig {
 
                 // ── Authenticated: any logged-in user ──
                 .requestMatchers("/dashboard/", "/dashboard").authenticated()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/applications/statuses").permitAll()
                 .requestMatchers("/api/profile/**").authenticated()
                 .requestMatchers("/api/applications/**").authenticated()
                 .requestMatchers("/api/jobs/{id}/candidates").authenticated()
