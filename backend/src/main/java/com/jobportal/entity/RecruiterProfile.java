@@ -6,12 +6,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "recruiter_profile")
-public class RecruiterProfile {
+public class RecruiterProfile implements Persistable<Integer> {
 
     @Id
     private int userAccountId;
@@ -33,6 +36,25 @@ public class RecruiterProfile {
 
     @Column(nullable = true, length = 64)
     private String profilePhoto;
+
+    @Transient
+    private boolean isNew = true;
+
+    @PostLoad
+    @PostPersist
+    void markNotNew() {
+        this.isNew = false;
+    }
+
+    @Override
+    public Integer getId() {
+        return userAccountId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
 
     public RecruiterProfile() {
     }

@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "job_seeker_profile")
-public class JobSeekerProfile {
+public class JobSeekerProfile implements Persistable<Integer> {
 
     @Id
     @Column(name = "user_account_id")
@@ -88,6 +89,25 @@ public class JobSeekerProfile {
 
     // Constructors
     public JobSeekerProfile() {
+    }
+
+    @Transient
+    private boolean isNew = true;
+
+    @PostLoad
+    @PostPersist
+    void markNotNew() {
+        this.isNew = false;
+    }
+
+    @Override
+    public Integer getId() {
+        return userAccountId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
     }
 
     public JobSeekerProfile(Users userId) {
