@@ -721,7 +721,7 @@ const AddJobPage = () => {
                                     type="submit" 
                                     className="btn-post-enhanced"
                                     onClick={handleSubmit}
-                                    disabled={loading || progress < 90}
+                                    disabled={loading}
                                 >
                                     {loading ? (
                                         <>
@@ -1210,13 +1210,13 @@ const AddJobPage = () => {
                     align-items: center;
                     gap: 0.5rem;
                     transition: all 0.3s ease;
-                    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+                    box-shadow: 0 8px 20px rgba(52, 193, 217, 0.3);
                 }
 
                 .btn-post-enhanced:hover:not(:disabled) {
                     transform: translateY(-2px);
-                    box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
-                    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+                    box-shadow: 0 12px 25px rgba(52, 193, 217, 0.4);
+                    background: linear-gradient(135deg, #4DD8F0 0%, #2AB6CE 100%);
                 }
 
                 .btn-post-enhanced:disabled {
