@@ -33,7 +33,7 @@ function App() {
             
             {/* Job-related routes - SPECIFIC routes must come BEFORE parameterized routes */}
             <Route path="/jobs/create" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="Recruiter">
                 <AddJobPage />
               </ProtectedRoute>
             } />
@@ -46,7 +46,7 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/add-job" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="Recruiter">
                 <AddJobPage />
               </ProtectedRoute>
             } />
@@ -56,12 +56,12 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/saved-jobs" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="Job Seeker">
                 <SavedJobsPage />
               </ProtectedRoute>
             } />
             <Route path="/my-applications" element={
-              <ProtectedRoute>
+              <ProtectedRoute requiredRole="Job Seeker">
                 <MyApplicationsPage />
               </ProtectedRoute>
             } />

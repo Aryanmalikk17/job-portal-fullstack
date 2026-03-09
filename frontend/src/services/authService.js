@@ -82,24 +82,18 @@ export const authService = {
                 
                 console.log('AuthService: Error status:', status, 'data:', data);
                 
-                if (status === 401) {
-                    // Invalid credentials
-                    errorMessage = 'Invalid email or password. Please check your credentials and try again.';
-                } else if (status === 403) {
-                    // Account locked or disabled
-                    errorMessage = 'Your account has been locked or disabled. Please contact support.';
-                } else if (status === 429) {
-                    // Too many attempts
-                    errorMessage = 'Too many login attempts. Please try again later.';
-                } else if (data && typeof data === 'string') {
-                    // Server returned error message as string
-                    errorMessage = data;
-                } else if (data && data.message) {
-                    // Server returned error object with message
+                if (data && data.message) {
                     errorMessage = data.message;
                 } else if (data && data.error) {
-                    // Server returned error object with error field
                     errorMessage = data.error;
+                } else if (data && typeof data === 'string') {
+                    errorMessage = data;
+                } else if (status === 401) {
+                    errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+                } else if (status === 403) {
+                    errorMessage = 'Your account has been locked or disabled. Please contact support.';
+                } else if (status === 429) {
+                    errorMessage = 'Too many login attempts. Please try again later.';
                 }
             } else if (error.request) {
                 // Request was made but no response received
