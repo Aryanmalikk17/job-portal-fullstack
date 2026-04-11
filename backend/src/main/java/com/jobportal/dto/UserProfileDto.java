@@ -2,6 +2,7 @@ package com.jobportal.dto;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 public class UserProfileDto {
     
@@ -37,9 +38,24 @@ public class UserProfileDto {
     private String profilePhoto;
     private String resume;
     private String coverLetter;
+    private List<String> skills;
     
     // Recruiter specific fields
     private String company;
+    private String jobTitle;
+    private String companyWebsite;
+    private String companyDescription;
+    private String industry;
+    private String companySize;
+    private String companyType;
+    private Integer foundedYear;
+    private String businessPhone;
+    private String businessEmail;
+    private String officeAddress;
+    private String officeCity;
+    private String officeState;
+    private String officeCountry;
+    private String companyLogo;
     
     // Constructors
     public UserProfileDto() {}
@@ -136,7 +152,53 @@ public class UserProfileDto {
     public String getCoverLetter() { return coverLetter; }
     public void setCoverLetter(String coverLetter) { this.coverLetter = coverLetter; }
     
+    public List<String> skills() { return skills; } // Legacy getter if needed
+    public List<String> getSkills() { return skills; }
+    public void setSkills(List<String> skills) { this.skills = skills; }
+    
     // Recruiter specific getters/setters
     public String getCompany() { return company; }
     public void setCompany(String company) { this.company = company; }
+
+    public String getJobTitle() { return jobTitle; }
+    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
+
+    public String getCompanyWebsite() { return companyWebsite; }
+    public void setCompanyWebsite(String companyWebsite) { this.companyWebsite = companyWebsite; }
+
+    public String getCompanyDescription() { return companyDescription; }
+    public void setCompanyDescription(String companyDescription) { this.companyDescription = companyDescription; }
+
+    public String getIndustry() { return industry; }
+    public void setIndustry(String industry) { this.industry = industry; }
+
+    public String getCompanySize() { return companySize; }
+    public void setCompanySize(String companySize) { this.companySize = companySize; }
+
+    public String getCompanyType() { return companyType; }
+    public void setCompanyType(String companyType) { this.companyType = companyType; }
+
+    public Integer getFoundedYear() { return foundedYear; }
+    public void setFoundedYear(Integer foundedYear) { this.foundedYear = foundedYear; }
+
+    public String getBusinessPhone() { return businessPhone; }
+    public void setBusinessPhone(String businessPhone) { this.businessPhone = businessPhone; }
+
+    public String getBusinessEmail() { return businessEmail; }
+    public void setBusinessEmail(String businessEmail) { this.businessEmail = businessEmail; }
+
+    public String getOfficeAddress() { return officeAddress; }
+    public void setOfficeAddress(String officeAddress) { this.officeAddress = officeAddress; }
+
+    public String getOfficeCity() { return officeCity; }
+    public void setOfficeCity(String officeCity) { this.officeCity = officeCity; }
+
+    public String getOfficeState() { return officeState; }
+    public void setOfficeState(String officeState) { this.officeState = officeState; }
+
+    public String getOfficeCountry() { return officeCountry; }
+    public void setOfficeCountry(String officeCountry) { this.officeCountry = officeCountry; }
+
+    public String getCompanyLogo() { return companyLogo; }
+    public void setCompanyLogo(String companyLogo) { this.companyLogo = companyLogo; }
 }

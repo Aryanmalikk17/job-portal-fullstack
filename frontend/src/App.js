@@ -10,6 +10,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import JobDetailsPage from './pages/JobDetailsPage';
+import CompanyDetailsPage from './pages/CompanyDetailsPage';
 import AddJobPage from './pages/AddJobPage';
 import ProfilePage from './pages/ProfilePage';
 import SavedJobsPage from './pages/SavedJobsPage';
@@ -38,6 +39,7 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/jobs/:id" element={<JobDetailsPage />} />
+            <Route path="/companies/:id" element={<CompanyDetailsPage />} />
             
             {/* Protected Routes */}
             <Route path="/dashboard" element={

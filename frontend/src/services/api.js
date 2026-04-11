@@ -38,6 +38,10 @@ api.interceptors.response.use(
         const isOnAuthPage = window.location.pathname === '/login' ||
                              window.location.pathname === '/register';
         
+        if (error.response?.status === 500) {
+            alert("Database Sync Error: Please refresh your profile data");
+        }
+
         if (error.response?.status === 401 && !isAuthRequest && !isOnAuthPage) {
             // Token expired or invalid — only redirect if not already on auth flow
             localStorage.removeItem(process.env.REACT_APP_JWT_STORAGE_KEY || 'jwt-token');

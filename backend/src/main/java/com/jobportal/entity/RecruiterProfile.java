@@ -37,6 +37,26 @@ public class RecruiterProfile implements Persistable<Integer> {
     @Column(nullable = true, length = 64)
     private String profilePhoto;
 
+    // New Fields
+    private String jobTitle;
+    private String phone;
+    private String companyWebsite;
+    
+    @Column(columnDefinition = "TEXT")
+    private String companyDescription;
+    
+    private String industry;
+    private String companySize;
+    private String companyType;
+    private Integer foundedYear;
+    private String businessPhone;
+    private String businessEmail;
+    private String officeAddress;
+    private String officeCity;
+    private String officeState;
+    private String officeCountry;
+    private String companyLogo;
+
     @Transient
     private boolean isNew = true;
 
@@ -53,7 +73,7 @@ public class RecruiterProfile implements Persistable<Integer> {
 
     @Override
     public boolean isNew() {
-        return isNew;
+        return isNew && userAccountId == 0;
     }
 
     public RecruiterProfile() {
@@ -147,6 +167,51 @@ public class RecruiterProfile implements Persistable<Integer> {
         this.profilePhoto = profilePhoto;
     }
 
+    public String getJobTitle() { return jobTitle; }
+    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
+
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
+
+    public String getCompanyWebsite() { return companyWebsite; }
+    public void setCompanyWebsite(String companyWebsite) { this.companyWebsite = companyWebsite; }
+
+    public String getCompanyDescription() { return companyDescription; }
+    public void setCompanyDescription(String companyDescription) { this.companyDescription = companyDescription; }
+
+    public String getIndustry() { return industry; }
+    public void setIndustry(String industry) { this.industry = industry; }
+
+    public String getCompanySize() { return companySize; }
+    public void setCompanySize(String companySize) { this.companySize = companySize; }
+
+    public String getCompanyType() { return companyType; }
+    public void setCompanyType(String companyType) { this.companyType = companyType; }
+
+    public Integer getFoundedYear() { return foundedYear; }
+    public void setFoundedYear(Integer foundedYear) { this.foundedYear = foundedYear; }
+
+    public String getBusinessPhone() { return businessPhone; }
+    public void setBusinessPhone(String businessPhone) { this.businessPhone = businessPhone; }
+
+    public String getBusinessEmail() { return businessEmail; }
+    public void setBusinessEmail(String businessEmail) { this.businessEmail = businessEmail; }
+
+    public String getOfficeAddress() { return officeAddress; }
+    public void setOfficeAddress(String officeAddress) { this.officeAddress = officeAddress; }
+
+    public String getOfficeCity() { return officeCity; }
+    public void setOfficeCity(String officeCity) { this.officeCity = officeCity; }
+
+    public String getOfficeState() { return officeState; }
+    public void setOfficeState(String officeState) { this.officeState = officeState; }
+
+    public String getOfficeCountry() { return officeCountry; }
+    public void setOfficeCountry(String officeCountry) { this.officeCountry = officeCountry; }
+
+    public String getCompanyLogo() { return companyLogo; }
+    public void setCompanyLogo(String companyLogo) { this.companyLogo = companyLogo; }
+
     @Transient
     public String getPhotosImagePath() {
         if (profilePhoto == null) return null;
@@ -165,6 +230,10 @@ public class RecruiterProfile implements Persistable<Integer> {
                 ", country='" + country + '\'' +
                 ", company='" + company + '\'' +
                 ", profilePhoto='" + profilePhoto + '\'' +
+                ", jobTitle='" + jobTitle + '\'' +
+                ", phone='" + phone + '\'' +
+                ", companyWebsite='" + companyWebsite + '\'' +
+                ", industry='" + industry + '\'' +
                 '}';
     }
 }

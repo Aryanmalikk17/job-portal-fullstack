@@ -20,7 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import com.jobportal.entity.Skills;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -96,6 +100,13 @@ public class ProfileRestController {
                     profileDto.setProfilePhoto(profile.getProfilePhoto());
                     profileDto.setResume(profile.getResume());
                     profileDto.setCoverLetter(profile.getCoverLetter());
+                    
+                    // Add skills
+                    if (profile.getSkills() != null) {
+                        profileDto.setSkills(profile.getSkills().stream()
+                            .map(Skills::getName)
+                            .collect(Collectors.toList()));
+                    }
                 }
             } else if ("Recruiter".equals(currentUser.getUserTypeId().getUserTypeName())) {
                 Optional<RecruiterProfile> recruiterProfile = recruiterProfileService.getOne(currentUser.getUserId());
@@ -106,6 +117,23 @@ public class ProfileRestController {
                     profileDto.setState(profile.getState());
                     profileDto.setCountry(profile.getCountry());
                     profileDto.setProfilePhoto(profile.getProfilePhoto());
+                    
+                    // New Recruiter Fields
+                    profileDto.setJobTitle(profile.getJobTitle());
+                    profileDto.setPhone(profile.getPhone());
+                    profileDto.setCompanyWebsite(profile.getCompanyWebsite());
+                    profileDto.setCompanyDescription(profile.getCompanyDescription());
+                    profileDto.setIndustry(profile.getIndustry());
+                    profileDto.setCompanySize(profile.getCompanySize());
+                    profileDto.setCompanyType(profile.getCompanyType());
+                    profileDto.setFoundedYear(profile.getFoundedYear());
+                    profileDto.setBusinessPhone(profile.getBusinessPhone());
+                    profileDto.setBusinessEmail(profile.getBusinessEmail());
+                    profileDto.setOfficeAddress(profile.getOfficeAddress());
+                    profileDto.setOfficeCity(profile.getOfficeCity());
+                    profileDto.setOfficeState(profile.getOfficeState());
+                    profileDto.setOfficeCountry(profile.getOfficeCountry());
+                    profileDto.setCompanyLogo(profile.getCompanyLogo());
                 }
             }
 
@@ -146,7 +174,8 @@ public class ProfileRestController {
             
             // Documents
             @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto,
-            @RequestParam(value = "resume", required = false) MultipartFile resume) {
+            @RequestParam(value = "resume", required = false) MultipartFile resume,
+            @RequestParam(value = "skills", required = false) List<String> skills) {
         
         try {
             Users currentUser = usersService.getCurrentUser();
@@ -215,6 +244,26 @@ public class ProfileRestController {
             if (StringUtils.hasText(portfolioWebsite)) profile.setPortfolioWebsite(portfolioWebsite);
             if (StringUtils.hasText(coverLetter)) profile.setCoverLetter(coverLetter);
 
+            // Update Skills
+            if (skills != null) {
+                // Clear existing skills
+                if (profile.getSkills() == null) {
+                    profile.setSkills(new ArrayList<>());
+                } else {
+                    profile.getSkills().clear();
+                }
+                
+                // Add new skills
+                for (String skillName : skills) {
+                    if (StringUtils.hasText(skillName)) {
+                        Skills skill = new Skills();
+                        skill.setName(skillName);
+                        skill.setJobSeekerProfile(profile);
+                        profile.getSkills().add(skill);
+                    }
+                }
+            }
+
             // Handle file uploads
             if (profilePhoto != null && !profilePhoto.isEmpty()) {
                 try {
@@ -277,6 +326,13 @@ public class ProfileRestController {
             profileDto.setCoverLetter(savedProfile.getCoverLetter());
             profileDto.setProfilePhoto(savedProfile.getProfilePhoto());
             profileDto.setResume(savedProfile.getResume());
+            
+            // Add skills to response
+            if (savedProfile.getSkills() != null) {
+                profileDto.setSkills(savedProfile.getSkills().stream()
+                    .map(Skills::getName)
+                    .collect(Collectors.toList()));
+            }
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Profile updated successfully", profileDto));
 
@@ -295,7 +351,22 @@ public class ProfileRestController {
             @RequestParam(value = "city", required = false) String city,
             @RequestParam(value = "state", required = false) String state,
             @RequestParam(value = "country", required = false) String country,
-            @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto) {
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "jobTitle", required = false) String jobTitle,
+            @RequestParam(value = "companyWebsite", required = false) String companyWebsite,
+            @RequestParam(value = "companyDescription", required = false) String companyDescription,
+            @RequestParam(value = "industry", required = false) String industry,
+            @RequestParam(value = "companySize", required = false) String companySize,
+            @RequestParam(value = "companyType", required = false) String companyType,
+            @RequestParam(value = "foundedYear", required = false) Integer foundedYear,
+            @RequestParam(value = "businessPhone", required = false) String businessPhone,
+            @RequestParam(value = "businessEmail", required = false) String businessEmail,
+            @RequestParam(value = "officeAddress", required = false) String officeAddress,
+            @RequestParam(value = "officeCity", required = false) String officeCity,
+            @RequestParam(value = "officeState", required = false) String officeState,
+            @RequestParam(value = "officeCountry", required = false) String officeCountry,
+            @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto,
+            @RequestParam(value = "companyLogo", required = false) MultipartFile companyLogo) {
         
         try {
             Users currentUser = usersService.getCurrentUser();
@@ -342,6 +413,30 @@ public class ProfileRestController {
             if (StringUtils.hasText(country)) {
                 profile.setCountry(country);
             }
+            
+            // Sync names to profile entity
+            if (StringUtils.hasText(firstName)) {
+                profile.setFirstName(firstName);
+            }
+            if (StringUtils.hasText(lastName)) {
+                profile.setLastName(lastName);
+            }
+
+            // New fields mapping
+            if (StringUtils.hasText(phone)) profile.setPhone(phone);
+            if (StringUtils.hasText(jobTitle)) profile.setJobTitle(jobTitle);
+            if (StringUtils.hasText(companyWebsite)) profile.setCompanyWebsite(companyWebsite);
+            if (StringUtils.hasText(companyDescription)) profile.setCompanyDescription(companyDescription);
+            if (StringUtils.hasText(industry)) profile.setIndustry(industry);
+            if (StringUtils.hasText(companySize)) profile.setCompanySize(companySize);
+            if (StringUtils.hasText(companyType)) profile.setCompanyType(companyType);
+            if (foundedYear != null) profile.setFoundedYear(foundedYear);
+            if (StringUtils.hasText(businessPhone)) profile.setBusinessPhone(businessPhone);
+            if (StringUtils.hasText(businessEmail)) profile.setBusinessEmail(businessEmail);
+            if (StringUtils.hasText(officeAddress)) profile.setOfficeAddress(officeAddress);
+            if (StringUtils.hasText(officeCity)) profile.setOfficeCity(officeCity);
+            if (StringUtils.hasText(officeState)) profile.setOfficeState(officeState);
+            if (StringUtils.hasText(officeCountry)) profile.setOfficeCountry(officeCountry);
 
             // Handle profile photo upload
             if (profilePhoto != null && !profilePhoto.isEmpty()) {
@@ -354,6 +449,20 @@ public class ProfileRestController {
                     logger.error("Error uploading profile photo", e);
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(new ApiResponse<>(false, "Error uploading profile photo", null));
+                }
+            }
+
+            // Handle company logo upload
+            if (companyLogo != null && !companyLogo.isEmpty()) {
+                try {
+                    String uploadDir = "logos/company/" + currentUser.getUserId();
+                    String fileName = companyLogo.getOriginalFilename();
+                    FileUploadUtil.saveFile(uploadDir, fileName, companyLogo);
+                    profile.setCompanyLogo(fileName);
+                } catch (Exception e) {
+                    logger.error("Error uploading company logo", e);
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new ApiResponse<>(false, "Error uploading company logo", null));
                 }
             }
 

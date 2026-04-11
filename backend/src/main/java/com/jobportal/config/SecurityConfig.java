@@ -49,6 +49,8 @@ public class SecurityConfig {
         "/font-awesome/**", "/bootstrap/**", "/jquery/**",
         // Auth endpoints — always public
         "/api/auth/login", "/api/auth/register", "/api/auth/logout",
+        // Company Profile endpoints
+        "/api/companies/**",
         // Swagger/OpenAPI
         "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**"
     };

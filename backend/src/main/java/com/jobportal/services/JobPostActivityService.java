@@ -64,4 +64,8 @@ public class JobPostActivityService {
     public void deleteJobById(int id) {
         jobPostActivityRepository.deleteById(id);
     }
+
+    public List<JobPostActivity> getActiveJobsByRecruiter(int recruiterId) {
+        return jobPostActivityRepository.findByRecruiter(recruiterId);
+    }
 }

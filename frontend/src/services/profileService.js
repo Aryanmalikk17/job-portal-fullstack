@@ -37,6 +37,7 @@ export const profileService = {
             const formData = new FormData();
             
             // Personal Information - Add ALL fields
+            if (profileData.userId) formData.append('userId', profileData.userId);
             if (profileData.firstName) formData.append('firstName', profileData.firstName);
             if (profileData.lastName) formData.append('lastName', profileData.lastName);
             if (profileData.phone) formData.append('phone', profileData.phone);
@@ -59,6 +60,15 @@ export const profileService = {
             if (profileData.githubProfile) formData.append('githubProfile', profileData.githubProfile);
             if (profileData.portfolioWebsite) formData.append('portfolioWebsite', profileData.portfolioWebsite);
             if (profileData.coverLetter) formData.append('coverLetter', profileData.coverLetter);
+            
+            // Skills - Add as multiple entries for Spring List<String> compatibility
+            if (profileData.skills && Array.isArray(profileData.skills)) {
+                profileData.skills.forEach(skill => {
+                    if (skill && skill.trim()) {
+                        formData.append('skills', skill.trim());
+                    }
+                });
+            }
             
             // Documents - Add file fields
             if (profileData.profilePhoto instanceof File) {
@@ -91,6 +101,7 @@ export const profileService = {
             const formData = new FormData();
             
             // Add text fields
+            if (profileData.userId) formData.append('userId', profileData.userId);
             if (profileData.firstName) formData.append('firstName', profileData.firstName);
             if (profileData.lastName) formData.append('lastName', profileData.lastName);
             if (profileData.companyName) formData.append('company', profileData.companyName);
@@ -98,9 +109,28 @@ export const profileService = {
             if (profileData.state) formData.append('state', profileData.state);
             if (profileData.country) formData.append('country', profileData.country);
             
+            // New Recruiter Fields
+            if (profileData.phone) formData.append('phone', profileData.phone);
+            if (profileData.jobTitle) formData.append('jobTitle', profileData.jobTitle);
+            if (profileData.companyWebsite) formData.append('companyWebsite', profileData.companyWebsite);
+            if (profileData.companyDescription) formData.append('companyDescription', profileData.companyDescription);
+            if (profileData.industry) formData.append('industry', profileData.industry);
+            if (profileData.companySize) formData.append('companySize', profileData.companySize);
+            if (profileData.companyType) formData.append('companyType', profileData.companyType);
+            if (profileData.foundedYear) formData.append('foundedYear', profileData.foundedYear);
+            if (profileData.businessPhone) formData.append('businessPhone', profileData.businessPhone);
+            if (profileData.businessEmail) formData.append('businessEmail', profileData.businessEmail);
+            if (profileData.officeAddress) formData.append('officeAddress', profileData.officeAddress);
+            if (profileData.officeCity) formData.append('officeCity', profileData.officeCity);
+            if (profileData.officeState) formData.append('officeState', profileData.officeState);
+            if (profileData.officeCountry) formData.append('officeCountry', profileData.officeCountry);
+            
             // Add file fields
             if (profileData.profilePhoto instanceof File) {
                 formData.append('profilePhoto', profileData.profilePhoto);
+            }
+            if (profileData.companyLogo instanceof File) {
+                formData.append('companyLogo', profileData.companyLogo);
             }
 
             const response = await api.put(PROFILE_ENDPOINTS.UPDATE_RECRUITER_PROFILE, formData, {

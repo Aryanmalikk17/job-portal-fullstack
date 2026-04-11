@@ -453,8 +453,13 @@ const JobDetailsPage = () => {
                                         <div className="flex-grow-1">
                                             <h1 className="job-title mb-3">{job.jobTitle}</h1>
                                             <div className="company-info mb-3">
-                                                <h5 className="company-name text-primary mb-2">
-                                                    {job.jobCompanyId?.name || 'Company not specified'}
+                                                <h5 className="company-name mb-2">
+                                                    <Link 
+                                                        to={`/companies/${job.postedBy?.userId || job.postedById?.userId}`} 
+                                                        className="text-primary text-decoration-none hover-underline"
+                                                    >
+                                                        {job.jobCompanyId?.name || job.companyName || 'Company not specified'}
+                                                    </Link>
                                                 </h5>
                                                 <div className="location-info text-muted">
                                                     <i className="fa fa-map-marker-alt me-2"></i>

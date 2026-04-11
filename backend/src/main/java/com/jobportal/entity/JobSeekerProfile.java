@@ -107,7 +107,7 @@ public class JobSeekerProfile implements Persistable<Integer> {
 
     @Override
     public boolean isNew() {
-        return isNew;
+        return isNew && (userAccountId == null || userAccountId == 0);
     }
 
     public JobSeekerProfile(Users userId) {

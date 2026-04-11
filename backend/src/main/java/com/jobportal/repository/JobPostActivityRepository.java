@@ -49,4 +49,9 @@ public interface JobPostActivityRepository extends JpaRepository<JobPostActivity
                                  @Param("remote") List<String> remote,
                                  @Param("type") List<String> type,
                                  @Param("date") LocalDate searchDate);
+
+    @Query(value = "SELECT j FROM JobPostActivity j WHERE j.postedById.userId = :recruiterId AND j.isActive = true")
+    List<JobPostActivity> findByRecruiter(@Param("recruiterId") int recruiterId);
+
+    List<JobPostActivity> findByPostedById_UserIdAndIsActiveTrue(int userId);
 }
