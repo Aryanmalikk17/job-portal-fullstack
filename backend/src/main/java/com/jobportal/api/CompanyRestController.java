@@ -5,7 +5,7 @@ import com.jobportal.entity.JobPostActivity;
 import com.jobportal.entity.RecruiterProfile;
 import com.jobportal.services.JobPostActivityService;
 import com.jobportal.services.RecruiterProfileService;
-import com.jobportal.util.ApiResponse;
+import com.jobportal.dto.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
