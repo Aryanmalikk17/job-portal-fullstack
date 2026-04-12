@@ -40,7 +40,7 @@ public class UsersService {
         users.setPassword(passwordEncoder.encode(users.getPassword()));
         
         // Ensure we don't accidentally update an existing user through addNew
-        if (users.getUserId() != null && usersRepository.existsById(users.getUserId())) {
+        if (users.getUserId() > 0 && usersRepository.existsById(users.getUserId())) {
             throw new IllegalStateException("User already exists. Use update flows instead.");
         }
         
