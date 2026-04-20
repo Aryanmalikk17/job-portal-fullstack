@@ -35,32 +35,43 @@ export const profileService = {
         try {
             // Handle form data for file uploads
             const formData = new FormData();
-            
-            // Personal Information - Add ALL fields
+
+            // Helper: append only if field exists (not undefined/null)
+            // Allows empty strings so users can clear fields in the DB
+            const appendIfDefined = (key, value) => {
+                if (value !== undefined && value !== null) {
+                    formData.append(key, value);
+                }
+            };
+
+            // Personal Information - send all fields (including empty strings to clear values)
             if (profileData.userId) formData.append('userId', profileData.userId);
-            if (profileData.firstName) formData.append('firstName', profileData.firstName);
-            if (profileData.lastName) formData.append('lastName', profileData.lastName);
-            if (profileData.phone) formData.append('phone', profileData.phone);
-            if (profileData.dateOfBirth) formData.append('dateOfBirth', profileData.dateOfBirth);
-            if (profileData.gender) formData.append('gender', profileData.gender);
-            if (profileData.city) formData.append('city', profileData.city);
-            if (profileData.state) formData.append('state', profileData.state);
-            if (profileData.country) formData.append('country', profileData.country);
-            if (profileData.willingToRelocate !== undefined) formData.append('willingToRelocate', profileData.willingToRelocate);
-            
-            // Professional Information - Add ALL fields
-            if (profileData.currentJobTitle) formData.append('currentJobTitle', profileData.currentJobTitle);
-            if (profileData.experience) formData.append('experience', profileData.experience);
-            if (profileData.education) formData.append('education', profileData.education);
-            if (profileData.workAuthorization) formData.append('workAuthorization', profileData.workAuthorization);
-            if (profileData.employmentType) formData.append('employmentType', profileData.employmentType);
-            if (profileData.expectedSalary) formData.append('expectedSalary', profileData.expectedSalary);
-            if (profileData.availabilityDate) formData.append('availabilityDate', profileData.availabilityDate);
-            if (profileData.linkedinProfile) formData.append('linkedinProfile', profileData.linkedinProfile);
-            if (profileData.githubProfile) formData.append('githubProfile', profileData.githubProfile);
-            if (profileData.portfolioWebsite) formData.append('portfolioWebsite', profileData.portfolioWebsite);
-            if (profileData.coverLetter) formData.append('coverLetter', profileData.coverLetter);
-            
+            appendIfDefined('firstName', profileData.firstName);
+            appendIfDefined('lastName', profileData.lastName);
+            appendIfDefined('phone', profileData.phone);
+            appendIfDefined('dateOfBirth', profileData.dateOfBirth);
+            appendIfDefined('gender', profileData.gender);
+            appendIfDefined('city', profileData.city);
+            appendIfDefined('state', profileData.state);
+            appendIfDefined('country', profileData.country);
+            // Boolean: send false explicitly — `if (x)` would silently drop false
+            if (profileData.willingToRelocate !== undefined && profileData.willingToRelocate !== null) {
+                formData.append('willingToRelocate', profileData.willingToRelocate);
+            }
+
+            // Professional Information - send all fields
+            appendIfDefined('currentJobTitle', profileData.currentJobTitle);
+            appendIfDefined('experience', profileData.experience);
+            appendIfDefined('education', profileData.education);
+            appendIfDefined('workAuthorization', profileData.workAuthorization);
+            appendIfDefined('employmentType', profileData.employmentType);
+            appendIfDefined('expectedSalary', profileData.expectedSalary);
+            appendIfDefined('availabilityDate', profileData.availabilityDate);
+            appendIfDefined('linkedinProfile', profileData.linkedinProfile);
+            appendIfDefined('githubProfile', profileData.githubProfile);
+            appendIfDefined('portfolioWebsite', profileData.portfolioWebsite);
+            appendIfDefined('coverLetter', profileData.coverLetter);
+
             // Skills - Add as multiple entries for Spring List<String> compatibility
             if (profileData.skills && Array.isArray(profileData.skills)) {
                 profileData.skills.forEach(skill => {
@@ -69,8 +80,8 @@ export const profileService = {
                     }
                 });
             }
-            
-            // Documents - Add file fields
+
+            // Documents - only send if a new File object was selected
             if (profileData.profilePhoto instanceof File) {
                 formData.append('profilePhoto', profileData.profilePhoto);
             }
@@ -99,32 +110,40 @@ export const profileService = {
         try {
             // Handle form data for file uploads
             const formData = new FormData();
-            
+
+            // Helper: append only if field exists (not undefined/null)
+            const appendIfDefined = (key, value) => {
+                if (value !== undefined && value !== null) {
+                    formData.append(key, value);
+                }
+            };
+
             // Add text fields
             if (profileData.userId) formData.append('userId', profileData.userId);
-            if (profileData.firstName) formData.append('firstName', profileData.firstName);
-            if (profileData.lastName) formData.append('lastName', profileData.lastName);
-            if (profileData.companyName) formData.append('company', profileData.companyName);
-            if (profileData.city) formData.append('city', profileData.city);
-            if (profileData.state) formData.append('state', profileData.state);
-            if (profileData.country) formData.append('country', profileData.country);
-            
+            appendIfDefined('firstName', profileData.firstName);
+            appendIfDefined('lastName', profileData.lastName);
+            // Note: component uses 'companyName', backend @RequestParam is 'company'
+            appendIfDefined('company', profileData.companyName);
+            appendIfDefined('city', profileData.city);
+            appendIfDefined('state', profileData.state);
+            appendIfDefined('country', profileData.country);
+
             // New Recruiter Fields
-            if (profileData.phone) formData.append('phone', profileData.phone);
-            if (profileData.jobTitle) formData.append('jobTitle', profileData.jobTitle);
-            if (profileData.companyWebsite) formData.append('companyWebsite', profileData.companyWebsite);
-            if (profileData.companyDescription) formData.append('companyDescription', profileData.companyDescription);
-            if (profileData.industry) formData.append('industry', profileData.industry);
-            if (profileData.companySize) formData.append('companySize', profileData.companySize);
-            if (profileData.companyType) formData.append('companyType', profileData.companyType);
-            if (profileData.foundedYear) formData.append('foundedYear', profileData.foundedYear);
-            if (profileData.businessPhone) formData.append('businessPhone', profileData.businessPhone);
-            if (profileData.businessEmail) formData.append('businessEmail', profileData.businessEmail);
-            if (profileData.officeAddress) formData.append('officeAddress', profileData.officeAddress);
-            if (profileData.officeCity) formData.append('officeCity', profileData.officeCity);
-            if (profileData.officeState) formData.append('officeState', profileData.officeState);
-            if (profileData.officeCountry) formData.append('officeCountry', profileData.officeCountry);
-            
+            appendIfDefined('phone', profileData.phone);
+            appendIfDefined('jobTitle', profileData.jobTitle);
+            appendIfDefined('companyWebsite', profileData.companyWebsite);
+            appendIfDefined('companyDescription', profileData.companyDescription);
+            appendIfDefined('industry', profileData.industry);
+            appendIfDefined('companySize', profileData.companySize);
+            appendIfDefined('companyType', profileData.companyType);
+            appendIfDefined('foundedYear', profileData.foundedYear);
+            appendIfDefined('businessPhone', profileData.businessPhone);
+            appendIfDefined('businessEmail', profileData.businessEmail);
+            appendIfDefined('officeAddress', profileData.officeAddress);
+            appendIfDefined('officeCity', profileData.officeCity);
+            appendIfDefined('officeState', profileData.officeState);
+            appendIfDefined('officeCountry', profileData.officeCountry);
+
             // Add file fields
             if (profileData.profilePhoto instanceof File) {
                 formData.append('profilePhoto', profileData.profilePhoto);
@@ -142,6 +161,7 @@ export const profileService = {
         } catch (error) {
             throw error.response?.data || { message: 'Failed to update recruiter profile' };
         }
+
     },
 
     // File URL Methods

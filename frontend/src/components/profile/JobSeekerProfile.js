@@ -56,9 +56,17 @@ const JobSeekerProfile = () => {
     const loadProfileData = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await profileService.getJobSeekerProfile();
-            setProfileData(prev => ({ ...prev, ...data }));
-            calculateProfileCompletion({ ...profileData, ...data });
+            const response = await profileService.getJobSeekerProfile();
+            // Unwrap ApiResponse wrapper: backend returns { success, message, data: {...} }
+            // Fall back to raw object if already unwrapped
+            const profileFields = (response && response.data && typeof response.data === 'object')
+                ? response.data
+                : response;
+            setProfileData(prev => {
+                const merged = { ...prev, ...profileFields };
+                calculateProfileCompletion(merged);  // use merged (not stale prev)
+                return merged;
+            });
         } catch (error) {
             console.error('Error loading profile:', error);
             showNotification('Failed to load profile data', 'error');
@@ -132,7 +140,18 @@ const JobSeekerProfile = () => {
     const handleSaveProfile = async () => {
         try {
             setSaving(true);
-            await profileService.updateJobSeekerProfile(profileData);
+            const response = await profileService.updateJobSeekerProfile(profileData);
+            // Sync local state with what was actually persisted (unwrap ApiResponse)
+            const savedFields = (response && response.data && typeof response.data === 'object')
+                ? response.data
+                : response;
+            if (savedFields) {
+                setProfileData(prev => {
+                    const merged = { ...prev, ...savedFields };
+                    calculateProfileCompletion(merged);
+                    return merged;
+                });
+            }
             showNotification('Profile updated successfully!', 'success');
         } catch (error) {
             console.error('Error saving profile:', error);
