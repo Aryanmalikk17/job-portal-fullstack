@@ -423,20 +423,21 @@ public class ProfileRestController {
             }
 
             // New fields mapping
-            if (StringUtils.hasText(phone)) profile.setPhone(phone);
-            if (StringUtils.hasText(jobTitle)) profile.setJobTitle(jobTitle);
-            if (StringUtils.hasText(companyWebsite)) profile.setCompanyWebsite(companyWebsite);
-            if (StringUtils.hasText(companyDescription)) profile.setCompanyDescription(companyDescription);
-            if (StringUtils.hasText(industry)) profile.setIndustry(industry);
-            if (StringUtils.hasText(companySize)) profile.setCompanySize(companySize);
-            if (StringUtils.hasText(companyType)) profile.setCompanyType(companyType);
+            // NOTE: use != null (not hasText) so users can clear a field by sending an empty string
+            if (phone != null) profile.setPhone(phone);
+            if (jobTitle != null) profile.setJobTitle(jobTitle);
+            if (companyWebsite != null) profile.setCompanyWebsite(companyWebsite);
+            if (companyDescription != null) profile.setCompanyDescription(companyDescription);
+            if (industry != null) profile.setIndustry(industry);
+            if (companySize != null) profile.setCompanySize(companySize);
+            if (companyType != null) profile.setCompanyType(companyType);
             if (foundedYear != null) profile.setFoundedYear(foundedYear);
-            if (StringUtils.hasText(businessPhone)) profile.setBusinessPhone(businessPhone);
-            if (StringUtils.hasText(businessEmail)) profile.setBusinessEmail(businessEmail);
-            if (StringUtils.hasText(officeAddress)) profile.setOfficeAddress(officeAddress);
-            if (StringUtils.hasText(officeCity)) profile.setOfficeCity(officeCity);
-            if (StringUtils.hasText(officeState)) profile.setOfficeState(officeState);
-            if (StringUtils.hasText(officeCountry)) profile.setOfficeCountry(officeCountry);
+            if (businessPhone != null) profile.setBusinessPhone(businessPhone);
+            if (businessEmail != null) profile.setBusinessEmail(businessEmail);
+            if (officeAddress != null) profile.setOfficeAddress(officeAddress);
+            if (officeCity != null) profile.setOfficeCity(officeCity);
+            if (officeState != null) profile.setOfficeState(officeState);
+            if (officeCountry != null) profile.setOfficeCountry(officeCountry);
 
             // Handle profile photo upload
             if (profilePhoto != null && !profilePhoto.isEmpty()) {
@@ -469,18 +470,37 @@ public class ProfileRestController {
             // FIXED: Save the managed entity directly to avoid duplicate PK insert
             profile = recruiterProfileService.save(profile);
 
-            // Return updated profile
+            // Return updated profile — include ALL fields so frontend state sync is complete
             UserProfileDto profileDto = new UserProfileDto();
             profileDto.setUserId(currentUser.getUserId());
             profileDto.setFirstName(currentUser.getFirstName());
             profileDto.setLastName(currentUser.getLastName());
             profileDto.setEmail(currentUser.getEmail());
             profileDto.setUserType(currentUser.getUserTypeId().getUserTypeName());
+
+            // Core location/company
             profileDto.setCompany(profile.getCompany());
             profileDto.setCity(profile.getCity());
             profileDto.setState(profile.getState());
             profileDto.setCountry(profile.getCountry());
             profileDto.setProfilePhoto(profile.getProfilePhoto());
+
+            // All new recruiter fields — previously MISSING from the response!
+            profileDto.setJobTitle(profile.getJobTitle());
+            profileDto.setPhone(profile.getPhone());
+            profileDto.setCompanyWebsite(profile.getCompanyWebsite());
+            profileDto.setCompanyDescription(profile.getCompanyDescription());
+            profileDto.setIndustry(profile.getIndustry());
+            profileDto.setCompanySize(profile.getCompanySize());
+            profileDto.setCompanyType(profile.getCompanyType());
+            profileDto.setFoundedYear(profile.getFoundedYear());
+            profileDto.setBusinessPhone(profile.getBusinessPhone());
+            profileDto.setBusinessEmail(profile.getBusinessEmail());
+            profileDto.setOfficeAddress(profile.getOfficeAddress());
+            profileDto.setOfficeCity(profile.getOfficeCity());
+            profileDto.setOfficeState(profile.getOfficeState());
+            profileDto.setOfficeCountry(profile.getOfficeCountry());
+            profileDto.setCompanyLogo(profile.getCompanyLogo());
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Profile updated successfully", profileDto));
 
