@@ -84,7 +84,7 @@ public class JobSeekerProfile implements Persistable<Integer> {
     private String coverLetter;
 
     // Skills relationship
-    @OneToMany(targetEntity = Skills.class, cascade = CascadeType.ALL, mappedBy = "jobSeekerProfile")
+    @OneToMany(targetEntity = Skills.class, cascade = CascadeType.ALL, mappedBy = "jobSeekerProfile", orphanRemoval = true)
     private List<Skills> skills;
 
     // Constructors

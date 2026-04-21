@@ -47,8 +47,16 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
     const loadProfileData = async () => {
         try {
             setLoading(true);
-            const data = await profileService.getRecruiterProfile();
-            setProfileData(prev => ({ ...prev, ...data }));
+            const response = await profileService.getRecruiterProfile();
+            // Unwrap ApiResponse wrapper: backend returns { success, message, data: {...} }
+            const profileFields = (response && response.data && typeof response.data === 'object')
+                ? response.data
+                : response;
+            // Map 'company' backend field back to 'companyName' for the component
+            if (profileFields && profileFields.company && !profileFields.companyName) {
+                profileFields.companyName = profileFields.company;
+            }
+            setProfileData(prev => ({ ...prev, ...profileFields }));
         } catch (error) {
             console.error('Error loading profile:', error);
             showNotification('Failed to load profile data', 'error');
@@ -91,24 +99,34 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
         try {
             setSaving(true);
             setErrors({});
-            
+
             // Validate required fields
             const requiredFields = ['firstName', 'lastName', 'phone'];
             const newErrors = {};
-            
+
             requiredFields.forEach(field => {
                 if (!profileData[field]?.trim()) {
                     newErrors[field] = `${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is required`;
                 }
             });
-            
+
             if (Object.keys(newErrors).length > 0) {
                 setErrors(newErrors);
                 showNotification('Please fill in all required fields', 'error');
                 return;
             }
-            
-            await profileService.updateRecruiterProfile(profileData);
+
+            const response = await profileService.updateRecruiterProfile(profileData);
+            // Sync local state with what was actually persisted
+            const savedFields = (response && response.data && typeof response.data === 'object')
+                ? response.data
+                : response;
+            if (savedFields) {
+                if (savedFields.company && !savedFields.companyName) {
+                    savedFields.companyName = savedFields.company;
+                }
+                setProfileData(prev => ({ ...prev, ...savedFields }));
+            }
             showNotification('Profile updated successfully!', 'success');
         } catch (error) {
             console.error('Error saving profile:', error);

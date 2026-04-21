@@ -107,3 +107,9 @@ tmp/
 temp/
 *.tmp
 *.temp
+
+# SSH & Private Keys - NEVER commit
+*.pem
+*.key
+server-key*
+id_rsa*
