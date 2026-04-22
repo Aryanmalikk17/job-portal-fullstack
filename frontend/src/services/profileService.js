@@ -72,13 +72,24 @@ export const profileService = {
             appendIfDefined('portfolioWebsite', profileData.portfolioWebsite);
             appendIfDefined('coverLetter', profileData.coverLetter);
 
-            // Skills - Add as multiple entries for Spring List<String> compatibility
+            // Skills — send all valid skills as multiple FormData entries.
+            // IMPORTANT: If the array is empty (user cleared all skills), we must still send
+            // a `skills` parameter so that Spring Boot receives a non-null List<String>.
+            // Without this, the controller sees skills=null and skips the clear block entirely,
+            // leaving the old skills in the DB untouched.
+            // We send `skills=""` as an empty-string sentinel; the controller filters it with
+            // StringUtils.hasText() so no empty-string skill rows are created.
             if (profileData.skills && Array.isArray(profileData.skills)) {
-                profileData.skills.forEach(skill => {
-                    if (skill && skill.trim()) {
-                        formData.append('skills', skill.trim());
-                    }
-                });
+                if (profileData.skills.length === 0) {
+                    // Empty sentinel: signals "clear all skills"
+                    formData.append('skills', '');
+                } else {
+                    profileData.skills.forEach(skill => {
+                        if (skill && skill.trim()) {
+                            formData.append('skills', skill.trim());
+                        }
+                    });
+                }
             }
 
             // Documents - only send if a new File object was selected

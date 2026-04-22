@@ -190,10 +190,11 @@ public class ProfileRestController {
             }
 
             // Update user basic info
-            if (StringUtils.hasText(firstName)) {
+            // Use != null (not hasText) so empty-string clears are written to the DB
+            if (firstName != null) {
                 currentUser.setFirstName(firstName);
             }
-            if (StringUtils.hasText(lastName)) {
+            if (lastName != null) {
                 currentUser.setLastName(lastName);
             }
             usersService.updateUser(currentUser);
@@ -209,40 +210,44 @@ public class ProfileRestController {
             }
 
             // Update Personal Information
-            if (StringUtils.hasText(firstName)) profile.setFirstName(firstName);
-            if (StringUtils.hasText(lastName)) profile.setLastName(lastName);
-            if (StringUtils.hasText(phone)) profile.setPhone(phone);
-            if (StringUtils.hasText(dateOfBirth)) {
+            // NOTE: != null allows empty strings through so users can clear a field in the DB.
+            // StringUtils.hasText("") = false would silently ignore the clear request.
+            if (firstName != null) profile.setFirstName(firstName);
+            if (lastName != null) profile.setLastName(lastName);
+            if (phone != null) profile.setPhone(phone);
+            if (dateOfBirth != null && !dateOfBirth.isBlank()) {
+                // Date fields must still be non-blank to avoid LocalDate.parse("") throwing
                 try {
                     profile.setDateOfBirth(LocalDate.parse(dateOfBirth));
                 } catch (Exception e) {
                     logger.warn("Invalid date format for dateOfBirth: {}", dateOfBirth);
                 }
             }
-            if (StringUtils.hasText(gender)) profile.setGender(gender);
-            if (StringUtils.hasText(city)) profile.setCity(city);
-            if (StringUtils.hasText(state)) profile.setState(state);
-            if (StringUtils.hasText(country)) profile.setCountry(country);
+            if (gender != null) profile.setGender(gender);
+            if (city != null) profile.setCity(city);
+            if (state != null) profile.setState(state);
+            if (country != null) profile.setCountry(country);
             if (willingToRelocate != null) profile.setWillingToRelocate(willingToRelocate);
 
             // Update Professional Information
-            if (StringUtils.hasText(currentJobTitle)) profile.setCurrentJobTitle(currentJobTitle);
-            if (StringUtils.hasText(experience)) profile.setExperience(experience);
-            if (StringUtils.hasText(education)) profile.setEducation(education);
-            if (StringUtils.hasText(workAuthorization)) profile.setWorkAuthorization(workAuthorization);
-            if (StringUtils.hasText(employmentType)) profile.setEmploymentType(employmentType);
-            if (StringUtils.hasText(expectedSalary)) profile.setExpectedSalary(expectedSalary);
-            if (StringUtils.hasText(availabilityDate)) {
+            if (currentJobTitle != null) profile.setCurrentJobTitle(currentJobTitle);
+            if (experience != null) profile.setExperience(experience);
+            if (education != null) profile.setEducation(education);
+            if (workAuthorization != null) profile.setWorkAuthorization(workAuthorization);
+            if (employmentType != null) profile.setEmploymentType(employmentType);
+            if (expectedSalary != null) profile.setExpectedSalary(expectedSalary);
+            if (availabilityDate != null && !availabilityDate.isBlank()) {
                 try {
                     profile.setAvailabilityDate(LocalDate.parse(availabilityDate));
                 } catch (Exception e) {
                     logger.warn("Invalid date format for availabilityDate: {}", availabilityDate);
                 }
             }
-            if (StringUtils.hasText(linkedinProfile)) profile.setLinkedinProfile(linkedinProfile);
-            if (StringUtils.hasText(githubProfile)) profile.setGithubProfile(githubProfile);
-            if (StringUtils.hasText(portfolioWebsite)) profile.setPortfolioWebsite(portfolioWebsite);
-            if (StringUtils.hasText(coverLetter)) profile.setCoverLetter(coverLetter);
+            if (linkedinProfile != null) profile.setLinkedinProfile(linkedinProfile);
+            if (githubProfile != null) profile.setGithubProfile(githubProfile);
+            if (portfolioWebsite != null) profile.setPortfolioWebsite(portfolioWebsite);
+            if (coverLetter != null) profile.setCoverLetter(coverLetter);
+
 
             // Update Skills
             if (skills != null) {

@@ -53,8 +53,10 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
             const profileFields = (response && response.data && typeof response.data === 'object')
                 ? response.data
                 : response;
-            // Map 'company' backend field back to 'companyName' for the component
-            if (profileFields && profileFields.company && !profileFields.companyName) {
+            // Map 'company' backend field → 'companyName' for the component.
+            // Use hasOwnProperty so that company:"" (cleared) is still mapped correctly.
+            // Old truthy check `if (profileFields.company)` silently dropped empty strings.
+            if (profileFields && Object.prototype.hasOwnProperty.call(profileFields, 'company') && !Object.prototype.hasOwnProperty.call(profileFields, 'companyName')) {
                 profileFields.companyName = profileFields.company;
             }
             setProfileData(prev => ({ ...prev, ...profileFields }));
@@ -127,7 +129,9 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
                 ? response.data
                 : response;
             if (savedFields) {
-                if (savedFields.company && !savedFields.companyName) {
+                // Use hasOwnProperty so that company:"" (cleared name) is mapped correctly.
+                // Old truthy check `if (savedFields.company)` silently dropped empty strings.
+                if (Object.prototype.hasOwnProperty.call(savedFields, 'company') && !Object.prototype.hasOwnProperty.call(savedFields, 'companyName')) {
                     savedFields.companyName = savedFields.company;
                 }
                 setProfileData(prev => ({ ...prev, ...savedFields }));
