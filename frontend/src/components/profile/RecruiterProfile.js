@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { profileService } from '../../services/profileService';
 import AvatarUpload from './AvatarUpload';
@@ -12,7 +12,10 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
         email: user?.email || '',
         phone: '',
         jobTitle: '',
-        
+        city: '',
+        state: '',
+        country: '',
+
         // Company Information
         companyName: '',
         companyWebsite: '',
@@ -21,15 +24,15 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
         companySize: '',
         companyType: '',
         foundedYear: '',
-        
-        // Contact Information
+
+        // Business Contact Information
         businessPhone: '',
         businessEmail: '',
         officeAddress: '',
         officeCity: '',
         officeState: '',
         officeCountry: '',
-        
+
         // Files
         profilePhoto: null,
         companyLogo: null
@@ -40,11 +43,9 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
     const [errors, setErrors] = useState({});
     const [notification, setNotification] = useState(null);
 
-    useEffect(() => {
-        loadProfileData();
-    }, []);
-
-    const loadProfileData = async () => {
+    // Define loadProfileData with useCallback before useEffect that references it
+    // (const declarations are NOT hoisted — must appear before use)
+    const loadProfileData = useCallback(async () => {
         try {
             setLoading(true);
             const response = await profileService.getRecruiterProfile();
@@ -52,8 +53,10 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
             const profileFields = (response && response.data && typeof response.data === 'object')
                 ? response.data
                 : response;
-            // Map 'company' backend field back to 'companyName' for the component
-            if (profileFields && profileFields.company && !profileFields.companyName) {
+            // Map 'company' backend field → 'companyName' for the component.
+            // Use hasOwnProperty so that company:"" (cleared) is still mapped correctly.
+            // Old truthy check `if (profileFields.company)` silently dropped empty strings.
+            if (profileFields && Object.prototype.hasOwnProperty.call(profileFields, 'company') && !Object.prototype.hasOwnProperty.call(profileFields, 'companyName')) {
                 profileFields.companyName = profileFields.company;
             }
             setProfileData(prev => ({ ...prev, ...profileFields }));
@@ -63,7 +66,11 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        loadProfileData();
+    }, [loadProfileData]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -122,7 +129,9 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
                 ? response.data
                 : response;
             if (savedFields) {
-                if (savedFields.company && !savedFields.companyName) {
+                // Use hasOwnProperty so that company:"" (cleared name) is mapped correctly.
+                // Old truthy check `if (savedFields.company)` silently dropped empty strings.
+                if (Object.prototype.hasOwnProperty.call(savedFields, 'company') && !Object.prototype.hasOwnProperty.call(savedFields, 'companyName')) {
                     savedFields.companyName = savedFields.company;
                 }
                 setProfileData(prev => ({ ...prev, ...savedFields }));
@@ -231,6 +240,49 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
                         placeholder="e.g. HR Manager, Talent Acquisition Specialist"
                     />
                 </Form.Group>
+
+                {/* Personal Location */}
+                <Row>
+                    <Col md={4}>
+                        <Form.Group className="mb-3">
+                            <Form.Label className="profile-form-label">City</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="city"
+                                value={profileData.city || ''}
+                                onChange={handleInputChange}
+                                className="profile-form-control"
+                                placeholder="Your city"
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col md={4}>
+                        <Form.Group className="mb-3">
+                            <Form.Label className="profile-form-label">State</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="state"
+                                value={profileData.state || ''}
+                                onChange={handleInputChange}
+                                className="profile-form-control"
+                                placeholder="Your state"
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col md={4}>
+                        <Form.Group className="mb-3">
+                            <Form.Label className="profile-form-label">Country</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="country"
+                                value={profileData.country || ''}
+                                onChange={handleInputChange}
+                                className="profile-form-control"
+                                placeholder="Your country"
+                            />
+                        </Form.Group>
+                    </Col>
+                </Row>
             </Card.Body>
         </Card>
     );

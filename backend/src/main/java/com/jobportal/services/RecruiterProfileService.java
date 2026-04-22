@@ -36,31 +36,33 @@ public class RecruiterProfileService {
         Optional<RecruiterProfile> existingProfile = recruiterRepository.findByUserAccountId(userAccountId);
         
         if (existingProfile.isPresent()) {
-            // Update existing profile
+            // Update existing profile — copy ALL non-null fields
             RecruiterProfile profileToUpdate = existingProfile.get();
             
-            // Update only non-null fields
-            if (recruiterProfile.getFirstName() != null) {
-                profileToUpdate.setFirstName(recruiterProfile.getFirstName());
-            }
-            if (recruiterProfile.getLastName() != null) {
-                profileToUpdate.setLastName(recruiterProfile.getLastName());
-            }
-            if (recruiterProfile.getCity() != null) {
-                profileToUpdate.setCity(recruiterProfile.getCity());
-            }
-            if (recruiterProfile.getState() != null) {
-                profileToUpdate.setState(recruiterProfile.getState());
-            }
-            if (recruiterProfile.getCountry() != null) {
-                profileToUpdate.setCountry(recruiterProfile.getCountry());
-            }
-            if (recruiterProfile.getCompany() != null) {
-                profileToUpdate.setCompany(recruiterProfile.getCompany());
-            }
-            if (recruiterProfile.getProfilePhoto() != null) {
-                profileToUpdate.setProfilePhoto(recruiterProfile.getProfilePhoto());
-            }
+            if (recruiterProfile.getFirstName() != null) profileToUpdate.setFirstName(recruiterProfile.getFirstName());
+            if (recruiterProfile.getLastName() != null) profileToUpdate.setLastName(recruiterProfile.getLastName());
+            if (recruiterProfile.getCity() != null) profileToUpdate.setCity(recruiterProfile.getCity());
+            if (recruiterProfile.getState() != null) profileToUpdate.setState(recruiterProfile.getState());
+            if (recruiterProfile.getCountry() != null) profileToUpdate.setCountry(recruiterProfile.getCountry());
+            if (recruiterProfile.getCompany() != null) profileToUpdate.setCompany(recruiterProfile.getCompany());
+            if (recruiterProfile.getProfilePhoto() != null) profileToUpdate.setProfilePhoto(recruiterProfile.getProfilePhoto());
+
+            // New fields — previously missing, causing silent data loss on update
+            if (recruiterProfile.getPhone() != null) profileToUpdate.setPhone(recruiterProfile.getPhone());
+            if (recruiterProfile.getJobTitle() != null) profileToUpdate.setJobTitle(recruiterProfile.getJobTitle());
+            if (recruiterProfile.getCompanyWebsite() != null) profileToUpdate.setCompanyWebsite(recruiterProfile.getCompanyWebsite());
+            if (recruiterProfile.getCompanyDescription() != null) profileToUpdate.setCompanyDescription(recruiterProfile.getCompanyDescription());
+            if (recruiterProfile.getIndustry() != null) profileToUpdate.setIndustry(recruiterProfile.getIndustry());
+            if (recruiterProfile.getCompanySize() != null) profileToUpdate.setCompanySize(recruiterProfile.getCompanySize());
+            if (recruiterProfile.getCompanyType() != null) profileToUpdate.setCompanyType(recruiterProfile.getCompanyType());
+            if (recruiterProfile.getFoundedYear() != null) profileToUpdate.setFoundedYear(recruiterProfile.getFoundedYear());
+            if (recruiterProfile.getBusinessPhone() != null) profileToUpdate.setBusinessPhone(recruiterProfile.getBusinessPhone());
+            if (recruiterProfile.getBusinessEmail() != null) profileToUpdate.setBusinessEmail(recruiterProfile.getBusinessEmail());
+            if (recruiterProfile.getOfficeAddress() != null) profileToUpdate.setOfficeAddress(recruiterProfile.getOfficeAddress());
+            if (recruiterProfile.getOfficeCity() != null) profileToUpdate.setOfficeCity(recruiterProfile.getOfficeCity());
+            if (recruiterProfile.getOfficeState() != null) profileToUpdate.setOfficeState(recruiterProfile.getOfficeState());
+            if (recruiterProfile.getOfficeCountry() != null) profileToUpdate.setOfficeCountry(recruiterProfile.getOfficeCountry());
+            if (recruiterProfile.getCompanyLogo() != null) profileToUpdate.setCompanyLogo(recruiterProfile.getCompanyLogo());
             
             return recruiterRepository.save(profileToUpdate);
         } else {

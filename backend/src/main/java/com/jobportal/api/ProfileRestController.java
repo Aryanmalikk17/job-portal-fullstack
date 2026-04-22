@@ -190,10 +190,11 @@ public class ProfileRestController {
             }
 
             // Update user basic info
-            if (StringUtils.hasText(firstName)) {
+            // Use != null (not hasText) so empty-string clears are written to the DB
+            if (firstName != null) {
                 currentUser.setFirstName(firstName);
             }
-            if (StringUtils.hasText(lastName)) {
+            if (lastName != null) {
                 currentUser.setLastName(lastName);
             }
             usersService.updateUser(currentUser);
@@ -209,40 +210,44 @@ public class ProfileRestController {
             }
 
             // Update Personal Information
-            if (StringUtils.hasText(firstName)) profile.setFirstName(firstName);
-            if (StringUtils.hasText(lastName)) profile.setLastName(lastName);
-            if (StringUtils.hasText(phone)) profile.setPhone(phone);
-            if (StringUtils.hasText(dateOfBirth)) {
+            // NOTE: != null allows empty strings through so users can clear a field in the DB.
+            // StringUtils.hasText("") = false would silently ignore the clear request.
+            if (firstName != null) profile.setFirstName(firstName);
+            if (lastName != null) profile.setLastName(lastName);
+            if (phone != null) profile.setPhone(phone);
+            if (dateOfBirth != null && !dateOfBirth.isBlank()) {
+                // Date fields must still be non-blank to avoid LocalDate.parse("") throwing
                 try {
                     profile.setDateOfBirth(LocalDate.parse(dateOfBirth));
                 } catch (Exception e) {
                     logger.warn("Invalid date format for dateOfBirth: {}", dateOfBirth);
                 }
             }
-            if (StringUtils.hasText(gender)) profile.setGender(gender);
-            if (StringUtils.hasText(city)) profile.setCity(city);
-            if (StringUtils.hasText(state)) profile.setState(state);
-            if (StringUtils.hasText(country)) profile.setCountry(country);
+            if (gender != null) profile.setGender(gender);
+            if (city != null) profile.setCity(city);
+            if (state != null) profile.setState(state);
+            if (country != null) profile.setCountry(country);
             if (willingToRelocate != null) profile.setWillingToRelocate(willingToRelocate);
 
             // Update Professional Information
-            if (StringUtils.hasText(currentJobTitle)) profile.setCurrentJobTitle(currentJobTitle);
-            if (StringUtils.hasText(experience)) profile.setExperience(experience);
-            if (StringUtils.hasText(education)) profile.setEducation(education);
-            if (StringUtils.hasText(workAuthorization)) profile.setWorkAuthorization(workAuthorization);
-            if (StringUtils.hasText(employmentType)) profile.setEmploymentType(employmentType);
-            if (StringUtils.hasText(expectedSalary)) profile.setExpectedSalary(expectedSalary);
-            if (StringUtils.hasText(availabilityDate)) {
+            if (currentJobTitle != null) profile.setCurrentJobTitle(currentJobTitle);
+            if (experience != null) profile.setExperience(experience);
+            if (education != null) profile.setEducation(education);
+            if (workAuthorization != null) profile.setWorkAuthorization(workAuthorization);
+            if (employmentType != null) profile.setEmploymentType(employmentType);
+            if (expectedSalary != null) profile.setExpectedSalary(expectedSalary);
+            if (availabilityDate != null && !availabilityDate.isBlank()) {
                 try {
                     profile.setAvailabilityDate(LocalDate.parse(availabilityDate));
                 } catch (Exception e) {
                     logger.warn("Invalid date format for availabilityDate: {}", availabilityDate);
                 }
             }
-            if (StringUtils.hasText(linkedinProfile)) profile.setLinkedinProfile(linkedinProfile);
-            if (StringUtils.hasText(githubProfile)) profile.setGithubProfile(githubProfile);
-            if (StringUtils.hasText(portfolioWebsite)) profile.setPortfolioWebsite(portfolioWebsite);
-            if (StringUtils.hasText(coverLetter)) profile.setCoverLetter(coverLetter);
+            if (linkedinProfile != null) profile.setLinkedinProfile(linkedinProfile);
+            if (githubProfile != null) profile.setGithubProfile(githubProfile);
+            if (portfolioWebsite != null) profile.setPortfolioWebsite(portfolioWebsite);
+            if (coverLetter != null) profile.setCoverLetter(coverLetter);
+
 
             // Update Skills
             if (skills != null) {
@@ -423,20 +428,21 @@ public class ProfileRestController {
             }
 
             // New fields mapping
-            if (StringUtils.hasText(phone)) profile.setPhone(phone);
-            if (StringUtils.hasText(jobTitle)) profile.setJobTitle(jobTitle);
-            if (StringUtils.hasText(companyWebsite)) profile.setCompanyWebsite(companyWebsite);
-            if (StringUtils.hasText(companyDescription)) profile.setCompanyDescription(companyDescription);
-            if (StringUtils.hasText(industry)) profile.setIndustry(industry);
-            if (StringUtils.hasText(companySize)) profile.setCompanySize(companySize);
-            if (StringUtils.hasText(companyType)) profile.setCompanyType(companyType);
+            // NOTE: use != null (not hasText) so users can clear a field by sending an empty string
+            if (phone != null) profile.setPhone(phone);
+            if (jobTitle != null) profile.setJobTitle(jobTitle);
+            if (companyWebsite != null) profile.setCompanyWebsite(companyWebsite);
+            if (companyDescription != null) profile.setCompanyDescription(companyDescription);
+            if (industry != null) profile.setIndustry(industry);
+            if (companySize != null) profile.setCompanySize(companySize);
+            if (companyType != null) profile.setCompanyType(companyType);
             if (foundedYear != null) profile.setFoundedYear(foundedYear);
-            if (StringUtils.hasText(businessPhone)) profile.setBusinessPhone(businessPhone);
-            if (StringUtils.hasText(businessEmail)) profile.setBusinessEmail(businessEmail);
-            if (StringUtils.hasText(officeAddress)) profile.setOfficeAddress(officeAddress);
-            if (StringUtils.hasText(officeCity)) profile.setOfficeCity(officeCity);
-            if (StringUtils.hasText(officeState)) profile.setOfficeState(officeState);
-            if (StringUtils.hasText(officeCountry)) profile.setOfficeCountry(officeCountry);
+            if (businessPhone != null) profile.setBusinessPhone(businessPhone);
+            if (businessEmail != null) profile.setBusinessEmail(businessEmail);
+            if (officeAddress != null) profile.setOfficeAddress(officeAddress);
+            if (officeCity != null) profile.setOfficeCity(officeCity);
+            if (officeState != null) profile.setOfficeState(officeState);
+            if (officeCountry != null) profile.setOfficeCountry(officeCountry);
 
             // Handle profile photo upload
             if (profilePhoto != null && !profilePhoto.isEmpty()) {
@@ -469,18 +475,37 @@ public class ProfileRestController {
             // FIXED: Save the managed entity directly to avoid duplicate PK insert
             profile = recruiterProfileService.save(profile);
 
-            // Return updated profile
+            // Return updated profile — include ALL fields so frontend state sync is complete
             UserProfileDto profileDto = new UserProfileDto();
             profileDto.setUserId(currentUser.getUserId());
             profileDto.setFirstName(currentUser.getFirstName());
             profileDto.setLastName(currentUser.getLastName());
             profileDto.setEmail(currentUser.getEmail());
             profileDto.setUserType(currentUser.getUserTypeId().getUserTypeName());
+
+            // Core location/company
             profileDto.setCompany(profile.getCompany());
             profileDto.setCity(profile.getCity());
             profileDto.setState(profile.getState());
             profileDto.setCountry(profile.getCountry());
             profileDto.setProfilePhoto(profile.getProfilePhoto());
+
+            // All new recruiter fields — previously MISSING from the response!
+            profileDto.setJobTitle(profile.getJobTitle());
+            profileDto.setPhone(profile.getPhone());
+            profileDto.setCompanyWebsite(profile.getCompanyWebsite());
+            profileDto.setCompanyDescription(profile.getCompanyDescription());
+            profileDto.setIndustry(profile.getIndustry());
+            profileDto.setCompanySize(profile.getCompanySize());
+            profileDto.setCompanyType(profile.getCompanyType());
+            profileDto.setFoundedYear(profile.getFoundedYear());
+            profileDto.setBusinessPhone(profile.getBusinessPhone());
+            profileDto.setBusinessEmail(profile.getBusinessEmail());
+            profileDto.setOfficeAddress(profile.getOfficeAddress());
+            profileDto.setOfficeCity(profile.getOfficeCity());
+            profileDto.setOfficeState(profile.getOfficeState());
+            profileDto.setOfficeCountry(profile.getOfficeCountry());
+            profileDto.setCompanyLogo(profile.getCompanyLogo());
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Profile updated successfully", profileDto));
 
