@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { profileService } from '../../services/profileService';
 import AvatarUpload from './AvatarUpload';
@@ -40,22 +40,41 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
     const [errors, setErrors] = useState({});
     const [notification, setNotification] = useState(null);
 
-    useEffect(() => {
-        loadProfileData();
-    }, []);
+    // Memoize showNotification so its identity is stable across renders.
+    // This prevents loadProfileData (which calls it) from being re-created on
+    // every render and triggering infinite useEffect loops.
+    const showNotification = useCallback((message, type) => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 5000);
+    }, []); // no deps — only uses stable setState setter
 
-    const loadProfileData = async () => {
+    // Memoize loadProfileData so it can be safely listed in useEffect's deps.
+    const loadProfileData = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await profileService.getRecruiterProfile();
-            setProfileData(prev => ({ ...prev, ...data }));
+            const response = await profileService.getRecruiterProfile();
+            // Unwrap ApiResponse wrapper: backend returns { success, message, data: {...} }
+            const profileFields = (response && response.data && typeof response.data === 'object')
+                ? response.data
+                : response;
+            // Map 'company' backend field → 'companyName' using hasOwnProperty so
+            // company:"" (cleared) is still mapped correctly.
+            if (profileFields && Object.prototype.hasOwnProperty.call(profileFields, 'company')
+                && !Object.prototype.hasOwnProperty.call(profileFields, 'companyName')) {
+                profileFields.companyName = profileFields.company;
+            }
+            setProfileData(prev => ({ ...prev, ...profileFields }));
         } catch (error) {
             console.error('Error loading profile:', error);
             showNotification('Failed to load profile data', 'error');
         } finally {
             setLoading(false);
         }
-    };
+    }, [showNotification]);
+
+    useEffect(() => {
+        loadProfileData();
+    }, [loadProfileData]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -91,24 +110,34 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
         try {
             setSaving(true);
             setErrors({});
-            
+
             // Validate required fields
             const requiredFields = ['firstName', 'lastName', 'phone'];
             const newErrors = {};
-            
+
             requiredFields.forEach(field => {
                 if (!profileData[field]?.trim()) {
                     newErrors[field] = `${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is required`;
                 }
             });
-            
+
             if (Object.keys(newErrors).length > 0) {
                 setErrors(newErrors);
                 showNotification('Please fill in all required fields', 'error');
                 return;
             }
-            
-            await profileService.updateRecruiterProfile(profileData);
+
+            const response = await profileService.updateRecruiterProfile(profileData);
+            // Sync local state with what was actually persisted
+            const savedFields = (response && response.data && typeof response.data === 'object')
+                ? response.data
+                : response;
+            if (savedFields) {
+                if (savedFields.company && !savedFields.companyName) {
+                    savedFields.companyName = savedFields.company;
+                }
+                setProfileData(prev => ({ ...prev, ...savedFields }));
+            }
             showNotification('Profile updated successfully!', 'success');
         } catch (error) {
             console.error('Error saving profile:', error);
@@ -118,10 +147,6 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
         }
     };
 
-    const showNotification = (message, type) => {
-        setNotification({ message, type });
-        setTimeout(() => setNotification(null), 5000);
-    };
 
     const renderPersonalInfo = () => (
         <Card className="profile-section-card">

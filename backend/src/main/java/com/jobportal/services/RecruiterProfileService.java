@@ -30,7 +30,12 @@ public class RecruiterProfileService {
         return recruiterRepository.findById(id);
     }
 
-    public RecruiterProfile addNew(RecruiterProfile recruiterProfile) {
+    /**
+     * Save or update a recruiter profile (upsert).
+     * If a profile already exists for this userAccountId, only non-null fields are updated.
+     * If no profile exists yet, a new record is inserted.
+     */
+    public RecruiterProfile saveOrUpdate(RecruiterProfile recruiterProfile) {
         // Check if profile already exists for this user_account_id
         Integer userAccountId = recruiterProfile.getUserAccountId();
         Optional<RecruiterProfile> existingProfile = recruiterRepository.findByUserAccountId(userAccountId);

@@ -358,7 +358,9 @@ public class ProfileRestController {
             @RequestParam(value = "industry", required = false) String industry,
             @RequestParam(value = "companySize", required = false) String companySize,
             @RequestParam(value = "companyType", required = false) String companyType,
-            @RequestParam(value = "foundedYear", required = false) Integer foundedYear,
+            // String instead of Integer: prevents Spring's type-conversion 400 when the frontend
+            // sends an empty string to clear this field. Parsed manually below.
+            @RequestParam(value = "foundedYear", required = false) String foundedYear,
             @RequestParam(value = "businessPhone", required = false) String businessPhone,
             @RequestParam(value = "businessEmail", required = false) String businessEmail,
             @RequestParam(value = "officeAddress", required = false) String officeAddress,
@@ -380,11 +382,11 @@ public class ProfileRestController {
                     .body(new ApiResponse<>(false, "Only recruiters can update recruiter profile", null));
             }
 
-            // Update user basic info
-            if (StringUtils.hasText(firstName)) {
+            // Update user entity — use != null so "" clears the stored display name
+            if (firstName != null) {
                 currentUser.setFirstName(firstName);
             }
-            if (StringUtils.hasText(lastName)) {
+            if (lastName != null) {
                 currentUser.setLastName(lastName);
             }
             usersService.updateUser(currentUser);
@@ -400,43 +402,44 @@ public class ProfileRestController {
                 profile.setUserAccountId(currentUser.getUserId());
             }
 
-            // Update profile fields
-            if (StringUtils.hasText(company)) {
-                profile.setCompany(company);
-            }
-            if (StringUtils.hasText(city)) {
-                profile.setCity(city);
-            }
-            if (StringUtils.hasText(state)) {
-                profile.setState(state);
-            }
-            if (StringUtils.hasText(country)) {
-                profile.setCountry(country);
-            }
-            
-            // Sync names to profile entity
-            if (StringUtils.hasText(firstName)) {
-                profile.setFirstName(firstName);
-            }
-            if (StringUtils.hasText(lastName)) {
-                profile.setLastName(lastName);
-            }
+            // Update profile fields — use != null (not hasText) so "" reaches the DB setter
+            // and clears the previously stored value as intended by the user.
+            if (company != null) profile.setCompany(company);
+            if (city != null) profile.setCity(city);
+            if (state != null) profile.setState(state);
+            if (country != null) profile.setCountry(country);
 
-            // New fields mapping
-            if (StringUtils.hasText(phone)) profile.setPhone(phone);
-            if (StringUtils.hasText(jobTitle)) profile.setJobTitle(jobTitle);
-            if (StringUtils.hasText(companyWebsite)) profile.setCompanyWebsite(companyWebsite);
-            if (StringUtils.hasText(companyDescription)) profile.setCompanyDescription(companyDescription);
-            if (StringUtils.hasText(industry)) profile.setIndustry(industry);
-            if (StringUtils.hasText(companySize)) profile.setCompanySize(companySize);
-            if (StringUtils.hasText(companyType)) profile.setCompanyType(companyType);
-            if (foundedYear != null) profile.setFoundedYear(foundedYear);
-            if (StringUtils.hasText(businessPhone)) profile.setBusinessPhone(businessPhone);
-            if (StringUtils.hasText(businessEmail)) profile.setBusinessEmail(businessEmail);
-            if (StringUtils.hasText(officeAddress)) profile.setOfficeAddress(officeAddress);
-            if (StringUtils.hasText(officeCity)) profile.setOfficeCity(officeCity);
-            if (StringUtils.hasText(officeState)) profile.setOfficeState(officeState);
-            if (StringUtils.hasText(officeCountry)) profile.setOfficeCountry(officeCountry);
+            // Sync names to profile entity
+            if (firstName != null) profile.setFirstName(firstName);
+            if (lastName != null) profile.setLastName(lastName);
+
+            // Extended fields — all using != null for the same reason
+            if (phone != null) profile.setPhone(phone);
+            if (jobTitle != null) profile.setJobTitle(jobTitle);
+            if (companyWebsite != null) profile.setCompanyWebsite(companyWebsite);
+            if (companyDescription != null) profile.setCompanyDescription(companyDescription);
+            if (industry != null) profile.setIndustry(industry);
+            if (companySize != null) profile.setCompanySize(companySize);
+            if (companyType != null) profile.setCompanyType(companyType);
+            if (businessPhone != null) profile.setBusinessPhone(businessPhone);
+            if (businessEmail != null) profile.setBusinessEmail(businessEmail);
+            if (officeAddress != null) profile.setOfficeAddress(officeAddress);
+            if (officeCity != null) profile.setOfficeCity(officeCity);
+            if (officeState != null) profile.setOfficeState(officeState);
+            if (officeCountry != null) profile.setOfficeCountry(officeCountry);
+
+            // foundedYear: null → skip, blank ("") → clear to null, numeric → parse
+            if (foundedYear != null) {
+                if (foundedYear.isBlank()) {
+                    profile.setFoundedYear(null);
+                } else {
+                    try {
+                        profile.setFoundedYear(Integer.parseInt(foundedYear.trim()));
+                    } catch (NumberFormatException e) {
+                        logger.warn("Invalid foundedYear value: '{}', ignoring", foundedYear);
+                    }
+                }
+            }
 
             // Handle profile photo upload
             if (profilePhoto != null && !profilePhoto.isEmpty()) {
@@ -466,10 +469,10 @@ public class ProfileRestController {
                 }
             }
 
-            // FIXED: Save the managed entity directly to avoid duplicate PK insert
+            // Save the managed entity directly to avoid duplicate PK insert
             profile = recruiterProfileService.save(profile);
 
-            // Return updated profile
+            // Return updated profile with all relevant fields
             UserProfileDto profileDto = new UserProfileDto();
             profileDto.setUserId(currentUser.getUserId());
             profileDto.setFirstName(currentUser.getFirstName());
@@ -490,6 +493,7 @@ public class ProfileRestController {
                 .body(new ApiResponse<>(false, "Error updating profile", null));
         }
     }
+
 
     @GetMapping("/download/{fileType}/{fileName}")
     public ResponseEntity<ApiResponse<String>> getFileUrl(

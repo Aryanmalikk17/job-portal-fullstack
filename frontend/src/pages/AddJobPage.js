@@ -155,46 +155,61 @@ const AddJobPage = () => {
             showNotification('Creating location and company records...', 'info');
             
             // Step 1: Create or get location
+            // locationService returns ApiResponse<JobLocation>: { success, message, data: { id, city... } }
             const locationResponse = await locationService.createOrGetLocation({
                 city: formData.city.trim(),
                 state: formData.state.trim(),
                 country: formData.country.trim()
             });
-            
+
+            // Use id == null (not !id) so that id=0 is treated as a valid identifier
+            if (!locationResponse || !locationResponse.data || locationResponse.data.id == null) {
+                throw new Error('location: Server did not return a valid location ID');
+            }
             const locationId = locationResponse.data.id;
             console.log('Location created/found with ID:', locationId);
             
-            // Step 2: Create or get company
+            // Step 2: Create or get JobCompany record
+            // companyService returns ApiResponse<JobCompany>: { success, message, data: { id, name... } }
             const companyResponse = await companyService.createOrGetCompany({
                 name: formData.companyName.trim(),
                 website: formData.companyWebsite.trim() || null
             });
-            
+
+            // Use id == null (not !id) so that id=0 is treated as a valid identifier
+            if (!companyResponse || !companyResponse.data || companyResponse.data.id == null) {
+                throw new Error('company: Server did not return a valid company ID');
+            }
             const companyId = companyResponse.data.id;
             console.log('Company created/found with ID:', companyId);
             
             showNotification('Posting your job...', 'info');
             
-            // Step 3: Create job with proper IDs
+            // Step 3: Create job — send integer FK IDs, not name strings
             const jobData = {
                 jobTitle: formData.jobTitle.trim(),
                 jobType: formData.jobType,
                 remote: formData.remote,
                 salary: formData.salary.trim() || null,
                 descriptionOfJob: formData.descriptionOfJob,
-                jobLocationId: locationId,  // ✅ Now sending integer ID
-                jobCompanyId: companyId     // ✅ Now sending integer ID
+                jobLocationId: locationId,
+                jobCompanyId: companyId
             };
             
             console.log('Submitting job data:', jobData);
             
-            // Submit job
+            // jobService.createJob() swallows errors and returns { success, message, data }
+            // Do NOT assume a non-throw means success — check the flag explicitly.
             const jobResponse = await jobService.createJob(jobData);
-            
-            console.log('Job created successfully:', jobResponse);
+            console.log('Job create response:', jobResponse);
+
+            if (!jobResponse || jobResponse.success !== true) {
+                const errMsg = jobResponse?.message || 'Failed to post job. Please try again.';
+                showNotification(errMsg, 'error');
+                return;
+            }
+
             showNotification('Job posted successfully! Redirecting to dashboard...', 'success');
-            
-            // Redirect after success
             setTimeout(() => {
                 navigate('/dashboard');
             }, 2000);
@@ -204,7 +219,6 @@ const AddJobPage = () => {
             
             let errorMessage = 'Failed to post job. Please try again.';
             
-            // Handle specific error types
             if (error.message && error.message.includes('location')) {
                 errorMessage = 'Failed to create job location. Please check your location details.';
             } else if (error.message && error.message.includes('company')) {
@@ -222,6 +236,7 @@ const AddJobPage = () => {
             setLoading(false);
         }
     };
+
 
     // Go back to dashboard
     const handleBack = () => {
