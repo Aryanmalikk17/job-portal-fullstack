@@ -113,3 +113,4 @@ temp/
 *.key
 server-key*
 id_rsa*
+github_actions_key*
