@@ -4,6 +4,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { jobService } from '../services/jobService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { Helmet } from 'react-helmet-async';
 import './JobDetailsPage.css';
 
 const JobDetailsPage = () => {
@@ -67,79 +68,7 @@ const JobDetailsPage = () => {
         loadJobDetails();
     }, [loadJobDetails]);
 
-    // Inject JSON-LD JobPosting schema for Google Jobs indexing
-    useEffect(() => {
-        if (!job) return;
-
-        const scriptId = 'job-posting-jsonld';
-        // Remove any existing script to avoid duplicates on re-renders
-        const existing = document.getElementById(scriptId);
-        if (existing) existing.remove();
-
-        const locationCity = job.jobLocationId?.city || job.location || '';
-        const locationCountry = job.jobLocationId?.country || 'IN';
-        const salary = job.salary || '';
-        const isRemote = job.remote === 'Remote-Only' || job.remote === 'Partial-Remote';
-
-        const jsonLd = {
-            '@context': 'https://schema.org/',
-            '@type': 'JobPosting',
-            title: job.jobTitle || '',
-            description: job.descriptionOfJob || '',
-            identifier: {
-                '@type': 'PropertyValue',
-                name: job.jobCompanyId?.name || 'Zpluse Jobs',
-                value: String(job.jobPostId || ''),
-            },
-            datePosted: job.postedDate
-                ? new Date(job.postedDate).toISOString().split('T')[0]
-                : new Date().toISOString().split('T')[0],
-            // Google recommends a validThrough 6 months out if not explicitly set
-            validThrough: new Date(new Date().setMonth(new Date().getMonth() + 6))
-                .toISOString().split('T')[0],
-            employmentType: (job.jobType || 'FULL_TIME').toUpperCase().replace(/[- ]/g, '_'),
-            hiringOrganization: {
-                '@type': 'Organization',
-                name: job.jobCompanyId?.name || 'Zpluse Jobs',
-                sameAs: 'https://zplusejobs.com',
-            },
-            jobLocation: {
-                '@type': 'Place',
-                address: {
-                    '@type': 'PostalAddress',
-                    addressLocality: locationCity,
-                    addressCountry: locationCountry,
-                },
-            },
-            ...(isRemote ? { jobLocationType: 'TELECOMMUTE' } : {}),
-            ...(salary ? {
-                baseSalary: {
-                    '@type': 'MonetaryAmount',
-                    currency: 'INR',
-                    value: {
-                        '@type': 'QuantitativeValue',
-                        value: salary,
-                        unitText: 'YEAR',
-                    },
-                },
-            } : {}),
-            url: `https://zplusejobs.com/jobs/${job.jobPostId}`,
-            directApply: true,
-        };
-
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.id = scriptId;
-        script.text = JSON.stringify(jsonLd);
-        document.head.appendChild(script);
-
-        return () => {
-            const el = document.getElementById(scriptId);
-            if (el) el.remove();
-        };
-    }, [job]);
-
-    // Enhanced error handling function
+    // Helper function for API errors
     const handleApiError = (err, context) => {
         let errorMessage = 'An unexpected error occurred';
         let errorTypeCode = 'GENERAL_ERROR';
@@ -400,8 +329,78 @@ const JobDetailsPage = () => {
         );
     }
 
+    const locationCity = job.jobLocationId?.city || job.location || 'Unknown Location';
+    const locationCountry = job.jobLocationId?.country || 'IN';
+    const salary = job.salary || '';
+    const isRemote = job.remote === 'Remote-Only' || job.remote === 'Partial-Remote';
+    const companyName = job.jobCompanyId?.name || job.companyName || 'Zpluse Jobs';
+
+    // Calculate validThrough as 30 days after datePosted
+    const datePostedStr = job.postedDate
+        ? new Date(job.postedDate).toISOString().split('T')[0]
+        : new Date().toISOString().split('T')[0];
+    
+    const validThroughDate = new Date(datePostedStr);
+    validThroughDate.setDate(validThroughDate.getDate() + 30);
+    const validThroughStr = validThroughDate.toISOString().split('T')[0] + 'T00:00:00Z';
+
+    const plainTextDescription = (job.descriptionOfJob || '').replace(/<[^>]+>/g, '').substring(0, 155);
+
+    const jsonLd = {
+        '@context': 'https://schema.org/',
+        '@type': 'JobPosting',
+        title: job.jobTitle || '',
+        description: job.descriptionOfJob || '',
+        identifier: {
+            '@type': 'PropertyValue',
+            name: companyName,
+            value: String(job.jobPostId || ''),
+        },
+        datePosted: datePostedStr + 'T00:00:00Z',
+        validThrough: validThroughStr,
+        employmentType: (job.jobType || 'FULL_TIME').toUpperCase().replace(/[- ]/g, '_'),
+        hiringOrganization: {
+            '@type': 'Organization',
+            name: companyName,
+            sameAs: 'https://www.zplusejobs.com',
+        },
+        jobLocation: {
+            '@type': 'Place',
+            address: {
+                '@type': 'PostalAddress',
+                addressLocality: locationCity,
+                addressCountry: locationCountry,
+            },
+        },
+        ...(isRemote ? { jobLocationType: 'TELECOMMUTE' } : {}),
+        ...(salary ? {
+            baseSalary: {
+                '@type': 'MonetaryAmount',
+                currency: 'INR',
+                value: {
+                    '@type': 'QuantitativeValue',
+                    value: salary,
+                    unitText: 'YEAR',
+                },
+            },
+        } : {}),
+        url: `https://www.zplusejobs.com/jobs/${job.jobPostId}`,
+        directApply: true,
+    };
+
     return (
         <div className="job-details-page">
+            <Helmet>
+                <title>{job.jobTitle} in {locationCity} | {companyName} Careers | Zpluse Jobs</title>
+                <meta name="description" content={plainTextDescription} />
+                <meta property="og:title" content={`${job.jobTitle} at ${companyName}`} />
+                <meta property="og:description" content={plainTextDescription} />
+                <meta property="og:url" content={`https://www.zplusejobs.com/jobs/${job.jobPostId}`} />
+                <meta property="og:type" content="website" />
+                <script type="application/ld+json">
+                    {JSON.stringify(jsonLd)}
+                </script>
+            </Helmet>
             <Container className="py-4">
                 {/* Notification */}
                 {notification && (
@@ -537,10 +536,10 @@ const JobDetailsPage = () => {
                         {/* Job Specifications */}
                         <Card className="job-specs-card mb-4 border-0 shadow-sm">
                             <Card.Body className="p-4">
-                                <h4 className="section-title mb-4">
+                                <h2 className="section-title mb-4">
                                     <i className="fa fa-info-circle me-2 text-primary"></i>
                                     Job Information
-                                </h4>
+                                </h2>
                                 
                                 <Row className="job-specs-grid">
                                     <Col md={6} lg={3} className="mb-3">
@@ -597,10 +596,10 @@ const JobDetailsPage = () => {
                         {/* Job Description */}
                         <Card className="job-description-card border-0 shadow-sm">
                             <Card.Body className="p-4">
-                                <h4 className="section-title mb-4">
+                                <h2 className="section-title mb-4">
                                     <i className="fa fa-file-alt me-2 text-primary"></i>
                                     Job Description
-                                </h4>
+                                </h2>
                                 <div 
                                     className="job-description-content"
                                     dangerouslySetInnerHTML={{ __html: job.descriptionOfJob || '<p class="text-muted">No description provided.</p>' }}

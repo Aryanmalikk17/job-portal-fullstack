@@ -21,11 +21,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './styles/App.css';
 
+import { HelmetProvider } from 'react-helmet-async';
+
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Layout>
+    <HelmetProvider>
+      <AuthProvider>
+        <Router>
+          <Layout>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
@@ -74,6 +77,7 @@ function App() {
         </Layout>
       </Router>
     </AuthProvider>
+    </HelmetProvider>
   );
 }
 

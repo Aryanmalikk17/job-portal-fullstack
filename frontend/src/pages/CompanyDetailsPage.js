@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstr
 import { useParams, Link } from 'react-router-dom';
 import { companyService } from '../services/companyService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { Helmet } from 'react-helmet-async';
 import './CompanyDetailsPage.css';
 
 const CompanyDetailsPage = () => {
@@ -57,8 +58,33 @@ const CompanyDetailsPage = () => {
         </Container>
     );
 
+    const plainTextDescription = (company.description || '').replace(/<[^>]+>/g, '').substring(0, 155);
+
+    const jsonLdOrganization = {
+        '@context': 'https://schema.org',
+        '@type': ['Organization', 'LocalBusiness'],
+        name: company.name,
+        url: company.website ? (company.website.startsWith('http') ? company.website : `https://${company.website}`) : 'https://www.zplusejobs.com',
+        logo: `https://www.zplusejobs.com/logos/company/${company.id}/${company.logo || ''}`,
+        description: plainTextDescription,
+        address: {
+            '@type': 'PostalAddress',
+            streetAddress: company.officeAddress || '',
+            addressLocality: company.city || '',
+            addressRegion: company.state || '',
+            addressCountry: company.country || 'IN'
+        }
+    };
+
     return (
         <div className="company-details-page">
+            <Helmet>
+                <title>{company.name} | Careers & Jobs at Zpluse Jobs</title>
+                <meta name="description" content={plainTextDescription || `View jobs and career opportunities at ${company.name}.`} />
+                <script type="application/ld+json">
+                    {JSON.stringify(jsonLdOrganization)}
+                </script>
+            </Helmet>
             {/* Hero Section */}
             <div className="company-hero">
                 <Container>
@@ -67,7 +93,7 @@ const CompanyDetailsPage = () => {
                             {company.logo ? (
                                 <img 
                                     src={`/logos/company/${company.id}/${company.logo}`} 
-                                    alt={company.name} 
+                                    alt={`${company.name} office and logo`} 
                                     className="company-logo-img"
                                     onError={(e) => {
                                         e.target.style.display = 'none';
