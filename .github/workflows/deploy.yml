@@ -165,8 +165,8 @@ jobs:
         # Add server to known hosts with timeout
         ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
         
-        # Create deployment directory with timeout
-        timeout 30 ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p /opt/jobportal/deployment"
+        # Create deployment directory and ensure it's writable
+        timeout 30 ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p /opt/jobportal && chmod 755 /opt/jobportal"
         
         # Copy deployment files with timeout (fixed syntax)
         echo "🔄 Copying docker-compose.prod.yml..."
