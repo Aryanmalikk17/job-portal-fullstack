@@ -1,13 +1,15 @@
 import React from 'react';
 import { Card, Badge, Button, Row, Col } from 'react-bootstrap';
 
+import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
+
 const ApplicationCard = ({ 
     application, 
     onViewDetails, 
     onUpdateStatus, 
-    formatDate, 
-    getStatusBadgeVariant 
+    formatDate,
 }) => {
+    // getStatusBadgeVariant is no longer needed as we use getStatusColor
     
     const getStatusActions = (status) => {
         const nextActions = {
@@ -27,9 +29,9 @@ const ApplicationCard = ({
 
     return (
         <Card className="application-card h-100 border-start border-4" 
-              style={{ borderStartColor: getStatusBadgeVariant(application.status) === 'success' ? '#198754' : 
-                                       getStatusBadgeVariant(application.status) === 'danger' ? '#dc3545' : 
-                                       getStatusBadgeVariant(application.status) === 'warning' ? '#ffc107' : '#0d6efd' }}>
+              style={{ borderStartColor: getStatusColor(application.status) === 'success' ? '#198754' : 
+                                       getStatusColor(application.status) === 'danger' ? '#dc3545' : 
+                                       getStatusColor(application.status) === 'warning' ? '#ffc107' : '#0d6efd' }}>
             <Card.Body>
                 {/* Header */}
                 <div className="d-flex justify-content-between align-items-start mb-3">
@@ -43,10 +45,11 @@ const ApplicationCard = ({
                         </p>
                     </div>
                     <Badge 
-                        bg={getStatusBadgeVariant(application.status)}
+                        bg={getStatusColor(application.status)}
                         className="status-badge"
                     >
-                        {application.status?.replace(/_/g, ' ')}
+                        <i className={`fa ${getStatusIcon(application.status)} me-1`}></i>
+                        {getStatusLabel(application.status)}
                     </Badge>
                 </div>
 

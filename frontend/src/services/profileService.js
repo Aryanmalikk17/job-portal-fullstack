@@ -111,8 +111,14 @@ export const profileService = {
 
     // Recruiter Profile Methods
     getRecruiterProfile: async () => {
-        // Use unified profile endpoint
-        return await profileService.getCurrentProfile();
+        try {
+            // Try specific recruiter endpoint first to fix 400 errors on unified profile
+            const response = await api.get(PROFILE_ENDPOINTS.UPDATE_RECRUITER_PROFILE);
+            return response.data;
+        } catch (error) {
+            // Fallback to unified profile
+            return await profileService.getCurrentProfile();
+        }
     },
 
     updateRecruiterProfile: async (profileData) => {

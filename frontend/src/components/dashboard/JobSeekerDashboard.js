@@ -6,6 +6,7 @@ import StatsCard from './StatsCard';
 import ApplicationCard from './ApplicationCard';
 import JobCard from '../jobs/JobCard';
 import { Briefcase, Clock, CheckCircle, XCircle, Search } from 'lucide-react';
+import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
 
 const JobSeekerDashboard = () => {
   const [applications, setApplications] = useState([]);
@@ -76,7 +77,8 @@ const JobSeekerDashboard = () => {
     return <div className="dashboard-loading">Loading your dashboard...</div>;
   }
 
-  const validJobs = filteredJobs.filter(j => j && (j.id || j.jobId));
+  // Ensure the mapping handles both job.id and job.jobId depending on the backend response
+  const validJobs = jobs.filter(j => j && (j.id || j.jobId));
 
   return (
     <div className="dashboard-container">

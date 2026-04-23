@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Alert, Spinner, Form, Modal } from 'react-bootstrap';
 import applicationService from '../../services/applicationService';
+import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
 
 const MyApplications = () => {
     const [applications, setApplications] = useState([]);
@@ -191,8 +192,9 @@ const MyApplications = () => {
                                                                 {application.companyName || 'Company Name'}
                                                             </p>
                                                         </div>
-                                                        <Badge bg={getStatusVariant(application.status)}>
-                                                            {application.status}
+                                                        <Badge bg={getStatusColor(application.status)}>
+                                                            <i className={`fa ${getStatusIcon(application.status)} me-1`}></i>
+                                                            {getStatusLabel(application.status)}
                                                         </Badge>
                                                     </div>
 

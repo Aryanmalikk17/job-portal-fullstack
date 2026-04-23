@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Badge, Button, Modal, Form, Alert, Dropdown } from 'react-bootstrap';
 import applicationService from '../../services/applicationService';
+import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
 
 const ApplicationStatusManager = ({ userType, userId }) => {
     const [applications, setApplications] = useState([]);
@@ -11,7 +12,6 @@ const ApplicationStatusManager = ({ userType, userId }) => {
     const [newStatus, setNewStatus] = useState('');
     const [recruiterNotes, setRecruiterNotes] = useState('');
     const [updating, setUpdating] = useState(false);
-    const [pollId, setPollId] = useState(null);
 
     useEffect(() => {
         loadApplications();
@@ -93,16 +93,7 @@ const ApplicationStatusManager = ({ userType, userId }) => {
     };
 
     const getStatusBadge = (status) => {
-        const variant = {
-            'APPLIED': 'primary',
-            'UNDER_REVIEW': 'warning',
-            'INTERVIEW_SCHEDULED': 'info',
-            'INTERVIEWED': 'secondary',
-            'OFFERED': 'success',
-            'HIRED': 'success',
-            'REJECTED': 'danger',
-            'WITHDRAWN': 'secondary'
-        }[status] || 'secondary';
+        const variant = getStatusColor(status);
 
         return (
             <Badge 
@@ -113,8 +104,8 @@ const ApplicationStatusManager = ({ userType, userId }) => {
                     padding: '0.25rem 0.5rem'
                 }}
             >
-                <i className={`fa ${applicationService.getStatusIcon(status)} me-1`}></i>
-                {status.replace('_', ' ')}
+                <i className={`fa ${getStatusIcon(status)} me-1`}></i>
+                {getStatusLabel(status)}
             </Badge>
         );
     };
