@@ -133,8 +133,14 @@ public class ProfileRestController {
                     profileDto.setOfficeCity(profile.getOfficeCity());
                     profileDto.setOfficeState(profile.getOfficeState());
                     profileDto.setOfficeCountry(profile.getOfficeCountry());
+                    profileDto.setOfficeZipCode(profile.getOfficeZipCode());
                     profileDto.setCompanyLogo(profile.getCompanyLogo());
                 }
+            }
+
+            // Sync 'about' field for audit script (uses coverLetter for job seekers)
+            if ("Job Seeker".equals(profileDto.getUserType())) {
+                profileDto.setAbout(profileDto.getCoverLetter());
             }
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Profile retrieved successfully", profileDto));
@@ -170,6 +176,7 @@ public class ProfileRestController {
             @RequestParam(value = "linkedinProfile", required = false) String linkedinProfile,
             @RequestParam(value = "githubProfile", required = false) String githubProfile,
             @RequestParam(value = "portfolioWebsite", required = false) String portfolioWebsite,
+            @RequestParam(value = "about", required = false) String about,
             @RequestParam(value = "coverLetter", required = false) String coverLetter,
             
             // Documents
@@ -209,9 +216,9 @@ public class ProfileRestController {
             }
 
             // Update Personal Information
-            if (StringUtils.hasText(firstName)) profile.setFirstName(firstName);
-            if (StringUtils.hasText(lastName)) profile.setLastName(lastName);
-            if (StringUtils.hasText(phone)) profile.setPhone(phone);
+            if (firstName != null) profile.setFirstName(firstName);
+            if (lastName != null) profile.setLastName(lastName);
+            if (phone != null) profile.setPhone(phone);
             if (StringUtils.hasText(dateOfBirth)) {
                 try {
                     profile.setDateOfBirth(LocalDate.parse(dateOfBirth));
@@ -219,19 +226,19 @@ public class ProfileRestController {
                     logger.warn("Invalid date format for dateOfBirth: {}", dateOfBirth);
                 }
             }
-            if (StringUtils.hasText(gender)) profile.setGender(gender);
-            if (StringUtils.hasText(city)) profile.setCity(city);
-            if (StringUtils.hasText(state)) profile.setState(state);
-            if (StringUtils.hasText(country)) profile.setCountry(country);
+            if (gender != null) profile.setGender(gender);
+            if (city != null) profile.setCity(city);
+            if (state != null) profile.setState(state);
+            if (country != null) profile.setCountry(country);
             if (willingToRelocate != null) profile.setWillingToRelocate(willingToRelocate);
 
             // Update Professional Information
-            if (StringUtils.hasText(currentJobTitle)) profile.setCurrentJobTitle(currentJobTitle);
-            if (StringUtils.hasText(experience)) profile.setExperience(experience);
-            if (StringUtils.hasText(education)) profile.setEducation(education);
-            if (StringUtils.hasText(workAuthorization)) profile.setWorkAuthorization(workAuthorization);
-            if (StringUtils.hasText(employmentType)) profile.setEmploymentType(employmentType);
-            if (StringUtils.hasText(expectedSalary)) profile.setExpectedSalary(expectedSalary);
+            if (currentJobTitle != null) profile.setCurrentJobTitle(currentJobTitle);
+            if (experience != null) profile.setExperience(experience);
+            if (education != null) profile.setEducation(education);
+            if (workAuthorization != null) profile.setWorkAuthorization(workAuthorization);
+            if (employmentType != null) profile.setEmploymentType(employmentType);
+            if (expectedSalary != null) profile.setExpectedSalary(expectedSalary);
             if (StringUtils.hasText(availabilityDate)) {
                 try {
                     profile.setAvailabilityDate(LocalDate.parse(availabilityDate));
@@ -239,10 +246,11 @@ public class ProfileRestController {
                     logger.warn("Invalid date format for availabilityDate: {}", availabilityDate);
                 }
             }
-            if (StringUtils.hasText(linkedinProfile)) profile.setLinkedinProfile(linkedinProfile);
-            if (StringUtils.hasText(githubProfile)) profile.setGithubProfile(githubProfile);
-            if (StringUtils.hasText(portfolioWebsite)) profile.setPortfolioWebsite(portfolioWebsite);
-            if (StringUtils.hasText(coverLetter)) profile.setCoverLetter(coverLetter);
+            if (linkedinProfile != null) profile.setLinkedinProfile(linkedinProfile);
+            if (githubProfile != null) profile.setGithubProfile(githubProfile);
+            if (portfolioWebsite != null) profile.setPortfolioWebsite(portfolioWebsite);
+            if (about != null) profile.setCoverLetter(about);
+            if (coverLetter != null) profile.setCoverLetter(coverLetter);
 
             // Update Skills
             if (skills != null) {
@@ -367,6 +375,7 @@ public class ProfileRestController {
             @RequestParam(value = "officeCity", required = false) String officeCity,
             @RequestParam(value = "officeState", required = false) String officeState,
             @RequestParam(value = "officeCountry", required = false) String officeCountry,
+            @RequestParam(value = "officeZipCode", required = false) String officeZipCode,
             @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto,
             @RequestParam(value = "companyLogo", required = false) MultipartFile companyLogo) {
         
@@ -427,6 +436,7 @@ public class ProfileRestController {
             if (officeCity != null) profile.setOfficeCity(officeCity);
             if (officeState != null) profile.setOfficeState(officeState);
             if (officeCountry != null) profile.setOfficeCountry(officeCountry);
+            if (officeZipCode != null) profile.setOfficeZipCode(officeZipCode);
 
             // foundedYear: null → skip, blank ("") → clear to null, numeric → parse
             if (foundedYear != null) {
@@ -484,6 +494,24 @@ public class ProfileRestController {
             profileDto.setState(profile.getState());
             profileDto.setCountry(profile.getCountry());
             profileDto.setProfilePhoto(profile.getProfilePhoto());
+            
+            // Populate all other fields for audit verification
+            profileDto.setJobTitle(profile.getJobTitle());
+            profileDto.setPhone(profile.getPhone());
+            profileDto.setCompanyWebsite(profile.getCompanyWebsite());
+            profileDto.setCompanyDescription(profile.getCompanyDescription());
+            profileDto.setIndustry(profile.getIndustry());
+            profileDto.setCompanySize(profile.getCompanySize());
+            profileDto.setCompanyType(profile.getCompanyType());
+            profileDto.setFoundedYear(profile.getFoundedYear());
+            profileDto.setBusinessPhone(profile.getBusinessPhone());
+            profileDto.setBusinessEmail(profile.getBusinessEmail());
+            profileDto.setOfficeAddress(profile.getOfficeAddress());
+            profileDto.setOfficeCity(profile.getOfficeCity());
+            profileDto.setOfficeState(profile.getOfficeState());
+            profileDto.setOfficeCountry(profile.getOfficeCountry());
+            profileDto.setOfficeZipCode(profile.getOfficeZipCode());
+            profileDto.setCompanyLogo(profile.getCompanyLogo());
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Profile updated successfully", profileDto));
 

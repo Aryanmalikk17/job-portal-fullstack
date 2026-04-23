@@ -55,7 +55,9 @@ public class UserProfileDto {
     private String officeCity;
     private String officeState;
     private String officeCountry;
+    private String officeZipCode;
     private String companyLogo;
+    private String about;
     
     // Constructors
     public UserProfileDto() {}
@@ -199,6 +201,12 @@ public class UserProfileDto {
     public String getOfficeCountry() { return officeCountry; }
     public void setOfficeCountry(String officeCountry) { this.officeCountry = officeCountry; }
 
+    public String getOfficeZipCode() { return officeZipCode; }
+    public void setOfficeZipCode(String officeZipCode) { this.officeZipCode = officeZipCode; }
+
     public String getCompanyLogo() { return companyLogo; }
     public void setCompanyLogo(String companyLogo) { this.companyLogo = companyLogo; }
+
+    public String getAbout() { return about; }
+    public void setAbout(String about) { this.about = about; }
 }

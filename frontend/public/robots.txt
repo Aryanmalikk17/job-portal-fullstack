@@ -3,4 +3,4 @@ Allow: /
 Disallow: /api/
 Disallow: /dashboard/
 
-Sitemap: https://www.zplusejobs.com/sitemap.xml
+Sitemap: https://zplusejobs.com/sitemap.xml
