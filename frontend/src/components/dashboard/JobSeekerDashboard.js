@@ -76,6 +76,8 @@ const JobSeekerDashboard = () => {
     return <div className="dashboard-loading">Loading your dashboard...</div>;
   }
 
+  const validJobs = filteredJobs.filter(j => j && (j.id || j.jobId));
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -98,7 +100,7 @@ const JobSeekerDashboard = () => {
           <div className="applications-list">
             {applications.length > 0 ? (
               applications.slice(0, 5).map(app => (
-                <ApplicationCard key={app.applicationId} application={app} />
+                <ApplicationCard key={app.applicationId || app.id} application={app} />
               ))
             ) : (
               <div className="empty-state">
@@ -123,12 +125,12 @@ const JobSeekerDashboard = () => {
             </div>
           </div>
           <div className="jobs-grid">
-            {filteredJobs.length > 0 ? (
-              filteredJobs.slice(0, 6).map(job => (
+            {validJobs.length > 0 ? (
+              validJobs.slice(0, 6).map(job => (
                 <JobCard 
-                  key={job.jobId} 
+                  key={job.jobId || job.id} 
                   job={job} 
-                  onApply={() => handleApply(job.jobId)}
+                  onApply={() => handleApply(job.jobId || job.id)}
                   isApplied={job.applicationStatus !== null}
                 />
               ))

@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ============================================================
    ZPLUSE JOBS — Teal/Cyan "Glass-Enterprise" Design System
    ============================================================ */

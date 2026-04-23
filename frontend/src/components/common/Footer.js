@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Row, Col } from 'react-bootstrap';
 import { 
     Facebook, 
     Twitter, 
@@ -9,80 +8,111 @@ import {
     Mail, 
     Phone, 
     MapPin, 
-    ExternalLink,
     Heart
 } from 'lucide-react';
 
 const Footer = () => {
     return (
-        <footer className="footer-main">
-            <Container>
-                <Row className="footer-top py-5">
-                    <Col lg={4} md={12} className="footer-brand-col mb-4 mb-lg-0">
-                        <Link to="/" className="footer-logo">
-                            Zpluse<span>Jobs</span>
+        <footer className="bg-gray-950 text-gray-300 font-sans border-t-2 border-brand-500/30">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+                    {/* Brand Column */}
+                    <div className="space-y-6">
+                        <Link to="/" className="text-3xl font-extrabold tracking-tight flex items-center group">
+                            <span className="text-white">Zpluse</span>
+                            <span className="text-brand-500 group-hover:text-brand-400 transition-colors ml-1">Jobs</span>
                         </Link>
-                        <p className="footer-description mt-3">
-                            Connecting talent with opportunity across the globe. Our platform 
-                            makes job seeking and recruitment simple, fast, and effective.
+                        <p className="text-gray-400 leading-relaxed max-w-xs">
+                            Empowering your career journey with precision matching. Connecting global talent with world-class opportunities through innovation.
                         </p>
-                        <div className="social-links mt-4">
-                            <a href="#" className="social-icon"><Facebook size={18} /></a>
-                            <a href="#" className="social-icon"><Twitter size={18} /></a>
-                            <a href="#" className="social-icon"><Linkedin size={18} /></a>
-                            <a href="#" className="social-icon"><Instagram size={18} /></a>
+                        <div className="flex space-x-4">
+                            {[
+                                { Icon: Facebook, href: "#" },
+                                { Icon: Twitter, href: "#" },
+                                { Icon: Linkedin, href: "#" },
+                                { Icon: Instagram, href: "#" }
+                            ].map(({ Icon, href }, i) => (
+                                <a 
+                                    key={i} 
+                                    href={href} 
+                                    className="p-2 bg-gray-900 rounded-lg text-gray-400 hover:text-brand-500 hover:bg-gray-800 transition-all duration-300 shadow-sm"
+                                >
+                                    <Icon size={20} />
+                                </a>
+                            ))}
                         </div>
-                    </Col>
+                    </div>
 
-                    <Col lg={2} md={4} className="footer-links-col mb-4 mb-md-0">
-                        <h5>For Job Seekers</h5>
-                        <ul className="footer-links">
-                            <li><Link to="/jobs">Browse Jobs</Link></li>
-                            <li><Link to="/profile">My Profile</Link></li>
-                            <li><Link to="/applications">My Applications</Link></li>
-                            <li><Link to="/saved-jobs">Saved Jobs</Link></li>
+                    {/* Job Seekers Column */}
+                    <div className="space-y-6">
+                        <h5 className="text-white font-bold text-lg border-b border-brand-500/20 pb-2 inline-block">For Job Seekers</h5>
+                        <ul className="space-y-3">
+                            {[
+                                { label: 'Browse Jobs', path: '/jobs' },
+                                { label: 'My Profile', path: '/profile' },
+                                { label: 'My Applications', path: '/my-applications' },
+                                { label: 'Saved Jobs', path: '/saved-jobs' }
+                            ].map((link, i) => (
+                                <li key={i}>
+                                    <Link to={link.path} className="hover:text-brand-500 transition-colors duration-200 flex items-center group">
+                                        <span className="w-1.5 h-1.5 bg-brand-500/40 rounded-full mr-2 group-hover:bg-brand-500 transition-all"></span>
+                                        {link.label}
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
-                    </Col>
+                    </div>
 
-                    <Col lg={2} md={4} className="footer-links-col mb-4 mb-md-0">
-                        <h5>For Recruiters</h5>
-                        <ul className="footer-links">
-                            <li><Link to="/register?type=recruiter">Post a Job</Link></li>
-                            <li><Link to="/recruiter/dashboard">Dashboard</Link></li>
-                            <li><Link to="/recruiter/applications">Applications</Link></li>
-                            <li><Link to="/companies">Company Profile</Link></li>
+                    {/* Recruiters Column */}
+                    <div className="space-y-6">
+                        <h5 className="text-white font-bold text-lg border-b border-brand-500/20 pb-2 inline-block">For Recruiters</h5>
+                        <ul className="space-y-3">
+                            {[
+                                { label: 'Post a Job', path: '/register?type=recruiter' },
+                                { label: 'Recruiter Dashboard', path: '/dashboard' },
+                                { label: 'Manage Applications', path: '/applications' },
+                                { label: 'Company Profile', path: '/companies' }
+                            ].map((link, i) => (
+                                <li key={i}>
+                                    <Link to={link.path} className="hover:text-brand-500 transition-colors duration-200 flex items-center group">
+                                        <span className="w-1.5 h-1.5 bg-brand-500/40 rounded-full mr-2 group-hover:bg-brand-500 transition-all"></span>
+                                        {link.label}
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
-                    </Col>
+                    </div>
 
-                    <Col lg={4} md={4} className="footer-contact-col">
-                        <h5>Contact Us</h5>
-                        <ul className="contact-info">
-                            <li>
-                                <MapPin size={18} className="me-2" />
-                                <span>Global Hub, Tech City, 10001</span>
-                            </li>
-                            <li>
-                                <Phone size={18} className="me-2" />
-                                <span>+1 (234) 567-890</span>
-                            </li>
-                            <li>
-                                <Mail size={18} className="me-2" />
-                                <span>support@zpluse.com</span>
-                            </li>
-                        </ul>
-                    </Col>
-                </Row>
+                    {/* Contact Column */}
+                    <div className="space-y-6">
+                        <h5 className="text-white font-bold text-lg border-b border-brand-500/20 pb-2 inline-block">Get In Touch</h5>
+                        <div className="space-y-4">
+                            <div className="flex items-start group">
+                                <MapPin size={20} className="text-brand-500 mt-1 mr-3 flex-shrink-0" />
+                                <span className="group-hover:text-white transition-colors">Global Hub, Tech City, 10001</span>
+                            </div>
+                            <div className="flex items-center group">
+                                <Phone size={20} className="text-brand-500 mr-3 flex-shrink-0" />
+                                <span className="group-hover:text-white transition-colors">+1 (234) 567-890</span>
+                            </div>
+                            <div className="flex items-center group">
+                                <Mail size={20} className="text-brand-500 mr-3 flex-shrink-0" />
+                                <span className="group-hover:text-white transition-colors">support@zpluse.com</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <hr className="footer-divider" />
-
-                <Row className="footer-bottom py-3 align-items-center">
-                    <Col md={12} className="text-center">
-                        <p className="footer-copyright mb-0">
-                            &copy; {new Date().getFullYear()} Zpluse Jobs Finder. All rights reserved by Zpluse (www.zpluse.com)
-                        </p>
-                    </Col>
-                </Row>
-            </Container>
+                {/* Bottom Bar */}
+                <div className="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+                    <p className="text-center md:text-left">
+                        &copy; 2026 <span className="text-white font-medium">Zpluse Jobs Finder</span>. All rights reserved by Zpluse (<a href="https://www.zpluse.com" target="_blank" rel="noopener noreferrer" className="text-brand-500 hover:underline">www.zpluse.com</a>)
+                    </p>
+                    <div className="flex items-center gap-1">
+                        Made with <Heart size={14} className="text-red-500 fill-red-500" /> for the future of work
+                    </div>
+                </div>
+            </div>
         </footer>
     );
 };

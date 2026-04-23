@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Alert, Spinner, Form, Modal } from 'react-bootstrap';
-import { jobService } from '../../services/jobService';
+import applicationService from '../../services/applicationService';
 
 const MyApplications = () => {
     const [applications, setApplications] = useState([]);
@@ -19,8 +19,8 @@ const MyApplications = () => {
     const fetchMyApplications = async () => {
         try {
             setLoading(true);
-            const data = await jobService.getMyApplications();
-            setApplications(data);
+            const data = await applicationService.getMyApplications();
+            setApplications(data || []);
             setError(null);
         } catch (error) {
             console.error('Error fetching applications:', error);
@@ -62,7 +62,7 @@ const MyApplications = () => {
     const handleWithdraw = async () => {
         try {
             setWithdrawing(true);
-            const response = await jobService.withdrawApplication(selectedApplication.id);
+            const response = await applicationService.withdrawApplication(selectedApplication.id);
             
             if (response.success) {
                 // Update local state

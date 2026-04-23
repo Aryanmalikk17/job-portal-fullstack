@@ -37,10 +37,14 @@ export const jobService = {
       // THRESHOLD: To prevent "Polling Storm" (503), we fetch status sequentially with a small delay
       const jobsWithStatus = [];
       for (const job of validatedJobs) {
+        // Guard: skip if no valid ID to avoid /status/undefined
+        const targetId = job.id || job.jobId;
+        if (!targetId) continue;
+
         try {
           // Add a small 100ms delay between individual status checks
           await delay(100);
-          const statusRes = await api.get(`applications/status/${job.jobId}`);
+          const statusRes = await api.get(`applications/status/${targetId}`);
           jobsWithStatus.push({ 
             ...job, 
             applicationStatus: statusRes.data?.data || statusRes.data 

@@ -39,6 +39,15 @@ const applicationService = {
       console.error('Error updating application status:', error);
       throw error;
     }
+  },
+  withdrawApplication: async (applicationId) => {
+    try {
+      const response = await api.post(`applications/withdraw/${applicationId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error withdrawing application:', error);
+      throw error;
+    }
   }
 };
 

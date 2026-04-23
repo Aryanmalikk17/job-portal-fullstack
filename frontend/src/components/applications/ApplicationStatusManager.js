@@ -16,15 +16,12 @@ const ApplicationStatusManager = ({ userType, userId }) => {
     useEffect(() => {
         loadApplications();
         
-        // Start polling for real-time updates
-        const id = applicationService.startStatusPolling((updatedApps) => {
-            setApplications(updatedApps);
-        }, 30000);
-        setPollId(id);
+        // Polling every 30 seconds for real-time updates
+        const id = setInterval(loadApplications, 30000);
 
         // Cleanup polling on unmount
         return () => {
-            if (id) applicationService.stopStatusPolling(id);
+            if (id) clearInterval(id);
         };
     }, [userType]);
 
