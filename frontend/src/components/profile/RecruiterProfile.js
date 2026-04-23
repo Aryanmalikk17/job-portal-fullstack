@@ -127,7 +127,21 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
                 return;
             }
 
-            const response = await profileService.updateRecruiterProfile(profileData);
+            // Packaging company info fields explicitly to ensure persistence
+            const packagedData = {
+                ...profileData,
+                industry: profileData.industry,
+                companyWebsite: profileData.companyWebsite,
+                companyDescription: profileData.companyDescription,
+                companySize: profileData.companySize,
+                companyType: profileData.companyType,
+                foundedYear: profileData.foundedYear,
+                officeCity: profileData.officeCity,
+                officeState: profileData.officeState,
+                officeCountry: profileData.officeCountry
+            };
+
+            const response = await profileService.updateRecruiterProfile(packagedData);
             // Sync local state with what was actually persisted
             const savedFields = (response && response.data && typeof response.data === 'object')
                 ? response.data

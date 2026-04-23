@@ -2,12 +2,12 @@ import api from './api';
 
 const COMPANY_ENDPOINTS = {
     // Public company profile endpoints (recruiter-profile based, for company detail pages)
-    DETAILS: (id) => `/companies/${id}`,
-    JOBS: (id) => `/companies/${id}/jobs`,
+    DETAILS: (id) => `companies/${id}`,
+    JOBS: (id) => `companies/${id}/jobs`,
     // Job-data company endpoints (JobCompany entity, for job posting FK resolution)
-    CREATE_OR_GET: '/job-data/companies',
-    SEARCH: '/job-data/companies/search',
-    GET_ALL: '/job-data/companies',
+    CREATE_OR_GET: 'job-data/companies',
+    SEARCH: 'job-data/companies/search',
+    GET_ALL: 'job-data/companies',
 };
 
 export const companyService = {

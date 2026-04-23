@@ -4,7 +4,9 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:808
 
 // Create axios instance
 const api = axios.create({
-    baseURL: API_BASE_URL,
+    // Hardening: Ensure baseURL always ends with a slash so that service calls 
+    // using relative paths (no leading slash) resolve correctly to the /api/ context.
+    baseURL: API_BASE_URL.endsWith('/') ? API_BASE_URL : `${API_BASE_URL}/`,
     headers: {
         'Content-Type': 'application/json',
     },

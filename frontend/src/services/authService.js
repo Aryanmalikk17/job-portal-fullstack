@@ -1,11 +1,11 @@
 import api from './api';
 
 const AUTH_ENDPOINTS = {
-    LOGIN: '/auth/login',
-    LOGOUT: '/auth/logout',
-    REGISTER: '/auth/register', // FIXED: Changed from '/register/new' to '/auth/register'
-    VERIFY: '/auth/verify',     // FIXED: Matches backend GET and POST /api/auth/verify
-    USER: '/auth/user',         // FIXED: Matches backend GET /api/auth/user
+    LOGIN: 'auth/login',
+    LOGOUT: 'auth/logout',
+    REGISTER: 'auth/register', // FIXED: Changed from '/register/new' to '/auth/register'
+    VERIFY: 'auth/verify',     // FIXED: Matches backend GET and POST /api/auth/verify
+    USER: 'auth/user',         // FIXED: Matches backend GET /api/auth/user
 };
 
 export const authService = {

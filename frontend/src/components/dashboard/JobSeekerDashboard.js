@@ -6,7 +6,6 @@ import StatsCard from './StatsCard';
 import ApplicationCard from './ApplicationCard';
 import JobCard from '../jobs/JobCard';
 import { Briefcase, Clock, CheckCircle, XCircle, Search } from 'lucide-react';
-import './Dashboard.css';
 
 const JobSeekerDashboard = () => {
   const [applications, setApplications] = useState([]);
@@ -20,14 +19,17 @@ const JobSeekerDashboard = () => {
     try {
       setLoading(true);
       
-      // Fetch both my applications AND all jobs with status
-      const [applicationsResponse, jobsResponse] = await Promise.all([
-        applicationService.getMyApplications(),
-        jobService.getAllJobsWithStatus()
-      ]);
-      
+      // Sequential Fetching: To prevent "Polling Storm" (503) on production,
+      // we fetch data in sequence with a small delay.
+      const applicationsResponse = await applicationService.getMyApplications();
       setApplications(applicationsResponse || []);
+      
+      // Small 100ms throttle between primary and secondary dashboard calls
+      await new Promise(r => setTimeout(r, 100));
+      
+      const jobsResponse = await jobService.getAllJobsWithStatus();
       setJobs(jobsResponse || []);
+      
       setError(null);
     } catch (err) {
       console.error('Error loading dashboard:', err);

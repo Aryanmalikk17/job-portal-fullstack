@@ -211,7 +211,46 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 4. Site-Wide Health Checks
+# 4. Critical Regression Checks
+# ------------------------------------------------------------------------------
+
+# Double-Path Ghost Check
+echo "Running Double-Path Ghost Check..."
+DP_RES=$(curl -k -s -w "%{http_code}" -o /dev/null "$BASE_URL/api/api/auth/login")
+if [ "$DP_RES" == "404" ]; then
+    append_report "Double-Path Check" "GET" "Ghost path /api/api/" "404" "✅ PASS (Not found as expected)"
+else
+    append_report "Double-Path Check" "GET" "Ghost path /api/api/" "$DP_RES" "⚠️ WARNING (Ghost path returned $DP_RES)"
+fi
+
+# Iterable Safety Check
+echo "Running Iterable Safety Check..."
+JOBS_RAW=$(curl -k -s -X GET "$BASE_URL/api/jobs")
+IS_ARRAY=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); val=data.get('data') if isinstance(data, dict) and 'data' in data else data; print('true' if isinstance(val, list) else 'false')" "$JOBS_RAW" 2>/dev/null)
+if [ "$IS_ARRAY" == "true" ]; then
+    append_report "/api/jobs" "GET" "Iterable Check (Array)" "200" "✅ PASS"
+else
+    append_report "/api/jobs" "GET" "Iterable Check (Array)" "200" "❌ FAIL (Not an array)"
+fi
+
+# Recruiter Deep-Sync Check
+echo "Running Recruiter Deep-Sync Check..."
+NEW_IND="FinTech-$TS"
+NEW_WEB="https://zpluse.com/audit-$TS"
+SYNC_RES=$(curl -k -s -w "\n%{http_code}" -X PUT "$BASE_URL/api/profile/recruiter" -H "Authorization: Bearer $REC_TOKEN" -F "industry=$NEW_IND" -F "companyWebsite=$NEW_WEB")
+SYNC_HTTP=$(echo "$SYNC_RES" | tail -n1)
+VERIFY_SYNC=$(curl -k -s -X GET "$BASE_URL/api/profile" -H "Authorization: Bearer $REC_TOKEN")
+GET_IND=$(get_json_val "$VERIFY_SYNC" "industry")
+GET_WEB=$(get_json_val "$VERIFY_SYNC" "companyWebsite")
+
+if [ "$SYNC_HTTP" == "200" ] && [ "$GET_IND" == "$NEW_IND" ] && [ "$GET_WEB" == "$NEW_WEB" ]; then
+    append_report "Recruiter Deep-Sync" "PUT/GET" "Industry & Website" "$SYNC_HTTP" "✅ PASS"
+else
+    append_report "Recruiter Deep-Sync" "PUT/GET" "Industry & Website" "$SYNC_HTTP" "❌ FAIL (Ind:$GET_IND, Web:$GET_WEB)"
+fi
+
+# ------------------------------------------------------------------------------
+# 5. Site-Wide Health Checks
 # ------------------------------------------------------------------------------
 
 # Sitemap

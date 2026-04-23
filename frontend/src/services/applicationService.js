@@ -2,11 +2,11 @@ import api from './api';
 
 const applicationService = {
   applyToJob: (jobId) => {
-    return api.post(`/applications/apply/${jobId}`);
+    return api.post(`applications/apply/${jobId}`);
   },
   getMyApplications: async () => {
     try {
-      const response = await api.get('/applications/my-applications');
+      const response = await api.get('applications/my-applications');
       return response.data;
     } catch (error) {
       console.error('Error fetching my applications:', error);
@@ -15,7 +15,7 @@ const applicationService = {
   },
   getRecruiterApplications: async () => {
     try {
-      const response = await api.get('/applications/recruiter');
+      const response = await api.get('applications/recruiter');
       return response.data;
     } catch (error) {
       console.error('Error fetching recruiter applications:', error);
@@ -24,7 +24,7 @@ const applicationService = {
   },
   getApplicationStatus: async (jobId) => {
     try {
-      const response = await api.get(`/applications/status/${jobId}`);
+      const response = await api.get(`applications/status/${jobId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching application status:', error);
@@ -33,7 +33,7 @@ const applicationService = {
   },
   updateApplicationStatus: async (applicationId, status) => {
     try {
-      const response = await api.put(`/applications/${applicationId}/status`, { status });
+      const response = await api.put(`applications/${applicationId}/status`, { status });
       return response.data;
     } catch (error) {
       console.error('Error updating application status:', error);

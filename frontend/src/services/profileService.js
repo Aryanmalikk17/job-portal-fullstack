@@ -2,16 +2,16 @@ import api from './api';
 
 const PROFILE_ENDPOINTS = {
     // Unified Profile endpoint - matches backend
-    GET_PROFILE: '/profile',
+    GET_PROFILE: 'profile',
     
     // Job Seeker Profile
-    UPDATE_JOB_SEEKER_PROFILE: '/profile/job-seeker',
+    UPDATE_JOB_SEEKER_PROFILE: 'profile/job-seeker',
     
     // Recruiter Profile  
-    UPDATE_RECRUITER_PROFILE: '/profile/recruiter',
+    UPDATE_RECRUITER_PROFILE: 'profile/recruiter',
     
     // File handling
-    GET_FILE_URL: (fileType, fileName) => `/profile/download/${fileType}/${fileName}`,
+    GET_FILE_URL: (fileType, fileName) => `profile/download/${fileType}/${fileName}`,
 };
 
 export const profileService = {

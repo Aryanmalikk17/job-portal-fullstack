@@ -12,7 +12,6 @@ import {
     ExternalLink,
     Heart
 } from 'lucide-react';
-import './Footer.css';
 
 const Footer = () => {
     return (
@@ -77,15 +76,10 @@ const Footer = () => {
                 <hr className="footer-divider" />
 
                 <Row className="footer-bottom py-3 align-items-center">
-                    <Col md={6}>
+                    <Col md={12} className="text-center">
                         <p className="footer-copyright mb-0">
-                            &copy; {new Date().getFullYear()} Zpluse Jobs Finder. All rights reserved.
+                            &copy; {new Date().getFullYear()} Zpluse Jobs Finder. All rights reserved by Zpluse (www.zpluse.com)
                         </p>
-                    </Col>
-                    <Col md={6} className="text-md-end">
-                        <div className="footer-credits">
-                            All rights reserved by Zpluse (www.zpluse.com)
-                        </div>
                     </Col>
                 </Row>
             </Container>
