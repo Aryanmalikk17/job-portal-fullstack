@@ -1,5 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button, ProgressBar } from 'react-bootstrap';
+import { getFullFileUrl } from '../../services/profileService';
+import './FileUpload.css';
 
 const FileUpload = ({ currentFile, onUpload, loading, acceptedTypes, maxSize, fileType }) => {
     const [dragOver, setDragOver] = useState(false);
@@ -107,8 +109,9 @@ const FileUpload = ({ currentFile, onUpload, loading, acceptedTypes, maxSize, fi
     };
 
     const handleDownload = () => {
-        if (currentFile?.url) {
-            window.open(currentFile.url, '_blank');
+        if (currentFile) {
+            const url = getFullFileUrl(currentFile, fileType === 'logo' ? 'companyLogo' : 'resume');
+            window.open(url, '_blank');
         }
     };
 
@@ -131,10 +134,14 @@ const FileUpload = ({ currentFile, onUpload, loading, acceptedTypes, maxSize, fi
                 {currentFile ? (
                     <div className="file-preview">
                         <div className="file-info">
-                            <i className={getFileIcon(currentFile.name)}></i>
+                            <i className={getFileIcon(currentFile instanceof File ? currentFile.name : currentFile)}></i>
                             <div className="file-details">
-                                <h6 className="file-name">{currentFile.name}</h6>
-                                <p className="file-size">{formatFileSize(currentFile.size)}</p>
+                                <h6 className="file-name">
+                                    {currentFile instanceof File ? currentFile.name : currentFile}
+                                </h6>
+                                <p className="file-size">
+                                    {currentFile instanceof File ? formatFileSize(currentFile.size) : 'Previously uploaded'}
+                                </p>
                             </div>
                         </div>
                         <div className="file-overlay">

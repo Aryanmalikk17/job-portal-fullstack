@@ -50,6 +50,16 @@ function App() {
                 <DashboardPage />
               </ProtectedRoute>
             } />
+            <Route path="/dashboard/jobseeker" element={
+              <ProtectedRoute requiredRole="Job Seeker">
+                <DashboardPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/recruiter" element={
+              <ProtectedRoute requiredRole="Recruiter">
+                <DashboardPage />
+              </ProtectedRoute>
+            } />
             <Route path="/add-job" element={
               <ProtectedRoute requiredRole="Recruiter">
                 <AddJobPage />

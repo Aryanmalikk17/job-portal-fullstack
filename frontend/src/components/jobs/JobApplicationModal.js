@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
-import { jobService } from '../../services/jobService';
+import { applyToJob } from '../../services/applicationService';
 
 const JobApplicationModal = ({ 
     show, 
@@ -92,8 +92,8 @@ const JobApplicationModal = ({
                 }
             }
 
-            // Use the fixed applyForJob method from jobService
-            const response = await jobService.applyForJob(job.jobPostId, {
+            // Use the fixed applyToJob method from applicationService
+            const response = await applyToJob(job.jobPostId || job.id, {
                 coverLetter: formData.coverLetter.trim() || '',
                 resumePath: resumePath || null
             });

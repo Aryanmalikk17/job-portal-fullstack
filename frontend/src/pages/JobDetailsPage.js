@@ -2,7 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Alert, Modal, Spinner } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { jobService } from '../services/jobService';
+import { 
+    getJobById, 
+    checkJobStatus, 
+    getJobCandidates, 
+    applyForJob, 
+    saveJob, 
+    unsaveJob, 
+    deleteJob 
+} from '../services/jobService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { Helmet } from 'react-helmet-async';
 import './JobDetailsPage.css';
@@ -18,7 +26,7 @@ const JobDetailsPage = () => {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [errorType, setErrorType] = useState(null); // Track error type for specific handling
+    const [errorType, setErrorType] = useState(null); 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [notification, setNotification] = useState(null);
 
@@ -28,28 +36,29 @@ const JobDetailsPage = () => {
             setError(null);
             setErrorType(null);
 
-            // Load job details
-            const jobData = await jobService.getJobById(id);
+            // 1. Load basic job details
+            const jobData = await getJobById(id);
             setJob(jobData);
 
-            // Load job status for job seekers
+            // Sequential Fetching for user-specific data to avoid 503
+            await new Promise(r => setTimeout(r, 100));
+
+            // 2. Load job status for job seekers
             if (user?.userType === 'Job Seeker') {
                 try {
-                    const statusData = await jobService.checkJobStatus(id);
-                    setJobStatus(statusData);
+                    const statusData = await checkJobStatus(id);
+                    setJobStatus(statusData || { alreadyApplied: false, alreadySaved: false });
                 } catch (statusErr) {
-                    // Continue without status if this fails
                     console.warn('Failed to load job status:', statusErr);
                 }
             }
 
-            // Load candidates for recruiters
+            // 3. Load candidates for recruiters
             if (user?.userType === 'Recruiter') {
                 try {
-                    const candidatesData = await jobService.getJobCandidates(id);
-                    setCandidates(candidatesData);
+                    const candidatesData = await getJobCandidates(id);
+                    setCandidates(Array.isArray(candidatesData) ? candidatesData : []);
                 } catch (candidatesErr) {
-                    // Continue without candidates if this fails
                     console.warn('Failed to load candidates:', candidatesErr);
                     setCandidates([]);
                 }
@@ -74,7 +83,6 @@ const JobDetailsPage = () => {
         let errorTypeCode = 'GENERAL_ERROR';
 
         if (err.response) {
-            // Server responded with error status
             const status = err.response.status;
             switch (status) {
                 case 400:
@@ -102,11 +110,9 @@ const JobDetailsPage = () => {
                     errorTypeCode = 'HTTP_ERROR';
             }
         } else if (err.request) {
-            // Network error
             errorMessage = 'Network error. Please check your internet connection.';
             errorTypeCode = 'NETWORK_ERROR';
         } else {
-            // Other error
             errorMessage = err.message || errorMessage;
             errorTypeCode = 'GENERAL_ERROR';
         }
@@ -117,7 +123,7 @@ const JobDetailsPage = () => {
     const handleApplyJob = async () => {
         try {
             setActionLoading(true);
-            await jobService.applyForJob(id);
+            await applyForJob(id);
             setJobStatus(prev => ({ ...prev, alreadyApplied: true }));
             showNotification('Successfully applied for the job!', 'success');
         } catch (err) {
@@ -132,11 +138,11 @@ const JobDetailsPage = () => {
         try {
             setActionLoading(true);
             if (jobStatus.alreadySaved) {
-                await jobService.unsaveJob(id);
+                await unsaveJob(id);
                 setJobStatus(prev => ({ ...prev, alreadySaved: false }));
                 showNotification('Job removed from saved jobs', 'success');
             } else {
-                await jobService.saveJob(id);
+                await saveJob(id);
                 setJobStatus(prev => ({ ...prev, alreadySaved: true }));
                 showNotification('Job saved successfully!', 'success');
             }
@@ -155,7 +161,7 @@ const JobDetailsPage = () => {
     const handleDeleteJob = async () => {
         try {
             setActionLoading(true);
-            await jobService.deleteJob(id);
+            await deleteJob(id);
             showNotification('Job deleted successfully!', 'success');
             setTimeout(() => {
                 navigate('/dashboard');

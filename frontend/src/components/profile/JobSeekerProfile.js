@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert, Nav, Tab, Badge, ProgressBar, Modal } from 'react-bootstrap';
 import { useAuth } from '../../context/AuthContext';
-import { profileService } from '../../services/profileService';
+import { 
+    getJobSeekerProfile, 
+    updateJobSeekerProfile, 
+    getFullFileUrl 
+} from '../../services/profileService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import './JobSeekerProfile.css'; // We'll create this
 
@@ -56,7 +60,7 @@ const JobSeekerProfile = () => {
     const loadProfileData = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await profileService.getJobSeekerProfile();
+            const response = await getJobSeekerProfile();
             // Unwrap ApiResponse wrapper: backend returns { success, message, data: {...} }
             // Fall back to raw object if already unwrapped
             const profileFields = (response && response.data && typeof response.data === 'object')
@@ -140,7 +144,7 @@ const JobSeekerProfile = () => {
     const handleSaveProfile = async () => {
         try {
             setSaving(true);
-            const response = await profileService.updateJobSeekerProfile(profileData);
+            const response = await updateJobSeekerProfile(profileData);
             // Sync local state with what was actually persisted (unwrap ApiResponse)
             const savedFields = (response && response.data && typeof response.data === 'object')
                 ? response.data
@@ -183,7 +187,7 @@ const JobSeekerProfile = () => {
                                     <div className="profile-photo-container">
                                         {profileData.profilePhoto ? (
                                             <img 
-                                                src={URL.createObjectURL(profileData.profilePhoto)} 
+                                                src={getFullFileUrl(profileData.profilePhoto, 'profilePhoto')} 
                                                 alt="Profile" 
                                                 className="profile-photo"
                                                 onClick={() => setShowPhotoModal(true)}
@@ -772,16 +776,29 @@ const JobSeekerProfile = () => {
                                                             <div className="uploaded-file">
                                                                 <p className="file-name">
                                                                     <i className="fas fa-check-circle text-success me-2"></i>
-                                                                    {profileData.resume.name}
+                                                                    {profileData.resume instanceof File 
+                                                                        ? profileData.resume.name 
+                                                                        : profileData.resume}
                                                                 </p>
-                                                                <Button 
-                                                                    variant="outline-danger" 
-                                                                    size="sm"
-                                                                    onClick={() => setProfileData(prev => ({ ...prev, resume: null }))}
-                                                                >
-                                                                    <i className="fas fa-trash me-1"></i>
-                                                                    Remove
-                                                                </Button>
+                                                                <div className="resume-actions">
+                                                                    <Button 
+                                                                        variant="outline-primary" 
+                                                                        size="sm"
+                                                                        className="me-2"
+                                                                        onClick={() => window.open(getFullFileUrl(profileData.resume, 'resume'), '_blank')}
+                                                                    >
+                                                                        <i className="fas fa-download me-1"></i>
+                                                                        View
+                                                                    </Button>
+                                                                    <Button 
+                                                                        variant="outline-danger" 
+                                                                        size="sm"
+                                                                        onClick={() => setProfileData(prev => ({ ...prev, resume: null }))}
+                                                                    >
+                                                                        <i className="fas fa-trash me-1"></i>
+                                                                        Remove
+                                                                    </Button>
+                                                                </div>
                                                             </div>
                                                         ) : (
                                                             <div className="upload-prompt">

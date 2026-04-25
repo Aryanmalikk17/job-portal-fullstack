@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import applicationService from '../../services/applicationService';
-import jobService from '../../services/jobService';
+import { getMyApplications, applyToJob } from '../../services/applicationService';
+import { getAllJobsWithStatus } from '../../services/jobService';
 import StatsCard from './StatsCard';
 import ApplicationCard from './ApplicationCard';
 import JobCard from '../jobs/JobCard';
@@ -19,19 +19,28 @@ const JobSeekerDashboard = () => {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
+      setError(null);
       
-      // Sequential Fetching: To prevent "Polling Storm" (503) on production,
-      // we fetch data in sequence with a small delay.
-      const applicationsResponse = await applicationService.getMyApplications();
-      setApplications(applicationsResponse || []);
+      // Sequential Fetching: To prevent "Polling Storm" (503) on production
+      let applicationsResponse = [];
+      try {
+        applicationsResponse = await getMyApplications();
+      } catch (appErr) {
+        console.error('Error loading applications:', appErr);
+      }
+      setApplications(Array.isArray(applicationsResponse) ? applicationsResponse : []);
       
       // Small 100ms throttle between primary and secondary dashboard calls
       await new Promise(r => setTimeout(r, 100));
       
-      const jobsResponse = await jobService.getAllJobsWithStatus();
-      setJobs(jobsResponse || []);
+      let jobsResponse = [];
+      try {
+        jobsResponse = await getAllJobsWithStatus();
+      } catch (jobErr) {
+        console.error('Error loading jobs:', jobErr);
+      }
+      setJobs(Array.isArray(jobsResponse) ? jobsResponse : []);
       
-      setError(null);
     } catch (err) {
       console.error('Error loading dashboard:', err);
       setError('Failed to load dashboard data. Please try again later.');
@@ -51,7 +60,8 @@ const JobSeekerDashboard = () => {
 
   const handleApply = async (jobId) => {
     try {
-      const result = await applicationService.applyToJob(jobId);
+      // FIXED: Using named import applyToJob
+      const result = await applyToJob(jobId);
       if (result.success) {
         // Reload data after application
         loadDashboardData();
@@ -97,7 +107,7 @@ const JobSeekerDashboard = () => {
         <section className="applications-section">
           <div className="section-header">
             <h2>My Applications</h2>
-            <button className="view-all-btn" onClick={() => navigate('/applications')}>View All</button>
+            <button className="view-all-btn" onClick={() => navigate('/my-applications')}>View All</button>
           </div>
           <div className="applications-list">
             {applications.length > 0 ? (

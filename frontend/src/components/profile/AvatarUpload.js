@@ -1,10 +1,21 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
+import { getFullFileUrl } from '../../services/profileService';
+import './AvatarUpload.css';
 
 const AvatarUpload = ({ currentImage, onUpload, loading }) => {
-    const [preview, setPreview] = useState(currentImage);
+    const [preview, setPreview] = useState(null);
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef(null);
+
+    // Sync preview with currentImage prop
+    useEffect(() => {
+        if (currentImage) {
+            setPreview(getFullFileUrl(currentImage, 'profilePhoto'));
+        } else {
+            setPreview(null);
+        }
+    }, [currentImage]);
 
     const handleFileSelect = (file) => {
         if (!file) return;

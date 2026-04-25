@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Alert, Spinner, Form, Modal } from 'react-bootstrap';
-import applicationService from '../../services/applicationService';
+import { getMyApplications, withdrawApplication } from '../../services/applicationService';
 import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
 
 const MyApplications = () => {
@@ -20,7 +20,7 @@ const MyApplications = () => {
     const fetchMyApplications = async () => {
         try {
             setLoading(true);
-            const data = await applicationService.getMyApplications();
+            const data = await getMyApplications();
             setApplications(data || []);
             setError(null);
         } catch (error) {
@@ -63,7 +63,7 @@ const MyApplications = () => {
     const handleWithdraw = async () => {
         try {
             setWithdrawing(true);
-            const response = await applicationService.withdrawApplication(selectedApplication.id);
+            const response = await withdrawApplication(selectedApplication.id);
             
             if (response.success) {
                 // Update local state

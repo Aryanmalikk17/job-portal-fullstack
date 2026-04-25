@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Table, Badge, Button, Modal, Form, Alert, Dropdown } from 'react-bootstrap';
-import applicationService from '../../services/applicationService';
+import { 
+    getMyApplications, 
+    getRecruiterApplications, 
+    updateApplicationStatus, 
+    getNextPossibleStatuses 
+} from '../../services/applicationService';
 import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
 
 const ApplicationStatusManager = ({ userType, userId }) => {
@@ -31,9 +36,9 @@ const ApplicationStatusManager = ({ userType, userId }) => {
             let data;
             
             if (userType === 'Job Seeker') {
-                data = await applicationService.getMyApplications();
+                data = await getMyApplications();
             } else if (userType === 'Recruiter') {
-                data = await applicationService.getRecruiterApplications();
+                data = await getRecruiterApplications();
             }
             
             setApplications(data || []);
@@ -54,7 +59,7 @@ const ApplicationStatusManager = ({ userType, userId }) => {
                 recruiterNotes: recruiterNotes.trim() || null
             };
 
-            const updatedApp = await applicationService.updateApplicationStatus(
+            const updatedApp = await updateApplicationStatus(
                 selectedApplication.id, 
                 statusData
             );
@@ -121,7 +126,7 @@ const ApplicationStatusManager = ({ userType, userId }) => {
 
     const getNextStatuses = () => {
         if (!selectedApplication) return [];
-        return applicationService.getNextPossibleStatuses(selectedApplication.status);
+        return getNextPossibleStatuses(selectedApplication.status);
     };
 
     if (loading) {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Alert, Card } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
-import { authService } from '../services/authService';
+import { register } from '../services/authService';
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -157,7 +157,7 @@ const RegisterPage = () => {
 
             console.log('Sending registration data:', registrationData); // Debug log
 
-            const response = await authService.register(registrationData);
+            const response = await register(registrationData);
             
             console.log('Registration successful:', response); // Debug log
             

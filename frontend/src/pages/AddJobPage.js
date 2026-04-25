@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Container, Row, Col, Card, Button, Form, Alert, Spinner, ProgressBar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { jobService } from '../services/jobService';
+import { createJob } from '../services/jobService';
 import { locationService } from '../services/locationService';
 import { companyService } from '../services/companyService';
 import RichTextEditor from '../components/jobs/RichTextEditor';
@@ -200,7 +200,7 @@ const AddJobPage = () => {
             
             // jobService.createJob() swallows errors and returns { success, message, data }
             // Do NOT assume a non-throw means success — check the flag explicitly.
-            const jobResponse = await jobService.createJob(jobData);
+            const jobResponse = await createJob(jobData);
             console.log('Job create response:', jobResponse);
 
             if (!jobResponse || jobResponse.success !== true) {

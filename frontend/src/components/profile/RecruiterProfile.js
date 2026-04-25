@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
-import { profileService } from '../../services/profileService';
+import { 
+    getRecruiterProfile, 
+    updateRecruiterProfile, 
+    uploadFile,
+    getFullFileUrl
+} from '../../services/profileService';
 import AvatarUpload from './AvatarUpload';
 import FileUpload from './FileUpload';
 
@@ -52,7 +57,7 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
     const loadProfileData = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await profileService.getRecruiterProfile();
+            const response = await getRecruiterProfile();
             // Unwrap ApiResponse wrapper: backend returns { success, message, data: {...} }
             const profileFields = (response && response.data && typeof response.data === 'object')
                 ? response.data
@@ -92,7 +97,7 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
     const handleFileUpload = async (file, type) => {
         try {
             setSaving(true);
-            const uploadedFile = await profileService.uploadFile(file, type);
+            const uploadedFile = await uploadFile(file, type);
             setProfileData(prev => ({
                 ...prev,
                 [type]: uploadedFile
@@ -141,7 +146,7 @@ const RecruiterProfile = ({ user, section = 'personal' }) => {
                 officeCountry: profileData.officeCountry
             };
 
-            const response = await profileService.updateRecruiterProfile(packagedData);
+            const response = await updateRecruiterProfile(packagedData);
             // Sync local state with what was actually persisted
             const savedFields = (response && response.data && typeof response.data === 'object')
                 ? response.data

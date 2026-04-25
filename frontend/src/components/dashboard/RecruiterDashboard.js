@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Button, Badge, Alert, Tab, Tabs, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { jobService } from '../../services/jobService';
+import { 
+    getRecruiterJobs 
+} from '../../services/jobService';
+import { 
+    getRecruiterApplications, 
+    getRecruiterStatistics,
+    updateApplicationStatus 
+} from '../../services/applicationService';
 import LoadingSpinner from '../common/LoadingSpinner';
-import ApplicationStatusManager from '../applications/ApplicationStatusManager'; // Add new import
+import ApplicationStatusManager from '../applications/ApplicationStatusManager'; 
 import ApplicationCard from './ApplicationCard';
 import ApplicationDetailsModal from './ApplicationDetailsModal';
 import StatusUpdateModal from './StatusUpdateModal';
@@ -20,70 +27,59 @@ const RecruiterDashboard = ({ user }) => {
     const [jobsLoading, setJobsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState('all');
-    const [mainTab, setMainTab] = useState('jobs'); // Changed default to 'jobs' to show posted jobs first
+    const [mainTab, setMainTab] = useState('jobs'); 
     const [selectedApplication, setSelectedApplication] = useState(null);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [showStatusModal, setShowStatusModal] = useState(false);
 
-    // Application status filter
-    const statusFilters = [
-        { key: 'all', label: 'All Applications', variant: 'primary' },
-        { key: 'APPLIED', label: 'New Applications', variant: 'info' },
-        { key: 'UNDER_REVIEW', label: 'Under Review', variant: 'warning' },
-        { key: 'INTERVIEW_SCHEDULED', label: 'Interview Scheduled', variant: 'success' },
-        { key: 'INTERVIEWED', label: 'Interviewed', variant: 'secondary' },
-        { key: 'OFFERED', label: 'Offered', variant: 'success' },
-        { key: 'HIRED', label: 'Hired', variant: 'success' },
-        { key: 'REJECTED', label: 'Rejected', variant: 'danger' }
-    ];
-
     // Load initial data
     useEffect(() => {
-        loadApplicationsData();
-        loadStatistics();
-        loadPostedJobs();
+        const loadAllData = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                // Sequential Fetching to prevent 503
+                await loadApplicationsData();
+                await new Promise(r => setTimeout(r, 100));
+                await loadStatistics();
+                await new Promise(r => setTimeout(r, 100));
+                await loadPostedJobs();
+            } catch (err) {
+                console.error('Error loading dashboard data:', err);
+                setError('Failed to load dashboard data. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadAllData();
     }, []);
-
-    // Filter applications when tab changes
-    useEffect(() => {
-        filterApplications();
-    }, [applications, activeTab]);
 
     const loadApplicationsData = async () => {
         try {
-            setLoading(true);
-            setError(null);
-            
-            // Get all applications for this recruiter
-            const response = await jobService.getRecruiterApplications();
-            setApplications(response || []);
+            const response = await getRecruiterApplications();
+            setApplications(Array.isArray(response) ? response : []);
         } catch (err) {
             console.error('Error loading applications:', err);
-            setError('Failed to load applications. Please try again.');
-        } finally {
-            setLoading(false);
+            // Don't throw, just log
         }
     };
 
     const loadStatistics = async () => {
         try {
-            const stats = await jobService.getRecruiterStatistics();
+            const stats = await getRecruiterStatistics();
             setStatistics(stats || {});
         } catch (err) {
             console.error('Error loading statistics:', err);
-            // Don't show error for statistics, just log it
         }
     };
 
-    // New function to load posted jobs
     const loadPostedJobs = async () => {
         try {
             setJobsLoading(true);
-            const response = await jobService.getRecruiterJobs();
-            setPostedJobs(response || []);
+            const response = await getRecruiterJobs();
+            setPostedJobs(Array.isArray(response) ? response : []);
         } catch (err) {
             console.error('Error loading posted jobs:', err);
-            // Don't set main error, just log it
         } finally {
             setJobsLoading(false);
         }
@@ -98,6 +94,11 @@ const RecruiterDashboard = ({ user }) => {
         }
     };
 
+    // Filter applications when tab changes
+    useEffect(() => {
+        filterApplications();
+    }, [applications, activeTab]);
+
     const handleViewDetails = (application) => {
         setSelectedApplication(application);
         setShowDetailsModal(true);
@@ -110,8 +111,8 @@ const RecruiterDashboard = ({ user }) => {
 
     const handleStatusUpdated = async (applicationId, newStatus, notes) => {
         try {
-            // Update status via API
-            const updatedApplication = await jobService.updateApplicationStatus(applicationId, {
+            // Update status via API - FIXED: Use named import
+            await updateApplicationStatus(applicationId, {
                 status: newStatus,
                 recruiterNotes: notes
             });
@@ -133,7 +134,7 @@ const RecruiterDashboard = ({ user }) => {
 
         } catch (error) {
             console.error('Error updating application status:', error);
-            setError('Failed to update application status: ' + error.message);
+            setError('Failed to update application status: ' + (error.message || 'Unknown error'));
         }
     };
 

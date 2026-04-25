@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Alert, Spinner, Form, Modal, Table, Tab, Tabs } from 'react-bootstrap';
-import { jobService } from '../../services/jobService';
+import { 
+} from '../../services/jobService';
+import { 
+    getRecruiterApplications, 
+    getRecruiterStatistics,
+    updateApplicationStatus 
+} from '../../services/applicationService';
 
 const RecruiterApplications = () => {
     const [applications, setApplications] = useState([]);
@@ -24,8 +30,8 @@ const RecruiterApplications = () => {
     const fetchApplications = async () => {
         try {
             setLoading(true);
-            const data = await jobService.getRecruiterApplications();
-            setApplications(data);
+            const data = await getRecruiterApplications();
+            setApplications(data || []);
             setError(null);
         } catch (error) {
             console.error('Error fetching applications:', error);
@@ -37,7 +43,7 @@ const RecruiterApplications = () => {
 
     const fetchStatistics = async () => {
         try {
-            const stats = await jobService.getRecruiterStatistics();
+            const stats = await getRecruiterStatistics();
             setStatistics(stats);
         } catch (error) {
             console.error('Error fetching statistics:', error);
@@ -45,7 +51,7 @@ const RecruiterApplications = () => {
     };
 
     // Filter applications by status
-    const filteredApplications = applications.filter(app => {
+    const filteredApplications = (applications || []).filter(app => {
         if (filterStatus === 'ALL') return true;
         return app.status === filterStatus;
     });
@@ -65,6 +71,7 @@ const RecruiterApplications = () => {
 
     // Format date
     const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -80,13 +87,16 @@ const RecruiterApplications = () => {
 
         try {
             setUpdating(true);
-            const response = await jobService.updateApplicationStatus(
+            // FIXED: Using named import updateApplicationStatus
+            const response = await updateApplicationStatus(
                 selectedApplication.id,
-                newStatus,
-                recruiterNotes
+                {
+                    status: newStatus,
+                    recruiterNotes: recruiterNotes
+                }
             );
 
-            if (response.success) {
+            if (response) {
                 // Update local state
                 setApplications(prev => prev.map(app => 
                     app.id === selectedApplication.id 
@@ -101,7 +111,7 @@ const RecruiterApplications = () => {
                 // Refresh statistics
                 fetchStatistics();
             } else {
-                setError(response.message || 'Failed to update application status');
+                setError('Failed to update application status');
             }
         } catch (error) {
             console.error('Error updating application status:', error);
@@ -288,20 +298,20 @@ const RecruiterApplications = () => {
                                                                 <td>
                                                                     <div>
                                                                         <strong>
-                                                                            {application.candidate?.firstName} {application.candidate?.lastName}
+                                                                            {application.applicantName}
                                                                         </strong>
                                                                         <br />
                                                                         <small className="text-muted">
-                                                                            {application.candidate?.email}
+                                                                            {application.applicantEmail}
                                                                         </small>
                                                                     </div>
                                                                 </td>
                                                                 <td>
                                                                     <div>
-                                                                        <strong>{application.job?.jobTitle}</strong>
+                                                                        <strong>{application.jobTitle}</strong>
                                                                         <br />
                                                                         <small className="text-muted">
-                                                                            ID: {application.job?.id}
+                                                                            ID: {application.jobId}
                                                                         </small>
                                                                     </div>
                                                                 </td>
@@ -348,8 +358,8 @@ const RecruiterApplications = () => {
                         <>
                             <div className="mb-3">
                                 <h6>Application Details:</h6>
-                                <p><strong>Candidate:</strong> {selectedApplication.candidate?.firstName} {selectedApplication.candidate?.lastName}</p>
-                                <p><strong>Position:</strong> {selectedApplication.job?.jobTitle}</p>
+                                <p><strong>Candidate:</strong> {selectedApplication.applicantName}</p>
+                                <p><strong>Position:</strong> {selectedApplication.jobTitle}</p>
                                 <p><strong>Applied:</strong> {formatDate(selectedApplication.applyDate)}</p>
                             </div>
 

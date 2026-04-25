@@ -199,19 +199,65 @@ COMP_ID=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); print(data
 
 # Job Posting Flow
 if [ ! -z "$LOC_ID" ] && [ ! -z "$COMP_ID" ]; then
-    JOB_RES=$(curl -k -s -w "\n%{http_code}" -X POST "$BASE_URL/api/jobs/create" -H "Authorization: Bearer $REC_TOKEN" -H "Content-Type: application/json" -d "{\"jobTitle\":\"SDET Test\",\"descriptionOfJob\":\"QA Automated Testing\",\"jobType\":\"Full-Time\",\"salary\":\"100k\",\"remote\":\"Remote\",\"jobLocationId\":$LOC_ID,\"jobCompanyId\":$COMP_ID}")
+    JOB_RES=$(curl -k -s -w "\n%{http_code}" -X POST "$BASE_URL/api/jobs/create" -H "Authorization: Bearer $REC_TOKEN" -H "Content-Type: application/json" -d "{\"jobTitle\":\"SDET Test Job\",\"descriptionOfJob\":\"QA Automated Testing for Lifecycle Synergy\",\"jobType\":\"Full-Time\",\"salary\":\"150k\",\"remote\":\"Remote\",\"jobLocationId\":$LOC_ID,\"jobCompanyId\":$COMP_ID}")
     JOB_HTTP=$(echo "$JOB_RES" | tail -n1)
-    if [ "$JOB_HTTP" == "200" ] || [ "$JOB_HTTP" == "201" ]; then
-        append_report "/api/jobs/create" "POST" "Job with Loc & Comp" "$JOB_HTTP" "✅ PASS"
+    JOB_BODY=$(echo "$JOB_RES" | sed '$d')
+    JOB_ID=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); print(data.get('data', {}).get('jobPostId', ''))" "$JOB_BODY" 2>/dev/null)
+    
+    if ([ "$JOB_HTTP" == "200" ] || [ "$JOB_HTTP" == "201" ]) && [ ! -z "$JOB_ID" ]; then
+        append_report "/api/jobs/create" "POST" "Job with Loc & Comp" "$JOB_HTTP" "✅ PASS (ID: $JOB_ID)"
     else
-        append_report "/api/jobs/create" "POST" "Job with Loc & Comp" "$JOB_HTTP" "❌ FAIL"
+        append_report "/api/jobs/create" "POST" "Job with Loc & Comp" "$JOB_HTTP" "❌ FAIL (Body: $JOB_BODY)"
     fi
 else
     append_report "/api/jobs/create" "POST" "Job with Loc & Comp" "N/A" "❌ FAIL (Missing IDs: LOC:$LOC_ID, COMP:$COMP_ID)"
 fi
 
 # ------------------------------------------------------------------------------
-# 4. Critical Regression Checks
+# 4. Full-Lifecycle Synergy (Bridge Test)
+# ------------------------------------------------------------------------------
+echo "Starting Full-Lifecycle Synergy Bridge Test..."
+
+if [ ! -z "$JOB_ID" ] && [ ! -z "$JS_TOKEN" ]; then
+    # Jobseeker Applies to the Recruiter's Job
+    APPLY_RES=$(curl -k -s -w "\n%{http_code}" -X POST "$BASE_URL/api/jobs/$JOB_ID/apply" -H "Authorization: Bearer $JS_TOKEN")
+    APPLY_HTTP=$(echo "$APPLY_RES" | tail -n1)
+    append_report "/api/jobs/$JOB_ID/apply" "POST" "Jobseeker -> Recruiter Job" "$APPLY_HTTP" "$( [ "$APPLY_HTTP" == "200" ] && echo "✅ PASS" || echo "❌ FAIL" )"
+
+    sleep 1
+
+    # Recruiter Verifies the Application Arrived
+    REC_APPS_RES=$(curl -k -s -w "\n%{http_code}" -X GET "$BASE_URL/api/applications/recruiter/applications" -H "Authorization: Bearer $REC_TOKEN")
+    REC_APPS_HTTP=$(echo "$REC_APPS_RES" | tail -n1)
+    REC_APPS_BODY=$(echo "$REC_APPS_RES" | sed '$d')
+    
+    # Check if the Jobseeker's name or email is in the recruiter's applications
+    HAS_APP=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); apps=data.get('data', []); print('true' if any(str(app.get('jobPostId')) == '$JOB_ID' for app in apps) else 'false')" "$REC_APPS_BODY" 2>/dev/null)
+    
+    if [ "$HAS_APP" == "true" ]; then
+        append_report "/api/applications/recruiter" "GET" "Recruiter Verification" "$REC_APPS_HTTP" "✅ PASS (Found Job $JOB_ID)"
+    else
+        append_report "/api/applications/recruiter" "GET" "Recruiter Verification" "$REC_APPS_HTTP" "❌ FAIL (Job $JOB_ID not found in applications)"
+    fi
+
+    # Jobseeker Verifies the Application in "My Applications"
+    JS_APPS_RES=$(curl -k -s -w "\n%{http_code}" -X GET "$BASE_URL/api/applications/my-applications" -H "Authorization: Bearer $JS_TOKEN")
+    JS_APPS_HTTP=$(echo "$JS_APPS_RES" | tail -n1)
+    JS_APPS_BODY=$(echo "$JS_APPS_RES" | sed '$d')
+    
+    HAS_MY_APP=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); apps=data.get('data', []); print('true' if any(str(app.get('job', {}).get('jobPostId')) == '$JOB_ID' for app in apps) else 'false')" "$JS_APPS_BODY" 2>/dev/null)
+
+    if [ "$HAS_MY_APP" == "true" ]; then
+        append_report "/api/applications/my-apps" "GET" "Jobseeker Verification" "$JS_APPS_HTTP" "✅ PASS (Found Job $JOB_ID)"
+    else
+        append_report "/api/applications/my-apps" "GET" "Jobseeker Verification" "$JS_APPS_HTTP" "❌ FAIL (Job $JOB_ID not found in my-apps)"
+    fi
+else
+    append_report "Lifecycle Synergy" "N/A" "Bridge Test" "N/A" "❌ FAIL (Skipped: Missing JOB_ID or JS_TOKEN)"
+fi
+
+# ------------------------------------------------------------------------------
+# 5. Critical Regression Checks
 # ------------------------------------------------------------------------------
 
 # Double-Path Ghost Check

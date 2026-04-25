@@ -70,9 +70,9 @@ const Header = () => {
                             <>
                                 <Nav.Link 
                                     as={Link} 
-                                    to="/dashboard" 
+                                    to={user?.userType === 'Recruiter' ? '/dashboard/recruiter' : '/dashboard/jobseeker'} 
                                     onClick={closeNavbar}
-                                    className={isActive('/dashboard') ? 'active' : ''}
+                                    className={location.pathname.startsWith('/dashboard') ? 'active' : ''}
                                 >
                                     <i className="fa fa-tachometer-alt me-1"></i>
                                     Dashboard
@@ -129,7 +129,7 @@ const Header = () => {
                                 
                                 <NavDropdown.Item 
                                     as={Link} 
-                                    to="/dashboard" 
+                                    to={user?.userType === 'Recruiter' ? '/dashboard/recruiter' : '/dashboard/jobseeker'} 
                                     onClick={closeNavbar}
                                 >
                                     <i className="fa fa-tachometer-alt me-2"></i>
