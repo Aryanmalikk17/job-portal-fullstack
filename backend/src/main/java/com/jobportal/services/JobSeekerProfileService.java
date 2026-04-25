@@ -145,7 +145,19 @@ public class JobSeekerProfileService {
         Optional<JobSeekerProfile> existingProfile = jobSeekerProfileRepository.findByUserAccountId(userAccountId);
         
         if (existingProfile.isPresent()) {
-            return updateProfile(userAccountId, jobSeekerProfile);
+            Users user = jobSeekerProfile.getUserId();
+            if (user == null) {
+                // Try to find user from repository if not attached
+                user = usersRepository.findById(userAccountId).orElse(null);
+            }
+            
+            if (user != null) {
+                return updateProfile(user, jobSeekerProfile, null);
+            } else {
+                // Fallback for cases where user is not found
+                applyProfileUpdates(existingProfile.get(), jobSeekerProfile);
+                return jobSeekerProfileRepository.saveAndFlush(existingProfile.get());
+            }
         } else {
             return createProfile(jobSeekerProfile);
         }
