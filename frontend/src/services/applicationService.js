@@ -2,7 +2,7 @@ import api from './api';
 import { getStatusIcon as statusIconHelper } from '../utils/statusHelpers';
 
 export const applyToJob = (jobId, data = {}) => {
-  return api.post(`applications/apply/${jobId}`, data);
+  return api.post(`applications/job/${jobId}/apply`, data);
 };
 
 export const getMyApplications = async () => {

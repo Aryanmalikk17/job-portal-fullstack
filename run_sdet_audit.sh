@@ -62,6 +62,15 @@ is_json_array_empty() {
     echo "$JSON_DATA" | python3 -c "import sys, json; data=json.load(sys.stdin); arr=data.get('data', {}).get('$KEY', []) if 'data' in data else data.get('$KEY', []); print('true' if arr is None or len(arr) == 0 else 'false')" 2>/dev/null
 }
 
+
+# ------------------------------------------------------------------------------
+# 0. System Discovery
+# ------------------------------------------------------------------------------
+echo "Verifying Server Metadata..."
+# We try to get roles from the login responses later, but we print status now
+echo "Environment: $BASE_URL"
+echo ""
+
 # ------------------------------------------------------------------------------
 # 1. Authentication & Token Management
 # ------------------------------------------------------------------------------
@@ -93,8 +102,10 @@ JS_LOGIN_RES=$(curl -k -s -w "\n%{http_code}" -X POST "$BASE_URL/api/auth/login"
 JS_LOGIN_HTTP=$(echo "$JS_LOGIN_RES" | tail -n1)
 JS_LOGIN_BODY=$(echo "$JS_LOGIN_RES" | sed '$d')
 JS_TOKEN=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); print(data.get('token', ''))" "$JS_LOGIN_BODY" 2>/dev/null)
+JS_ROLE=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); print(data.get('userType', ''))" "$JS_LOGIN_BODY" 2>/dev/null)
 
 if [ "$JS_LOGIN_HTTP" == "200" ] && [ ! -z "$JS_TOKEN" ]; then
+    echo "Auth Status - Jobseeker: [Role: $JS_ROLE, Token: ${JS_TOKEN:0:10}...]"
     append_report "/api/auth/login" "POST" "Jobseeker Auth" "$JS_LOGIN_HTTP" "✅ PASS"
 else
     echo "❌ Jobseeker Login Failed: $JS_LOGIN_HTTP"
@@ -109,8 +120,10 @@ REC_LOGIN_RES=$(curl -k -s -w "\n%{http_code}" -X POST "$BASE_URL/api/auth/login
 REC_LOGIN_HTTP=$(echo "$REC_LOGIN_RES" | tail -n1)
 REC_LOGIN_BODY=$(echo "$REC_LOGIN_RES" | sed '$d')
 REC_TOKEN=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); print(data.get('token', ''))" "$REC_LOGIN_BODY" 2>/dev/null)
+REC_ROLE=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); print(data.get('userType', ''))" "$REC_LOGIN_BODY" 2>/dev/null)
 
 if [ "$REC_LOGIN_HTTP" == "200" ] && [ ! -z "$REC_TOKEN" ]; then
+    echo "Auth Status - Recruiter: [Role: $REC_ROLE, Token: ${REC_TOKEN:0:10}...]"
     append_report "/api/auth/login" "POST" "Recruiter Auth" "$REC_LOGIN_HTTP" "✅ PASS"
 else
     echo "❌ Recruiter Login Failed: $REC_LOGIN_HTTP"
@@ -214,43 +227,59 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 4. Full-Lifecycle Synergy (Bridge Test)
+# 4. Dashboard API Integrity
+# ------------------------------------------------------------------------------
+echo "Verifying Dashboard API Integrity..."
+
+# Jobseeker Dashboard
+JS_MY_APPS=$(curl -k -s -w "\n%{http_code}" -X GET "$BASE_URL/api/applications/my-applications" -H "Authorization: Bearer $JS_TOKEN")
+JS_MY_APPS_HTTP=$(echo "$JS_MY_APPS" | tail -n1)
+JS_MY_APPS_BODY=$(echo "$JS_MY_APPS" | sed '$d')
+append_report "JS Dashboard" "GET" "/api/applications/my-applications" "$JS_MY_APPS_HTTP" "$( [ "$JS_MY_APPS_HTTP" == "200" ] && echo "✅ PASS" || echo "❌ FAIL (Body: $JS_MY_APPS_BODY)" )"
+
+# Recruiter Dashboard
+REC_JOBS=$(curl -k -s -w "\n%{http_code}" -X GET "$BASE_URL/api/jobs/recruiter" -H "Authorization: Bearer $REC_TOKEN")
+REC_JOBS_HTTP=$(echo "$REC_JOBS" | tail -n1)
+append_report "REC Dashboard" "GET" "/api/jobs/recruiter" "$REC_JOBS_HTTP" "$( [ "$REC_JOBS_HTTP" == "200" ] && echo "✅ PASS" || echo "❌ FAIL" )"
+
+REC_STATS=$(curl -k -s -w "\n%{http_code}" -X GET "$BASE_URL/api/applications/recruiter/statistics" -H "Authorization: Bearer $REC_TOKEN")
+REC_STATS_HTTP=$(echo "$REC_STATS" | tail -n1)
+append_report "REC Dashboard" "GET" "/api/applications/recruiter/statistics" "$REC_STATS_HTTP" "$( [ "$REC_STATS_HTTP" == "200" ] && echo "✅ PASS" || echo "❌ FAIL" )"
+
+# ------------------------------------------------------------------------------
+# 5. Full-Lifecycle Synergy (Bridge Test)
 # ------------------------------------------------------------------------------
 echo "Starting Full-Lifecycle Synergy Bridge Test..."
 
 if [ ! -z "$JOB_ID" ] && [ ! -z "$JS_TOKEN" ]; then
     # Jobseeker Applies to the Recruiter's Job
-    APPLY_RES=$(curl -k -s -w "\n%{http_code}" -X POST "$BASE_URL/api/jobs/$JOB_ID/apply" -H "Authorization: Bearer $JS_TOKEN")
+    APPLY_RES=$(curl -k -s -w "\n%{http_code}" -X POST "$BASE_URL/api/applications/job/$JOB_ID/apply" -H "Authorization: Bearer $JS_TOKEN" -H "Content-Type: application/json" -d "{\"coverLetter\":\"Audit Synergy Test\",\"resumePath\":\"\"}")
     APPLY_HTTP=$(echo "$APPLY_RES" | tail -n1)
-    append_report "/api/jobs/$JOB_ID/apply" "POST" "Jobseeker -> Recruiter Job" "$APPLY_HTTP" "$( [ "$APPLY_HTTP" == "200" ] && echo "✅ PASS" || echo "❌ FAIL" )"
-
-    sleep 1
-
-    # Recruiter Verifies the Application Arrived
-    REC_APPS_RES=$(curl -k -s -w "\n%{http_code}" -X GET "$BASE_URL/api/applications/recruiter/applications" -H "Authorization: Bearer $REC_TOKEN")
-    REC_APPS_HTTP=$(echo "$REC_APPS_RES" | tail -n1)
-    REC_APPS_BODY=$(echo "$REC_APPS_RES" | sed '$d')
+    APPLY_BODY=$(echo "$APPLY_RES" | sed '$d')
+    APP_ID=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); print(data.get('id', ''))" "$APPLY_BODY" 2>/dev/null)
     
-    # Check if the Jobseeker's name or email is in the recruiter's applications
-    HAS_APP=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); apps=data.get('data', []); print('true' if any(str(app.get('jobPostId')) == '$JOB_ID' for app in apps) else 'false')" "$REC_APPS_BODY" 2>/dev/null)
-    
-    if [ "$HAS_APP" == "true" ]; then
-        append_report "/api/applications/recruiter" "GET" "Recruiter Verification" "$REC_APPS_HTTP" "✅ PASS (Found Job $JOB_ID)"
-    else
-        append_report "/api/applications/recruiter" "GET" "Recruiter Verification" "$REC_APPS_HTTP" "❌ FAIL (Job $JOB_ID not found in applications)"
-    fi
+    append_report "Job Apply" "POST" "Jobseeker -> Job $JOB_ID" "$APPLY_HTTP" "$( [ "$APPLY_HTTP" == "200" ] && echo "✅ PASS (AppID: $APP_ID)" || echo "❌ FAIL (Body: $APPLY_BODY)" )"
 
-    # Jobseeker Verifies the Application in "My Applications"
-    JS_APPS_RES=$(curl -k -s -w "\n%{http_code}" -X GET "$BASE_URL/api/applications/my-applications" -H "Authorization: Bearer $JS_TOKEN")
-    JS_APPS_HTTP=$(echo "$JS_APPS_RES" | tail -n1)
-    JS_APPS_BODY=$(echo "$JS_APPS_RES" | sed '$d')
-    
-    HAS_MY_APP=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); apps=data.get('data', []); print('true' if any(str(app.get('job', {}).get('jobPostId')) == '$JOB_ID' for app in apps) else 'false')" "$JS_APPS_BODY" 2>/dev/null)
+    if [ ! -z "$APP_ID" ]; then
+        sleep 1
+        # Recruiter Updates Application Status
+        STATUS_UPDATE_RES=$(curl -k -s -w "\n%{http_code}" -X PUT "$BASE_URL/api/applications/$APP_ID/status" -H "Authorization: Bearer $REC_TOKEN" -H "Content-Type: application/json" -d "{\"status\":\"UNDER_REVIEW\", \"recruiterNotes\":\"Verified by SDET Audit\"}")
+        STATUS_HTTP=$(echo "$STATUS_UPDATE_RES" | tail -n1)
+        append_report "Update Status" "PUT" "Recruiter -> App $APP_ID" "$STATUS_HTTP" "$( [ "$STATUS_HTTP" == "200" ] && echo "✅ PASS" || echo "❌ FAIL" )"
 
-    if [ "$HAS_MY_APP" == "true" ]; then
-        append_report "/api/applications/my-apps" "GET" "Jobseeker Verification" "$JS_APPS_HTTP" "✅ PASS (Found Job $JOB_ID)"
-    else
-        append_report "/api/applications/my-apps" "GET" "Jobseeker Verification" "$JS_APPS_HTTP" "❌ FAIL (Job $JOB_ID not found in my-apps)"
+        sleep 1
+        # Jobseeker Verifies the Status Change
+        JS_APPS_RES=$(curl -k -s -w "\n%{http_code}" -X GET "$BASE_URL/api/applications/my-applications" -H "Authorization: Bearer $JS_TOKEN")
+        JS_APPS_HTTP=$(echo "$JS_APPS_RES" | tail -n1)
+        JS_APPS_BODY=$(echo "$JS_APPS_RES" | sed '$d')
+        
+        VERIFIED_STATUS=$(python3 -c "import sys, json; data=json.loads(sys.argv[1]); apps=data if isinstance(data, list) else data.get('data', []); print(next((app.get('status') for app in apps if str(app.get('id')) == '$APP_ID'), 'NOT_FOUND'))" "$JS_APPS_BODY" 2>/dev/null)
+        
+        if [ "$VERIFIED_STATUS" == "UNDER_REVIEW" ]; then
+            append_report "Sync Verify" "GET" "Jobseeker checks status" "200" "✅ PASS (Status: $VERIFIED_STATUS)"
+        else
+            append_report "Sync Verify" "GET" "Jobseeker checks status" "200" "❌ FAIL (Status: $VERIFIED_STATUS)"
+        fi
     fi
 else
     append_report "Lifecycle Synergy" "N/A" "Bridge Test" "N/A" "❌ FAIL (Skipped: Missing JOB_ID or JS_TOKEN)"

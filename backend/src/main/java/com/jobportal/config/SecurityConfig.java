@@ -180,7 +180,7 @@ public class SecurityConfig {
                 .requestMatchers("/job-seeker-profile/**", "/job-seeker-apply/**", "/job-seeker-save/**").hasAuthority("Job Seeker")
                 .requestMatchers("/api/saved-jobs/**").hasAuthority("Job Seeker")
                 .requestMatchers("/api/applications/my-applications").hasAuthority("Job Seeker")
-                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/jobs/{id}/apply").hasAuthority("Job Seeker")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/applications/job/{id}/apply").hasAuthority("Job Seeker")
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/jobs/{id}/save").hasAuthority("Job Seeker")
                 .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/jobs/{id}/unsave").hasAuthority("Job Seeker")
                 .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/applications/{id}/withdraw").hasAuthority("Job Seeker")
