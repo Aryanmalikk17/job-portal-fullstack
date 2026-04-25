@@ -40,7 +40,7 @@ public class UsersService {
         users.setPassword(passwordEncoder.encode(users.getPassword()));
         
         // Ensure we don't accidentally update an existing user through addNew
-        if (users.getUserId() > 0 && usersRepository.existsById(users.getUserId())) {
+        if (users.getUserId() != null && users.getUserId() > 0 && usersRepository.existsById(users.getUserId())) {
             throw new IllegalStateException("User already exists. Use update flows instead.");
         }
         
@@ -51,7 +51,9 @@ public class UsersService {
             recruiterProfileRepository.saveAndFlush(new RecruiterProfile(savedUser));
         }
         else {
-            jobSeekerProfileRepository.saveAndFlush(new JobSeekerProfile(savedUser));
+            // Use saveAndFlush to ensure immediate visibility for automated audits
+            JobSeekerProfile profile = new JobSeekerProfile(savedUser);
+            jobSeekerProfileRepository.saveAndFlush(profile);
         }
 
         return savedUser;
