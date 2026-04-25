@@ -25,7 +25,8 @@ public class JobSeekerProfileService {
     }
 
     public Optional<JobSeekerProfile> getOne(Integer id) {
-        return jobSeekerProfileRepository.findById(id);
+        // Use explicit column-based query for reliability with @MapsId
+        return jobSeekerProfileRepository.findByUserAccountId(id);
     }
 
     /**
@@ -43,7 +44,7 @@ public class JobSeekerProfileService {
         }
         
         System.out.println("Saving new profile for user: " + userAccountId);
-        return jobSeekerProfileRepository.save(jobSeekerProfile);
+        return jobSeekerProfileRepository.saveAndFlush(jobSeekerProfile);
     }
 
     /**
@@ -59,7 +60,7 @@ public class JobSeekerProfileService {
         // Apply selective updates - only update non-null fields
         applyProfileUpdates(existingProfile, updates);
         
-        return jobSeekerProfileRepository.save(existingProfile);
+        return jobSeekerProfileRepository.saveAndFlush(existingProfile);
     }
 
     /**
@@ -104,19 +105,12 @@ public class JobSeekerProfileService {
      */
     @Deprecated
     public JobSeekerProfile addNew(JobSeekerProfile jobSeekerProfile) {
-        // Check if profile already exists for this user_account_id
         Integer userAccountId = jobSeekerProfile.getUserAccountId();
-        System.out.println("addNew called for user: " + userAccountId);
-        
-        Optional<JobSeekerProfile> existingProfile = jobSeekerProfileRepository.findById(userAccountId);
+        Optional<JobSeekerProfile> existingProfile = jobSeekerProfileRepository.findByUserAccountId(userAccountId);
         
         if (existingProfile.isPresent()) {
-            System.out.println("addNew: Profile found, updating.");
-            // Update existing profile using the new method
             return updateProfile(userAccountId, jobSeekerProfile);
         } else {
-            System.out.println("addNew: Profile NOT found, creating new.");
-            // Create new profile using the new method
             return createProfile(jobSeekerProfile);
         }
     }

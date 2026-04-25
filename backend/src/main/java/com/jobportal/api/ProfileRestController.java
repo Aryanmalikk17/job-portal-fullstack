@@ -210,10 +210,12 @@ public class ProfileRestController {
             JobSeekerProfile profile;
             if (existingOpt.isPresent()) {
                 profile = existingOpt.get();
+                logger.info("Updating existing JobSeekerProfile for user ID: {}", currentUser.getUserId());
             } else {
                 profile = new JobSeekerProfile();
                 profile.setUserAccountId(currentUser.getUserId());
                 profile.setUserId(currentUser); // CRITICAL: Set association for @MapsId
+                logger.info("Creating NEW JobSeekerProfile for user ID: {}", currentUser.getUserId());
             }
 
             // Update Personal Information
@@ -342,6 +344,7 @@ public class ProfileRestController {
                     .map(Skills::getName)
                     .collect(Collectors.toList()));
             }
+            logger.info("Successfully saved JobSeekerProfile for user ID: {}", currentUser.getUserId());
 
             return ResponseEntity.ok(new ApiResponse<>(true, "Profile updated successfully", profileDto));
 

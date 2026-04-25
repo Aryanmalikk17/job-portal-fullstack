@@ -6,8 +6,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,8 @@ import com.jobportal.services.UsersService;
     "http://www.zplusejobs.com"
 })
 public class JobApplicationRestController {
+
+    private static final Logger logger = LoggerFactory.getLogger(JobApplicationRestController.class);
 
     private final JobSeekerApplyService jobSeekerApplyService;
     private final JobPostActivityService jobPostActivityService;
@@ -197,8 +200,11 @@ public class JobApplicationRestController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             Users currentUser = usersService.findByEmail(auth.getName());
             
+            logger.info("Apply attempt: User {} (ID: {}) for Job {}", auth.getName(), (currentUser != null ? currentUser.getUserId() : "null"), jobId);
+            
             Optional<JobSeekerProfile> jobSeekerOpt = jobSeekerProfileService.getOne(currentUser.getUserId());
             if (jobSeekerOpt.isEmpty()) {
+                logger.warn("Apply failed: JobSeekerProfile NOT FOUND for user ID: {}", currentUser.getUserId());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "Only job seekers can apply for jobs"));
             }
@@ -231,8 +237,11 @@ public class JobApplicationRestController {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             Users currentUser = usersService.findByEmail(auth.getName());
             
+            logger.info("Listing applications for user: {} (ID: {})", auth.getName(), (currentUser != null ? currentUser.getUserId() : "null"));
+            
             Optional<JobSeekerProfile> jobSeekerOpt = jobSeekerProfileService.getOne(currentUser.getUserId());
             if (jobSeekerOpt.isEmpty()) {
+                logger.warn("Listing failed: JobSeekerProfile NOT FOUND for user ID: {}", currentUser.getUserId());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "Only job seekers can view applications"));
             }
