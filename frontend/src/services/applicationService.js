@@ -69,6 +69,25 @@ export const withdrawApplication = async (applicationId) => {
 // Bridge function to prevent "service.getStatusIcon is not a function"
 export const getStatusIcon = (status) => statusIconHelper(status);
 
+export const isStatusEditable = (status) => {
+  // Statuses that can be changed by recruiters
+  return !['WITHDRAWN'].includes(status);
+};
+
+export const getNextPossibleStatuses = (currentStatus) => {
+  const transitions = {
+    'APPLIED': ['UNDER_REVIEW', 'REJECTED'],
+    'UNDER_REVIEW': ['INTERVIEW_SCHEDULED', 'REJECTED'],
+    'INTERVIEW_SCHEDULED': ['INTERVIEWED', 'REJECTED'],
+    'INTERVIEWED': ['OFFERED', 'REJECTED'],
+    'OFFERED': ['HIRED', 'REJECTED'],
+    'HIRED': [], // Terminal state
+    'REJECTED': [], // Terminal state
+    'WITHDRAWN': [] // Terminal state
+  };
+  return transitions[currentStatus] || [];
+};
+
 export const applicationService = {
   applyToJob,
   getMyApplications,
@@ -77,7 +96,9 @@ export const applicationService = {
   getApplicationStatus,
   updateApplicationStatus,
   withdrawApplication,
-  getStatusIcon
+  getStatusIcon,
+  isStatusEditable,
+  getNextPossibleStatuses
 };
 
 export default applicationService;
