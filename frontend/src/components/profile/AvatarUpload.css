@@ -1,0 +1,127 @@
+.avatar-upload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.avatar-upload-area {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 2px dashed #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+}
+
+.avatar-upload-area:hover {
+    border-color: #4a90e2;
+    background-color: #f0f7ff;
+}
+
+.avatar-upload-area.drag-over {
+    border-color: #4a90e2;
+    background-color: #e6f2ff;
+    transform: scale(1.05);
+}
+
+.avatar-preview {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.avatar-upload-area:hover .avatar-overlay {
+    opacity: 1;
+}
+
+.avatar-overlay i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.avatar-overlay span {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.avatar-placeholder {
+    text-align: center;
+    padding: 1rem;
+    color: #6c757d;
+}
+
+.avatar-placeholder i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #adb5bd;
+}
+
+.avatar-placeholder h6 {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.avatar-placeholder p {
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.avatar-placeholder small {
+    font-size: 0.65rem;
+}
+
+.upload-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+
+.avatar-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.avatar-actions .btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+}
