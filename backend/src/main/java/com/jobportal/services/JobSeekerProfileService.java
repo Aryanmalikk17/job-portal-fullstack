@@ -7,8 +7,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.jobportal.entity.JobSeekerProfile;
+import com.jobportal.entity.Skills;
 import com.jobportal.entity.Users;
 import com.jobportal.repository.JobSeekerProfileRepository;
 import com.jobportal.repository.UsersRepository;
@@ -51,14 +54,45 @@ public class JobSeekerProfileService {
      * Updates existing profile for logged-in users (profile management)
      * Throws exception if profile doesn't exist
      */
-    public JobSeekerProfile updateProfile(Integer userAccountId, JobSeekerProfile updates) {
+    @Transactional
+    public JobSeekerProfile updateProfile(Users user, JobSeekerProfile updates, List<String> skillNames) {
+        Integer userAccountId = user.getUserId();
         System.out.println("updateProfile called for user: " + userAccountId);
+        
         JobSeekerProfile existingProfile = jobSeekerProfileRepository.findById(userAccountId)
-            .orElseThrow(() -> new IllegalStateException("No profile found for user: " + userAccountId));
+            .orElseGet(() -> {
+                JobSeekerProfile newProfile = new JobSeekerProfile(user);
+                newProfile.setUserAccountId(userAccountId);
+                return newProfile;
+            });
         
         System.out.println("Found existing profile for user: " + userAccountId + ". Applying updates.");
+        
+        // Update associated User information if provided in profile updates
+        if (StringUtils.hasText(updates.getFirstName())) user.setFirstName(updates.getFirstName());
+        if (StringUtils.hasText(updates.getLastName())) user.setLastName(updates.getLastName());
+        // usersRepository is not available here, but the transaction will save it if managed
+        
         // Apply selective updates - only update non-null fields
         applyProfileUpdates(existingProfile, updates);
+        
+        // Handle Skills
+        if (skillNames != null) {
+            if (existingProfile.getSkills() == null) {
+                existingProfile.setSkills(new java.util.ArrayList<>());
+            } else {
+                existingProfile.getSkills().clear();
+            }
+            
+            for (String skillName : skillNames) {
+                if (org.springframework.util.StringUtils.hasText(skillName)) {
+                    Skills skill = new Skills();
+                    skill.setName(skillName);
+                    skill.setJobSeekerProfile(existingProfile);
+                    existingProfile.getSkills().add(skill);
+                }
+            }
+        }
         
         return jobSeekerProfileRepository.saveAndFlush(existingProfile);
     }

@@ -196,117 +196,57 @@ public class ProfileRestController {
                     .body(new ApiResponse<>(false, "Only job seekers can update job seeker profile", null));
             }
 
-            // Update user basic info
-            if (StringUtils.hasText(firstName)) {
-                currentUser.setFirstName(firstName);
-            }
-            if (StringUtils.hasText(lastName)) {
-                currentUser.setLastName(lastName);
-            }
-            usersService.updateUser(currentUser);
-
-            // FIXED: Get existing managed entity or create new one to avoid Duplicate PK insert
-            Optional<JobSeekerProfile> existingOpt = jobSeekerProfileService.getOne(currentUser.getUserId());
-            JobSeekerProfile profile;
-            if (existingOpt.isPresent()) {
-                profile = existingOpt.get();
-                logger.info("Updating existing JobSeekerProfile for user ID: {}", currentUser.getUserId());
-            } else {
-                profile = new JobSeekerProfile();
-                profile.setUserAccountId(currentUser.getUserId());
-                profile.setUserId(currentUser); // CRITICAL: Set association for @MapsId
-                logger.info("Creating NEW JobSeekerProfile for user ID: {}", currentUser.getUserId());
-            }
-
-            // Update Personal Information
-            if (firstName != null) profile.setFirstName(firstName);
-            if (lastName != null) profile.setLastName(lastName);
-            if (phone != null) profile.setPhone(phone);
+            // Consolidate updates into the service layer (Transactional)
+            JobSeekerProfile profileUpdate = new JobSeekerProfile();
+            profileUpdate.setFirstName(firstName);
+            profileUpdate.setLastName(lastName);
+            profileUpdate.setPhone(phone);
             if (StringUtils.hasText(dateOfBirth)) {
                 try {
-                    profile.setDateOfBirth(LocalDate.parse(dateOfBirth));
+                    profileUpdate.setDateOfBirth(LocalDate.parse(dateOfBirth));
                 } catch (Exception e) {
-                    logger.warn("Invalid date format for dateOfBirth: {}", dateOfBirth);
+                    logger.warn("Invalid date format: {}", dateOfBirth);
                 }
             }
-            if (gender != null) profile.setGender(gender);
-            if (city != null) profile.setCity(city);
-            if (state != null) profile.setState(state);
-            if (country != null) profile.setCountry(country);
-            if (willingToRelocate != null) profile.setWillingToRelocate(willingToRelocate);
-
-            // Update Professional Information
-            if (currentJobTitle != null) profile.setCurrentJobTitle(currentJobTitle);
-            if (experience != null) profile.setExperience(experience);
-            if (education != null) profile.setEducation(education);
-            if (workAuthorization != null) profile.setWorkAuthorization(workAuthorization);
-            if (employmentType != null) profile.setEmploymentType(employmentType);
-            if (expectedSalary != null) profile.setExpectedSalary(expectedSalary);
+            profileUpdate.setCity(city);
+            profileUpdate.setState(state);
+            profileUpdate.setCountry(country);
+            profileUpdate.setWillingToRelocate(willingToRelocate);
+            profileUpdate.setCurrentJobTitle(currentJobTitle);
+            profileUpdate.setExperience(experience);
+            profileUpdate.setEducation(education);
+            profileUpdate.setWorkAuthorization(workAuthorization);
+            profileUpdate.setEmploymentType(employmentType);
+            profileUpdate.setExpectedSalary(expectedSalary);
             if (StringUtils.hasText(availabilityDate)) {
                 try {
-                    profile.setAvailabilityDate(LocalDate.parse(availabilityDate));
+                    profileUpdate.setAvailabilityDate(LocalDate.parse(availabilityDate));
                 } catch (Exception e) {
                     logger.warn("Invalid date format for availabilityDate: {}", availabilityDate);
                 }
             }
-            if (linkedinProfile != null) profile.setLinkedinProfile(linkedinProfile);
-            if (githubProfile != null) profile.setGithubProfile(githubProfile);
-            if (portfolioWebsite != null) profile.setPortfolioWebsite(portfolioWebsite);
-            if (about != null) profile.setCoverLetter(about);
-            if (coverLetter != null) profile.setCoverLetter(coverLetter);
+            profileUpdate.setLinkedinProfile(linkedinProfile);
+            profileUpdate.setGithubProfile(githubProfile);
+            profileUpdate.setPortfolioWebsite(portfolioWebsite);
+            profileUpdate.setCoverLetter(about != null ? about : coverLetter);
 
-            // Update Skills
-            if (skills != null) {
-                // Clear existing skills
-                if (profile.getSkills() == null) {
-                    profile.setSkills(new ArrayList<>());
-                } else {
-                    profile.getSkills().clear();
-                }
-                
-                // Add new skills
-                for (String skillName : skills) {
-                    if (StringUtils.hasText(skillName)) {
-                        Skills skill = new Skills();
-                        skill.setName(skillName);
-                        skill.setJobSeekerProfile(profile);
-                        profile.getSkills().add(skill);
-                    }
-                }
-            }
-
-            // Handle file uploads
+            // Handle file uploads separately (as they involve IO)
             if (profilePhoto != null && !profilePhoto.isEmpty()) {
-                try {
-                    String uploadDir = "photos/candidate/" + currentUser.getUserId();
-                    String fileName = profilePhoto.getOriginalFilename();
-                    FileUploadUtil.saveFile(uploadDir, fileName, profilePhoto);
-                    profile.setProfilePhoto(fileName);
-                } catch (Exception e) {
-                    logger.error("Error uploading profile photo", e);
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(new ApiResponse<>(false, "Error uploading profile photo", null));
-                }
+                String fileName = profilePhoto.getOriginalFilename();
+                FileUploadUtil.saveFile("photos/candidate/" + currentUser.getUserId(), fileName, profilePhoto);
+                profileUpdate.setProfilePhoto(fileName);
             }
-
             if (resume != null && !resume.isEmpty()) {
-                try {
-                    String uploadDir = "photos/candidate/" + currentUser.getUserId();
-                    String fileName = resume.getOriginalFilename();
-                    FileUploadUtil.saveFile(uploadDir, fileName, resume);
-                    profile.setResume(fileName);
-                    profile.setResumeOriginalName(resume.getOriginalFilename());
-                    profile.setResumeUploadDate(LocalDateTime.now());
-                    profile.setResumeFileSize(resume.getSize());
-                } catch (Exception e) {
-                    logger.error("Error uploading resume", e);
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(new ApiResponse<>(false, "Error uploading resume", null));
-                }
+                String fileName = resume.getOriginalFilename();
+                FileUploadUtil.saveFile("photos/candidate/" + currentUser.getUserId(), fileName, resume);
+                profileUpdate.setResume(fileName);
+                profileUpdate.setResumeOriginalName(fileName);
+                profileUpdate.setResumeUploadDate(LocalDateTime.now());
+                profileUpdate.setResumeFileSize(resume.getSize());
             }
 
-            // FIXED: Save the managed entity directly via repository to avoid duplicate PK
-            JobSeekerProfile savedProfile = jobSeekerProfileRepository.save(profile);
+            // PERFORM ATOMIC UPDATE
+            JobSeekerProfile savedProfile = jobSeekerProfileService.updateProfile(currentUser, profileUpdate, skills);
 
             // Return updated profile with ALL fields
             UserProfileDto profileDto = new UserProfileDto();
@@ -316,7 +256,7 @@ public class ProfileRestController {
             profileDto.setEmail(currentUser.getEmail());
             profileDto.setUserType(currentUser.getUserTypeId().getUserTypeName());
             
-            // Add all profile fields to response
+            // Populate all fields from savedProfile
             profileDto.setPhone(savedProfile.getPhone());
             profileDto.setDateOfBirth(savedProfile.getDateOfBirth());
             profileDto.setGender(savedProfile.getGender());
@@ -338,14 +278,13 @@ public class ProfileRestController {
             profileDto.setProfilePhoto(savedProfile.getProfilePhoto());
             profileDto.setResume(savedProfile.getResume());
             
-            // Add skills to response
             if (savedProfile.getSkills() != null) {
                 profileDto.setSkills(savedProfile.getSkills().stream()
                     .map(Skills::getName)
                     .collect(Collectors.toList()));
             }
-            logger.info("Successfully saved JobSeekerProfile for user ID: {}", currentUser.getUserId());
 
+            logger.info("Successfully updated JobSeekerProfile for user ID: {}", currentUser.getUserId());
             return ResponseEntity.ok(new ApiResponse<>(true, "Profile updated successfully", profileDto));
 
         } catch (Exception e) {
