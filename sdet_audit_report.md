@@ -14,11 +14,11 @@
 | `/api/profile/job-seeker` | `PUT` | Clear city & about | 200 | ✅ PASS |
 | `/api/profile/job-seeker` | `PUT` | Skills Sentinel ('') | 200 | ✅ PASS |
 | `/api/profile/recruiter` | `PUT` | 15 Missing Fields | 200 | ✅ PASS |
-| `/api/jobs/create` | `POST` | Job with Loc & Comp | 201 | ✅ PASS (ID: 87) |
+| `/api/jobs/create` | `POST` | Job with Loc & Comp | 201 | ✅ PASS (ID: 88) |
 | `JS Dashboard` | `GET` | /api/applications/my-applications | 403 | ❌ FAIL (Body: {"error":"Only job seekers can view applications"}) |
 | `REC Dashboard` | `GET` | /api/jobs/recruiter | 200 | ✅ PASS |
 | `REC Dashboard` | `GET` | /api/applications/recruiter/statistics | 200 | ✅ PASS |
-| `Job Apply` | `POST` | Jobseeker -> Job 87 | 403 | ❌ FAIL (Body: {"error":"Only job seekers can apply for jobs"}) |
+| `Job Apply` | `POST` | Jobseeker -> Job 88 | 403 | ❌ FAIL (Body: {"error":"Only job seekers can apply for jobs"}) |
 | `Double-Path Check` | `GET` | Ghost path /api/api/ | 401 | ⚠️ WARNING (Ghost path returned 401) |
 | `/api/jobs` | `GET` | Iterable Check (Array) | 200 | ✅ PASS |
 | `Recruiter Deep-Sync` | `PUT/GET` | Industry & Website | 200 | ✅ PASS |
@@ -65,5 +65,5 @@ curl -X POST "https://api.zplusejobs.com/api/job-data/companies" \
 curl -X POST "https://api.zplusejobs.com/api/jobs/create" \
   -H "Authorization: Bearer <RECRUITER_TOKEN>" \
   -H "Content-Type: application/json" \
-  -d '{"jobTitle":"SDET Test","descriptionOfJob":"QA","jobType":"Full-Time","salary":"100k","remote":"Remote","jobLocationId":11,"jobCompanyId":25}'
+  -d '{"jobTitle":"SDET Test","descriptionOfJob":"QA","jobType":"Full-Time","salary":"100k","remote":"Remote","jobLocationId":11,"jobCompanyId":26}'
 ```

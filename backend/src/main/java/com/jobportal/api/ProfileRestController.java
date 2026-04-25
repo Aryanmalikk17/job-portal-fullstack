@@ -213,6 +213,7 @@ public class ProfileRestController {
             } else {
                 profile = new JobSeekerProfile();
                 profile.setUserAccountId(currentUser.getUserId());
+                profile.setUserId(currentUser); // CRITICAL: Set association for @MapsId
             }
 
             // Update Personal Information
@@ -409,6 +410,7 @@ public class ProfileRestController {
             } else {
                 profile = new RecruiterProfile();
                 profile.setUserAccountId(currentUser.getUserId());
+                profile.setUserId(currentUser); // CRITICAL: Set association for @MapsId
             }
 
             // Update profile fields — use != null (not hasText) so "" reaches the DB setter

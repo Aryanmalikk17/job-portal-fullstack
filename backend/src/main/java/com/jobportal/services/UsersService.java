@@ -48,10 +48,10 @@ public class UsersService {
         int userTypeId = users.getUserTypeId().getUserTypeId();
 
         if (userTypeId == 1) {
-            recruiterProfileRepository.save(new RecruiterProfile(savedUser));
+            recruiterProfileRepository.saveAndFlush(new RecruiterProfile(savedUser));
         }
         else {
-            jobSeekerProfileRepository.save(new JobSeekerProfile(savedUser));
+            jobSeekerProfileRepository.saveAndFlush(new JobSeekerProfile(savedUser));
         }
 
         return savedUser;
