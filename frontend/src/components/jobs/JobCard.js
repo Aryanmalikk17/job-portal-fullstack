@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { Card, Badge, Button, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { 
+    Building2, 
+    Heart, 
+    Briefcase, 
+    Wifi, 
+    DollarSign, 
+    Calendar, 
+    MapPin, 
+    Eye, 
+    Send, 
+    Check 
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import JobApplicationModal from './JobApplicationModal';
 
@@ -17,7 +29,6 @@ const JobCard = ({
     
     // Use the accurate status from the enhanced API response
     const [applicationStatus, setApplicationStatus] = useState(job.hasApplied || false);
-    const [savedStatus, setSavedStatus] = useState(job.isSaved || false);
 
     const handleSave = async (e) => {
         e.preventDefault();
@@ -79,20 +90,6 @@ const JobCard = ({
         return strippedText.length > maxLength ? strippedText.substring(0, maxLength) + '...' : strippedText;
     };
 
-    const truncateHtml = (html, maxLength = 150) => {
-        if (!html) return '';
-        
-        // Strip HTML tags to get plain text for length calculation
-        const textContent = html.replace(/<[^>]*>/g, '');
-        
-        if (textContent.length <= maxLength) {
-            return html; // Return full HTML if under limit
-        }
-        
-        // If too long, return truncated plain text
-        return textContent.substring(0, maxLength) + '...';
-    };
-
     return (
         <>
             <Card className={`modern-job-card h-100 ${className}`}>
@@ -109,8 +106,8 @@ const JobCard = ({
                                 </Link>
                             </Card.Title>
                             
-                            <Card.Subtitle className="company-name text-muted mb-2">
-                                <i className="fa fa-building me-1"></i>
+                            <Card.Subtitle className="company-name text-muted mb-2 d-flex align-items-center">
+                                <Building2 className="me-1" size={16} />
                                 {job.companyName || `${job.postedBy?.firstName} ${job.postedBy?.lastName}`}
                             </Card.Subtitle>
                         </div>
@@ -129,7 +126,12 @@ const JobCard = ({
                                     <Spinner as="span" animation="border" size="sm" />
                                 ) : (
                                     <>
-                                        <i className={`fa ${job.isSaved ? 'fa-heart' : 'fa-heart-o'} me-1`}></i>
+                                        <Heart 
+                                            className="me-1" 
+                                            size={16} 
+                                            fill={job.isSaved ? "currentColor" : "none"} 
+                                            color={job.isSaved ? "red" : "currentColor"}
+                                        />
                                         {job.isSaved ? 'Saved' : 'Save'}
                                     </>
                                 )}
@@ -141,29 +143,29 @@ const JobCard = ({
                     <div className="job-meta mb-3">
                         <div className="d-flex flex-wrap gap-2 mb-2">
                             {job.jobType && (
-                                <Badge bg="primary" className="job-type-badge">
-                                    <i className="fa fa-briefcase me-1"></i>
+                                <Badge bg="primary" className="job-type-badge d-flex align-items-center">
+                                    <Briefcase className="me-1" size={14} />
                                     {job.jobType}
                                 </Badge>
                             )}
                             
                             {job.remote && (
-                                <Badge bg="info" className="remote-badge">
-                                    <i className="fa fa-wifi me-1"></i>
+                                <Badge bg="info" className="remote-badge d-flex align-items-center">
+                                    <Wifi className="me-1" size={14} />
                                     {job.remote}
                                 </Badge>
                             )}
                             
                             {job.salary && (
-                                <Badge bg="success" className="salary-badge">
-                                    <i className="fa fa-dollar-sign me-1"></i>
+                                <Badge bg="success" className="salary-badge d-flex align-items-center">
+                                    <DollarSign className="me-1" size={14} />
                                     {job.salary}
                                 </Badge>
                             )}
                         </div>
                         
                         <small className="text-muted d-flex align-items-center">
-                            <i className="fa fa-calendar me-1"></i>
+                            <Calendar className="me-1" size={14} />
                             Posted {formatDate(job.postedDate)}
                         </small>
                     </div>
@@ -176,8 +178,8 @@ const JobCard = ({
                     {/* Location */}
                     {job.jobLocation && (
                         <div className="job-location mb-3">
-                            <small className="text-muted">
-                                <i className="fa fa-map-marker-alt me-1"></i>
+                            <small className="text-muted d-flex align-items-center">
+                                <MapPin className="me-1" size={14} />
                                 {job.jobLocation}
                             </small>
                         </div>
@@ -191,9 +193,9 @@ const JobCard = ({
                                 to={`/jobs/${job.jobPostId}`}
                                 variant="outline-primary"
                                 size="sm"
-                                className="me-2"
+                                className="me-2 d-flex align-items-center"
                             >
-                                <i className="fa fa-eye me-1"></i>
+                                <Eye className="me-1" size={16} />
                                 View Details
                             </Button>
                             
@@ -203,13 +205,14 @@ const JobCard = ({
                                         variant="primary" 
                                         size="sm"
                                         onClick={handleApply}
+                                        className="d-flex align-items-center"
                                     >
-                                        <i className="fa fa-paper-plane me-1"></i>
+                                        <Send className="me-1" size={16} />
                                         Apply Now
                                     </Button>
                                 ) : (
-                                    <Badge bg="success" className="applied-badge">
-                                        <i className="fa fa-check me-1"></i>
+                                    <Badge bg="success" className="applied-badge d-flex align-items-center">
+                                        <Check className="me-1" size={16} />
                                         Applied
                                     </Badge>
                                 )

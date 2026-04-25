@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Tabs, Tab } from 'react-bootstrap';
+import { 
+    UserCircle, 
+    Briefcase, 
+    Building2, 
+    FileText, 
+    Settings2 
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import JobSeekerProfile from '../components/profile/JobSeekerProfile';
 import RecruiterProfile from '../components/profile/RecruiterProfile';
@@ -36,8 +43,8 @@ const ProfilePage = () => {
                                 className="profile-tabs"
                             >
                                 <Tab eventKey="personal" title={
-                                    <span>
-                                        <i className="fas fa-user me-2"></i>
+                                    <span className="d-flex align-items-center">
+                                        <UserCircle size={18} className="me-2" />
                                         Personal Info
                                     </span>
                                 }>
@@ -50,8 +57,8 @@ const ProfilePage = () => {
 
                                 {user?.userType === 'Job Seeker' && (
                                     <Tab eventKey="professional" title={
-                                        <span>
-                                            <i className="fas fa-briefcase me-2"></i>
+                                        <span className="d-flex align-items-center">
+                                            <Briefcase size={18} className="me-2" />
                                             Professional
                                         </span>
                                     }>
@@ -61,8 +68,8 @@ const ProfilePage = () => {
 
                                 {user?.userType === 'Recruiter' && (
                                     <Tab eventKey="company" title={
-                                        <span>
-                                            <i className="fas fa-building me-2"></i>
+                                        <span className="d-flex align-items-center">
+                                            <Building2 size={18} className="me-2" />
                                             Company Info
                                         </span>
                                     }>
@@ -71,8 +78,8 @@ const ProfilePage = () => {
                                 )}
 
                                 <Tab eventKey="documents" title={
-                                    <span>
-                                        <i className="fas fa-file-alt me-2"></i>
+                                    <span className="d-flex align-items-center">
+                                        <FileText size={18} className="me-2" />
                                         Documents
                                     </span>
                                 }>
@@ -84,8 +91,8 @@ const ProfilePage = () => {
                                 </Tab>
 
                                 <Tab eventKey="settings" title={
-                                    <span>
-                                        <i className="fas fa-cog me-2"></i>
+                                    <span className="d-flex align-items-center">
+                                        <Settings2 size={18} className="me-2" />
                                         Settings
                                     </span>
                                 }>

@@ -37,7 +37,7 @@ export const register = async (userData) => {
         if (error.response?.data) {
             throw error.response.data;
         }
-        throw { message: 'Registration failed. Please try again.' };
+        throw new Error('Registration failed. Please try again.');
     }
 };
 
@@ -103,7 +103,7 @@ export const login = async (credentials) => {
         }
         
         console.log('AuthService: Final error message:', errorMessage);
-        throw { message: errorMessage };
+        throw new Error(errorMessage);
     }
 };
 
@@ -126,7 +126,7 @@ export const verifyToken = async () => {
         const response = await api.get(AUTH_ENDPOINTS.VERIFY);
         return response.data;
     } catch (error) {
-        throw error.response?.data || { message: 'Token verification failed' };
+        throw error.response?.data || new Error('Token verification failed');
     }
 };
 
@@ -136,7 +136,7 @@ export const getCurrentUser = async () => {
         const response = await api.get(AUTH_ENDPOINTS.USER);
         return response.data;
     } catch (error) {
-        throw error.response?.data || { message: 'Failed to get user info' };
+        throw error.response?.data || new Error('Failed to get user info');
     }
 };
 

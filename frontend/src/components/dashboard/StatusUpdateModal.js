@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Alert, Badge, Spinner } from 'react-bootstrap';
+import { 
+    Edit, 
+    AlertCircle, 
+    ListChecks, 
+    Circle, 
+    CheckCircle2, 
+    StickyNote, 
+    Info, 
+    Clock, 
+    Save 
+} from 'lucide-react';
 
 const StatusUpdateModal = ({ 
     show, 
@@ -113,8 +124,8 @@ const StatusUpdateModal = ({
             keyboard={!isSubmitting}
         >
             <Modal.Header closeButton={!isSubmitting}>
-                <Modal.Title>
-                    <i className="fas fa-edit me-2 text-primary"></i>
+                <Modal.Title className="d-flex align-items-center">
+                    <Edit className="me-2 text-primary" size={24} />
                     Update Application Status
                 </Modal.Title>
             </Modal.Header>
@@ -134,6 +145,7 @@ const StatusUpdateModal = ({
                                application.status === 'INTERVIEWED' ? 'secondary' :
                                application.status === 'OFFERED' ? 'success' :
                                application.status === 'HIRED' ? 'success' : 'danger'}
+                            className="text-uppercase"
                         >
                             Current: {application.status?.replace(/_/g, ' ')}
                         </Badge>
@@ -142,8 +154,8 @@ const StatusUpdateModal = ({
 
                 {/* Error Message */}
                 {error && (
-                    <Alert variant="danger" className="mb-3">
-                        <i className="fas fa-exclamation-circle me-2"></i>
+                    <Alert variant="danger" className="mb-3 d-flex align-items-center">
+                        <AlertCircle className="me-2" size={18} />
                         {error}
                     </Alert>
                 )}
@@ -151,8 +163,8 @@ const StatusUpdateModal = ({
                 <Form onSubmit={handleSubmit}>
                     {/* Status Selection */}
                     <Form.Group className="mb-4">
-                        <Form.Label className="fw-bold">
-                            <i className="fas fa-tasks me-2"></i>
+                        <Form.Label className="fw-bold d-flex align-items-center">
+                            <ListChecks className="me-2" size={18} />
                             New Status
                         </Form.Label>
                         
@@ -186,7 +198,10 @@ const StatusUpdateModal = ({
                                                 <small className="text-muted">{statusOption.description}</small>
                                             </div>
                                             <div>
-                                                <i className={`fas fa-circle ${formData.status === statusOption.value ? 'text-primary' : 'text-muted'}`}></i>
+                                                <Circle 
+                                                    size={16} 
+                                                    className={formData.status === statusOption.value ? 'text-primary fill-primary' : 'text-muted'} 
+                                                />
                                             </div>
                                         </Form.Label>
                                     </div>
@@ -194,7 +209,7 @@ const StatusUpdateModal = ({
                             </div>
                         ) : (
                             <div className="text-center py-4">
-                                <i className="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <CheckCircle2 className="text-success mb-2" size={48} />
                                 <p className="text-muted mb-0">
                                     No status changes available. This application is in its final state.
                                 </p>
@@ -204,9 +219,9 @@ const StatusUpdateModal = ({
 
                     {/* Recruiter Notes */}
                     <Form.Group className="mb-4">
-                        <Form.Label className="fw-bold">
-                            <i className="fas fa-sticky-note me-2"></i>
-                            Add Notes <span className="text-muted fw-normal">(Optional)</span>
+                        <Form.Label className="fw-bold d-flex align-items-center">
+                            <StickyNote className="me-2" size={18} />
+                            Add Notes <span className="text-muted fw-normal ms-1">(Optional)</span>
                         </Form.Label>
                         <Form.Control
                             as="textarea"
@@ -227,15 +242,17 @@ const StatusUpdateModal = ({
                     {/* Action Preview */}
                     {formData.status && formData.status !== application.status && (
                         <div className="action-preview mb-3 p-3 bg-info bg-opacity-10 rounded border-start border-4 border-info">
-                            <h6 className="text-info mb-2">
-                                <i className="fas fa-info-circle me-2"></i>
+                            <h6 className="text-info mb-2 d-flex align-items-center">
+                                <span className="me-2 d-flex align-items-center">
+                                    <Info size={18} />
+                                </span>
                                 Action Summary
                             </h6>
-                            <p className="mb-1">
+                            <p className="mb-1 small">
                                 <strong>Status Change:</strong> {application.status?.replace(/_/g, ' ')} → {formData.status?.replace(/_/g, ' ')}
                             </p>
                             {formData.recruiterNotes && (
-                                <p className="mb-0">
+                                <p className="mb-0 small">
                                     <strong>Notes:</strong> {formData.recruiterNotes.length > 50 ? 'Added' : formData.recruiterNotes}
                                 </p>
                             )}
@@ -246,12 +263,12 @@ const StatusUpdateModal = ({
 
             <Modal.Footer className="d-flex justify-content-between">
                 <div>
-                    <small className="text-muted">
-                        <i className="fas fa-clock me-1"></i>
+                    <small className="text-muted d-flex align-items-center">
+                        <Clock className="me-1" size={14} />
                         Changes will be saved immediately
                     </small>
                 </div>
-                <div>
+                <div className="d-flex">
                     <Button 
                         variant="secondary" 
                         onClick={handleClose}
@@ -264,6 +281,7 @@ const StatusUpdateModal = ({
                     {availableStatuses.length > 0 && (
                         <Button 
                             variant="primary" 
+                            className="d-flex align-items-center"
                             onClick={handleSubmit}
                             disabled={isSubmitting || !formData.status || formData.status === application.status}
                         >
@@ -274,7 +292,7 @@ const StatusUpdateModal = ({
                                 </>
                             ) : (
                                 <>
-                                    <i className="fas fa-save me-2"></i>
+                                    <Save className="me-2" size={18} />
                                     Update Status
                                 </>
                             )}
@@ -300,6 +318,10 @@ const StatusUpdateModal = ({
                 
                 .action-preview {
                     border-left-width: 4px !important;
+                }
+
+                .fill-primary {
+                    fill: currentColor;
                 }
             `}</style>
         </Modal>

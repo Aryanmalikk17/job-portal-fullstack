@@ -1,5 +1,6 @@
 import React from 'react';
 import { Alert, Container, Button } from 'react-bootstrap';
+import { AlertTriangle, RefreshCcw } from 'lucide-react';
 
 class ErrorBoundary extends React.Component {
     constructor(props) {
@@ -22,26 +23,40 @@ class ErrorBoundary extends React.Component {
         if (this.state.hasError) {
             return (
                 <Container className="my-5">
-                    <Alert variant="danger" className="text-center">
-                        <Alert.Heading>
-                            <i className="fa fa-exclamation-triangle me-2"></i>
+                    <Alert variant="danger" className="text-center border-0 shadow-sm glass-card rounded-4 p-5">
+                        <div className="d-flex justify-content-center mb-4">
+                            <div className="bg-soft-danger p-3 rounded-circle">
+                                <AlertTriangle size={48} className="text-danger" />
+                            </div>
+                        </div>
+                        <Alert.Heading className="fw-bold mb-3">
                             Something went wrong!
                         </Alert.Heading>
-                        <p>
-                            We're sorry, but something unexpected happened. 
+                        <p className="text-muted mb-4 mx-auto" style={{ maxWidth: '500px' }}>
+                            We're sorry, but something unexpected happened in the application. 
                             Please try refreshing the page or contact support if the problem persists.
                         </p>
-                        <hr />
-                        <div className="d-flex justify-content-center">
+                        <div className="d-flex justify-content-center gap-3">
                             <Button 
-                                variant="outline-danger" 
+                                variant="danger" 
+                                className="px-4 py-2 d-flex align-items-center shadow-sm"
                                 onClick={() => window.location.reload()}
                             >
-                                <i className="fa fa-refresh me-1"></i>
+                                <RefreshCcw size={18} className="me-2" />
                                 Refresh Page
+                            </Button>
+                            <Button 
+                                variant="outline-secondary" 
+                                className="px-4 py-2"
+                                onClick={() => window.location.href = '/'}
+                            >
+                                Back to Home
                             </Button>
                         </div>
                     </Alert>
+                    <style jsx>{`
+                        .bg-soft-danger { background-color: #fff5f5; }
+                    `}</style>
                 </Container>
             );
         }

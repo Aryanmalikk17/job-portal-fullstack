@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import JobSeekerDashboard from '../components/dashboard/JobSeekerDashboard';
 import RecruiterDashboard from '../components/dashboard/RecruiterDashboard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { ShieldCheck } from 'lucide-react';
 
 const DashboardPage = () => {
     const { user } = useAuth();
@@ -57,7 +58,7 @@ const DashboardPage = () => {
     return (
         <div className="container mt-5 py-5 text-center">
             <div className="card shadow-sm p-5 border-0">
-                <i className="fas fa-user-shield fa-3x text-primary mb-4"></i>
+                <ShieldCheck size={48} className="text-primary mb-4 mx-auto" />
                 <h2 className="fw-bold">Identifying Account...</h2>
                 <p className="text-muted mb-4">We're preparing your personal dashboard.</p>
                 <div className="d-flex justify-content-center">

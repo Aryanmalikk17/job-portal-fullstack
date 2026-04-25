@@ -1,7 +1,30 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, Button, Form, Alert, Spinner, ProgressBar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { 
+    Plus, 
+    Users, 
+    TrendingUp, 
+    Clock, 
+    CheckCircle2, 
+    AlertCircle, 
+    Info, 
+    Briefcase, 
+    User, 
+    Lightbulb, 
+    DollarSign, 
+    FileText, 
+    MapPin, 
+    Building, 
+    Map, 
+    Globe, 
+    Building2, 
+    Eye, 
+    Link, 
+    ExternalLink, 
+    ArrowLeft, 
+    Rocket 
+} from 'lucide-react';
 import { createJob } from '../services/jobService';
 import { locationService } from '../services/locationService';
 import { companyService } from '../services/companyService';
@@ -29,14 +52,12 @@ const AddJobPage = () => {
     const [errors, setErrors] = useState({});
     const [notification, setNotification] = useState(null);
     const [validatedFields, setValidatedFields] = useState(new Set());
-    const [currentStep, setCurrentStep] = useState(1);
 
     // Calculate form completion progress
     const getFormProgress = () => {
         const requiredFields = ['jobTitle', 'jobType', 'remote', 'city', 'state', 'country', 'companyName'];
         const filledFields = requiredFields.filter(field => formData[field]?.trim());
         const descriptionFilled = formData.descriptionOfJob && formData.descriptionOfJob.length > 50;
-        const totalRequired = requiredFields.length + (descriptionFilled ? 1 : 0);
         return Math.round((filledFields.length + (descriptionFilled ? 1 : 0)) / (requiredFields.length + 1) * 100);
     };
 
@@ -256,7 +277,7 @@ const AddJobPage = () => {
                     <div className="header-content text-center">
                         <div className="header-icon mb-3">
                             <div className="icon-circle">
-                                <i className="fas fa-plus"></i>
+                                <Plus size={32} />
                             </div>
                             <div className="icon-pulse"></div>
                         </div>
@@ -281,7 +302,7 @@ const AddJobPage = () => {
                         <div className="header-stats">
                             <div className="stat-item">
                                 <div className="stat-icon">
-                                    <i className="fas fa-users"></i>
+                                    <Users size={18} />
                                 </div>
                                 <div className="stat-content">
                                     <span className="stat-number">15K+</span>
@@ -291,7 +312,7 @@ const AddJobPage = () => {
                             <div className="stat-divider"></div>
                             <div className="stat-item">
                                 <div className="stat-icon">
-                                    <i className="fas fa-chart-line"></i>
+                                    <TrendingUp size={18} />
                                 </div>
                                 <div className="stat-content">
                                     <span className="stat-number">92%</span>
@@ -301,7 +322,7 @@ const AddJobPage = () => {
                             <div className="stat-divider"></div>
                             <div className="stat-item">
                                 <div className="stat-icon">
-                                    <i className="fas fa-clock"></i>
+                                    <Clock size={18} />
                                 </div>
                                 <div className="stat-content">
                                     <span className="stat-number">24h</span>
@@ -321,11 +342,11 @@ const AddJobPage = () => {
                         onClose={() => setNotification(null)}
                     >
                         <div className="alert-content">
-                            <i className={`alert-icon fa ${
-                                notification.type === 'success' ? 'fa-check-circle' : 
-                                notification.type === 'error' ? 'fa-exclamation-circle' : 
-                                'fa-info-circle'
-                            }`}></i>
+                            <span className="alert-icon">
+                                {notification.type === 'success' ? <CheckCircle2 size={18} /> : 
+                                 notification.type === 'error' ? <AlertCircle size={18} /> : 
+                                 <Info size={18} />}
+                            </span>
                             <span>{notification.message}</span>
                         </div>
                     </Alert>
@@ -340,7 +361,7 @@ const AddJobPage = () => {
                                 <div className="section-header mb-4">
                                     <div className="section-icon-wrapper">
                                         <div className="section-icon">
-                                            <i className="fas fa-briefcase"></i>
+                                            <Briefcase size={20} />
                                         </div>
                                     </div>
                                     <div className="section-content">
@@ -370,11 +391,11 @@ const AddJobPage = () => {
                                                 placeholder="e.g. Senior Software Engineer, Marketing Manager, Data Scientist"
                                             />
                                             <div className="input-icon">
-                                                <i className="fas fa-user-tie"></i>
+                                                <User size={16} />
                                             </div>
                                         </div>
-                                        <div className="form-help">
-                                            <i className="fas fa-lightbulb"></i>
+                                        <div className="form-help d-flex align-items-center">
+                                            <Lightbulb className="me-1" size={14} />
                                             Make it specific and clear to attract the right candidates
                                         </div>
                                         {errors.jobTitle && <div className="error-message">{errors.jobTitle}</div>}
@@ -401,10 +422,10 @@ const AddJobPage = () => {
                                                         }`}
                                                     >
                                                         <option value="">Choose employment type</option>
-                                                        <option value="Full-time">🕘 Full-time</option>
-                                                        <option value="Part-time">⏰ Part-time</option>
-                                                        <option value="Freelance">💼 Freelance</option>
-                                                        <option value="Internship">🎓 Internship</option>
+                                                        <option value="Full-time">Full-time</option>
+                                                        <option value="Part-time">Part-time</option>
+                                                        <option value="Freelance">Freelance</option>
+                                                        <option value="Internship">Internship</option>
                                                     </Form.Select>
                                                 </div>
                                                 {errors.jobType && <div className="error-message">{errors.jobType}</div>}
@@ -429,9 +450,9 @@ const AddJobPage = () => {
                                                         }`}
                                                     >
                                                         <option value="">Select work arrangement</option>
-                                                        <option value="Remote-Only">🏠 Remote Only</option>
-                                                        <option value="Office-Only">🏢 Office Only</option>
-                                                        <option value="Partial-Remote">🔄 Hybrid (Remote + Office)</option>
+                                                        <option value="Remote-Only">Remote Only</option>
+                                                        <option value="Office-Only">Office Only</option>
+                                                        <option value="Partial-Remote">Hybrid (Remote + Office)</option>
                                                     </Form.Select>
                                                 </div>
                                                 {errors.remote && <div className="error-message">{errors.remote}</div>}
@@ -457,11 +478,11 @@ const AddJobPage = () => {
                                                 placeholder="e.g. $80,000 - $120,000 per year, $50/hour, Competitive"
                                             />
                                             <div className="input-icon">
-                                                <i className="fas fa-dollar-sign"></i>
+                                                <DollarSign size={16} />
                                             </div>
                                         </div>
-                                        <div className="form-help success">
-                                            <i className="fas fa-chart-line"></i>
+                                        <div className="form-help success d-flex align-items-center">
+                                            <TrendingUp className="me-1" size={14} />
                                             Including salary ranges can increase application rates by 30%
                                         </div>
                                     </Form.Group>
@@ -475,7 +496,7 @@ const AddJobPage = () => {
                                 <div className="section-header mb-4">
                                     <div className="section-icon-wrapper">
                                         <div className="section-icon">
-                                            <i className="fas fa-file-alt"></i>
+                                            <FileText size={20} />
                                         </div>
                                     </div>
                                     <div className="section-content">
@@ -507,8 +528,8 @@ const AddJobPage = () => {
                                                 }`}
                                             />
                                         </div>
-                                        <div className="form-help">
-                                            <i className="fas fa-lightbulb"></i>
+                                        <div className="form-help d-flex align-items-center">
+                                            <Lightbulb className="me-1" size={14} />
                                             Include key responsibilities, required skills, benefits, and company culture
                                         </div>
                                         {errors.descriptionOfJob && <div className="error-message">{errors.descriptionOfJob}</div>}
@@ -523,7 +544,7 @@ const AddJobPage = () => {
                                 <div className="section-header mb-4">
                                     <div className="section-icon-wrapper">
                                         <div className="section-icon">
-                                            <i className="fas fa-map-marker-alt"></i>
+                                            <MapPin size={20} />
                                         </div>
                                     </div>
                                     <div className="section-content">
@@ -554,7 +575,7 @@ const AddJobPage = () => {
                                                         placeholder="e.g. New York"
                                                     />
                                                     <div className="input-icon">
-                                                        <i className="fas fa-city"></i>
+                                                        <Building size={16} />
                                                     </div>
                                                 </div>
                                                 {errors.city && <div className="error-message">{errors.city}</div>}
@@ -582,7 +603,7 @@ const AddJobPage = () => {
                                                         placeholder="e.g. NY, California"
                                                     />
                                                     <div className="input-icon">
-                                                        <i className="fas fa-map"></i>
+                                                        <Map size={16} />
                                                     </div>
                                                 </div>
                                                 {errors.state && <div className="error-message">{errors.state}</div>}
@@ -610,7 +631,7 @@ const AddJobPage = () => {
                                                         placeholder="e.g. United States"
                                                     />
                                                     <div className="input-icon">
-                                                        <i className="fas fa-globe"></i>
+                                                        <Globe size={16} />
                                                     </div>
                                                 </div>
                                                 {errors.country && <div className="error-message">{errors.country}</div>}
@@ -627,7 +648,7 @@ const AddJobPage = () => {
                                 <div className="section-header mb-4">
                                     <div className="section-icon-wrapper">
                                         <div className="section-icon">
-                                            <i className="fas fa-building"></i>
+                                            <Building2 size={20} />
                                         </div>
                                     </div>
                                     <div className="section-content">
@@ -658,11 +679,11 @@ const AddJobPage = () => {
                                                         placeholder="e.g. Google Inc., Microsoft Corporation"
                                                     />
                                                     <div className="input-icon">
-                                                        <i className="fas fa-building"></i>
+                                                        <Building2 size={16} />
                                                     </div>
                                                 </div>
-                                                <div className="form-help">
-                                                    <i className="fas fa-eye"></i>
+                                                <div className="form-help d-flex align-items-center">
+                                                    <Eye className="me-1" size={14} />
                                                     This will be displayed prominently on the job listing
                                                 </div>
                                                 {errors.companyName && <div className="error-message">{errors.companyName}</div>}
@@ -686,11 +707,11 @@ const AddJobPage = () => {
                                                         placeholder="https://company.com"
                                                     />
                                                     <div className="input-icon">
-                                                        <i className="fas fa-link"></i>
+                                                        <Link size={16} />
                                                     </div>
                                                 </div>
-                                                <div className="form-help">
-                                                    <i className="fas fa-external-link-alt"></i>
+                                                <div className="form-help d-flex align-items-center">
+                                                    <ExternalLink className="me-1" size={14} />
                                                     Help candidates learn more about your company
                                                 </div>
                                             </Form.Group>
@@ -709,19 +730,19 @@ const AddJobPage = () => {
                             <div className="footer-left">
                                 <Button 
                                     variant="outline-secondary" 
-                                    className="btn-back-enhanced"
+                                    className="btn-back-enhanced d-flex align-items-center"
                                     onClick={handleBack}
                                     disabled={loading}
                                 >
-                                    <i className="fas fa-arrow-left"></i>
+                                    <ArrowLeft size={18} className="me-2" />
                                     <span>Back to Dashboard</span>
                                 </Button>
                             </div>
                             
                             <div className="footer-center">
-                                <div className="reach-info">
-                                    <div className="reach-icon">
-                                        <i className="fas fa-users"></i>
+                                <div className="reach-info d-flex align-items-center">
+                                    <div className="reach-icon me-2">
+                                        <Users size={18} />
                                     </div>
                                     <div className="reach-content">
                                         <span className="reach-text">Reach over</span>
@@ -734,7 +755,7 @@ const AddJobPage = () => {
                             <div className="footer-right">
                                 <Button 
                                     type="submit" 
-                                    className="btn-post-enhanced"
+                                    className="btn-post-enhanced d-flex align-items-center"
                                     onClick={handleSubmit}
                                     disabled={loading}
                                 >
@@ -745,7 +766,7 @@ const AddJobPage = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <i className="fas fa-rocket"></i>
+                                            <Rocket size={18} className="me-2" />
                                             <span>Post Job Now</span>
                                         </>
                                     )}

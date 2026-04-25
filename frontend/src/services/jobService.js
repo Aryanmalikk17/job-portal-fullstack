@@ -73,7 +73,8 @@ export const createJob = async (jobData) => {
 export const getRecruiterJobs = async () => {
   try {
     const response = await api.get('jobs/recruiter');
-    return response.data;
+    // Extract data from ApiResponse wrapper
+    return response.data?.data || response.data;
   } catch (error) {
     console.error('Error fetching recruiter jobs:', error);
     throw error;

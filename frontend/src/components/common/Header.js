@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
 import { Navbar, Nav, Container, NavDropdown, Button } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { 
+    Home, 
+    LayoutDashboard, 
+    Heart, 
+    Briefcase, 
+    CircleUser, 
+    User, 
+    LogOut, 
+    LogIn, 
+    UserPlus 
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const Header = () => {
@@ -60,10 +71,10 @@ const Header = () => {
                             as={Link} 
                             to="/" 
                             onClick={closeNavbar}
-                            className={isActive('/') ? 'active' : ''}
+                            className={`d-flex align-items-center ${isActive('/') ? 'active' : ''}`}
                         >
-                            <i className="fa fa-home me-1"></i>
-                            Home
+                            <Home size={18} />
+                            <span>Home</span>
                         </Nav.Link>
                         
                         {isAuthenticated && (
@@ -72,10 +83,10 @@ const Header = () => {
                                     as={Link} 
                                     to={user?.userType === 'Recruiter' ? '/dashboard/recruiter' : '/dashboard/jobseeker'} 
                                     onClick={closeNavbar}
-                                    className={location.pathname.startsWith('/dashboard') ? 'active' : ''}
+                                    className={`d-flex align-items-center ${location.pathname.startsWith('/dashboard') ? 'active' : ''}`}
                                 >
-                                    <i className="fa fa-tachometer-alt me-1"></i>
-                                    Dashboard
+                                    <LayoutDashboard size={18} />
+                                    <span>Dashboard</span>
                                 </Nav.Link>
                                 
                                 {user?.userType === 'Job Seeker' && (
@@ -84,20 +95,20 @@ const Header = () => {
                                             as={Link} 
                                             to="/saved-jobs" 
                                             onClick={closeNavbar}
-                                            className={isActive('/saved-jobs') ? 'active' : ''}
+                                            className={`d-flex align-items-center ${isActive('/saved-jobs') ? 'active' : ''}`}
                                         >
-                                            <i className="fa fa-heart me-1"></i>
-                                            Saved Jobs
+                                            <Heart size={18} />
+                                            <span>Saved Jobs</span>
                                         </Nav.Link>
                                         
                                         <Nav.Link 
                                             as={Link} 
                                             to="/my-applications" 
                                             onClick={closeNavbar}
-                                            className={isActive('/my-applications') ? 'active' : ''}
+                                            className={`d-flex align-items-center ${isActive('/my-applications') ? 'active' : ''}`}
                                         >
-                                            <i className="fa fa-briefcase me-1"></i>
-                                            My Applications
+                                            <Briefcase size={18} />
+                                            <span>My Applications</span>
                                         </Nav.Link>
                                     </>
                                 )}
@@ -110,9 +121,9 @@ const Header = () => {
                         {isAuthenticated ? (
                             <NavDropdown 
                                 title={
-                                    <span className="text-white">
-                                        <i className="fa fa-user-circle me-1"></i>
-                                        {user?.firstName} {user?.lastName}
+                                    <span className="text-white d-flex align-items-center">
+                                        <CircleUser size={18} />
+                                        <span className="ms-2">{user?.firstName} {user?.lastName}</span>
                                     </span>
                                 } 
                                 id="user-dropdown"
@@ -123,7 +134,7 @@ const Header = () => {
                                     to="/profile" 
                                     onClick={closeNavbar}
                                 >
-                                    <i className="fa fa-user me-2"></i>
+                                    <User className="me-2" size={18} />
                                     My Profile
                                 </NavDropdown.Item>
                                 
@@ -132,14 +143,14 @@ const Header = () => {
                                     to={user?.userType === 'Recruiter' ? '/dashboard/recruiter' : '/dashboard/jobseeker'} 
                                     onClick={closeNavbar}
                                 >
-                                    <i className="fa fa-tachometer-alt me-2"></i>
+                                    <LayoutDashboard className="me-2" size={18} />
                                     Dashboard
                                 </NavDropdown.Item>
                                 
                                 <NavDropdown.Divider />
                                 
                                 <NavDropdown.Item onClick={handleLogout}>
-                                    <i className="fa fa-sign-out-alt me-2"></i>
+                                    <LogOut className="me-2" size={18} />
                                     Logout
                                 </NavDropdown.Item>
                             </NavDropdown>
@@ -149,11 +160,11 @@ const Header = () => {
                                     as={Link} 
                                     to="/login" 
                                     onClick={closeNavbar}
-                                    className="nav-btn me-2"
+                                    className="nav-btn p-0 me-3"
                                 >
-                                    <Button variant="outline-light" size="sm">
-                                        <i className="fa fa-sign-in-alt me-1"></i>
-                                        Login
+                                    <Button variant="outline-light" size="sm" className="d-flex align-items-center py-2 px-3">
+                                        <LogIn size={18} />
+                                        <span>Login</span>
                                     </Button>
                                 </Nav.Link>
                                 
@@ -161,11 +172,11 @@ const Header = () => {
                                     as={Link} 
                                     to="/register" 
                                     onClick={closeNavbar}
-                                    className="nav-btn"
+                                    className="nav-btn p-0"
                                 >
-                                    <Button variant="warning" size="sm">
-                                        <i className="fa fa-user-plus me-1"></i>
-                                        Register
+                                    <Button variant="warning" size="sm" className="d-flex align-items-center py-2 px-3">
+                                        <UserPlus size={18} />
+                                        <span>Register</span>
                                     </Button>
                                 </Nav.Link>
                             </>

@@ -8,19 +8,16 @@ import {
   TrendingUp, 
   Globe, 
   ShieldCheck, 
-  ChevronRight,
   Code,
   BarChart,
   Palette,
   Layers,
   ArrowRight
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 import './LandingPage.css';
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
 

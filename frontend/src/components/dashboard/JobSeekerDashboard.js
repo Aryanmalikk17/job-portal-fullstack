@@ -5,21 +5,17 @@ import { getAllJobsWithStatus } from '../../services/jobService';
 import StatsCard from './StatsCard';
 import ApplicationCard from './ApplicationCard';
 import JobCard from '../jobs/JobCard';
-import { Briefcase, Clock, CheckCircle, XCircle, Search } from 'lucide-react';
-import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
-
+import { Briefcase, Clock, CheckCircle2, XCircle, Search } from 'lucide-react';
 const JobSeekerDashboard = () => {
   const [applications, setApplications] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      setError(null);
       
       // Sequential Fetching: To prevent "Polling Storm" (503) on production
       let applicationsResponse = [];
@@ -43,7 +39,6 @@ const JobSeekerDashboard = () => {
       
     } catch (err) {
       console.error('Error loading dashboard:', err);
-      setError('Failed to load dashboard data. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -71,24 +66,24 @@ const JobSeekerDashboard = () => {
     }
   };
 
-  const filteredJobs = jobs.filter(job => 
-    job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.descriptionOfJob.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredJobs = jobs
+    .filter(j => j && (j.jobPostId || j.jobId || j.id))
+    .filter(job => 
+      job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.descriptionOfJob.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
 
   const stats = [
-    { label: 'Applied', value: applications.length, icon: <Briefcase />, color: 'blue' },
-    { label: 'Pending', value: applications.filter(a => a.status === 'PENDING').length, icon: <Clock />, color: 'orange' },
-    { label: 'Accepted', value: applications.filter(a => a.status === 'ACCEPTED').length, icon: <CheckCircle />, color: 'green' },
-    { label: 'Rejected', value: applications.filter(a => a.status === 'REJECTED').length, icon: <XCircle />, color: 'red' },
+    { title: 'Applied', value: applications.length, icon: Briefcase, color: 'primary' },
+    { title: 'Pending', value: applications.filter(a => a.status === 'PENDING').length, icon: Clock, color: 'warning' },
+    { title: 'Accepted', value: applications.filter(a => a.status === 'ACCEPTED').length, icon: CheckCircle2, color: 'success' },
+    { title: 'Rejected', value: applications.filter(a => a.status === 'REJECTED').length, icon: XCircle, color: 'danger' },
   ];
 
   if (loading && applications.length === 0) {
     return <div className="dashboard-loading">Loading your dashboard...</div>;
   }
-
-  // Ensure the mapping handles both job.id and job.jobId depending on the backend response
-  const validJobs = jobs.filter(j => j && (j.id || j.jobId));
 
   return (
     <div className="dashboard-container">
@@ -137,12 +132,12 @@ const JobSeekerDashboard = () => {
             </div>
           </div>
           <div className="jobs-grid">
-            {validJobs.length > 0 ? (
-              validJobs.slice(0, 6).map(job => (
+            {filteredJobs.length > 0 ? (
+              filteredJobs.slice(0, 6).map(job => (
                 <JobCard 
-                  key={job.jobId || job.id} 
+                  key={job.jobPostId || job.id} 
                   job={job} 
-                  onApply={() => handleApply(job.jobId || job.id)}
+                  onApply={() => handleApply(job.jobPostId || job.id)}
                   isApplied={job.applicationStatus !== null}
                 />
               ))

@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Form, Button, Alert, InputGroup } from 'react-bootstrap';
+import { Row, Col, Button, Form, Alert, InputGroup } from 'react-bootstrap';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { 
+    Rocket, 
+    Heart, 
+    Bell, 
+    CircleUser, 
+    AlertTriangle, 
+    Mail, 
+    Lock, 
+    Eye, 
+    EyeOff, 
+    LogIn, 
+    ArrowLeft 
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
@@ -24,7 +37,7 @@ const LoginPage = () => {
             const from = location.state?.from?.pathname || '/dashboard';
             navigate(from, { replace: true });
         }
-    }, [isAuthenticated, isLoading]);
+    }, [isAuthenticated, isLoading, location.state?.from?.pathname, navigate]);
 
     // Clear errors when component mounts
     useEffect(() => {
@@ -161,7 +174,7 @@ const LoginPage = () => {
                                 <div className="auth-features">
                                     <div className="feature-item">
                                         <div className="feature-icon">
-                                            <i className="fa fa-rocket"></i>
+                                            <Rocket size={24} />
                                         </div>
                                         <div className="feature-text">
                                             <h6>Quick Access</h6>
@@ -170,7 +183,7 @@ const LoginPage = () => {
                                     </div>
                                     <div className="feature-item">
                                         <div className="feature-icon">
-                                            <i className="fa fa-heart"></i>
+                                            <Heart size={24} />
                                         </div>
                                         <div className="feature-text">
                                             <h6>Saved Jobs</h6>
@@ -179,7 +192,7 @@ const LoginPage = () => {
                                     </div>
                                     <div className="feature-item">
                                         <div className="feature-icon">
-                                            <i className="fa fa-bell"></i>
+                                            <Bell size={24} />
                                         </div>
                                         <div className="feature-text">
                                             <h6>Smart Alerts</h6>
@@ -203,11 +216,9 @@ const LoginPage = () => {
                                     </h3>
                                 </div>
                                 
-                                <div className="auth-form-header">
-                                    <div className="text-center mb-4">
-                                        <div className="login-avatar mb-3">
-                                            <i className="fa fa-user-circle fa-4x text-primary"></i>
-                                        </div>
+                                <div className="auth-form-header text-center">
+                                    <div className="login-avatar mb-3">
+                                        <CircleUser size={64} className="text-primary" />
                                     </div>
                                     <h2 className="auth-title">Welcome Back</h2>
                                     <p className="auth-subtitle">Sign in to your account to continue</p>
@@ -215,8 +226,8 @@ const LoginPage = () => {
                                 
                                 {/* Global Error Alert */}
                                 {(error || localError) && (
-                                    <Alert variant="danger" className="alert-custom alert-error">
-                                        <i className="fa fa-exclamation-triangle me-2"></i>
+                                    <Alert variant="danger" className="alert-custom alert-error d-flex align-items-center">
+                                        <AlertTriangle className="me-2" size={18} />
                                         {localError || error}
                                     </Alert>
                                 )}
@@ -230,7 +241,7 @@ const LoginPage = () => {
                                         <Form.Label>Email Address</Form.Label>
                                         <InputGroup>
                                             <span className="input-group-text">
-                                                <i className="fa fa-envelope"></i>
+                                                <Mail size={18} />
                                             </span>
                                             <Form.Control
                                                 type="email"
@@ -249,11 +260,6 @@ const LoginPage = () => {
                                                 {validationErrors.email}
                                             </div>
                                         )}
-                                        {formData.email && !validationErrors.email && /\S+@\S+\.\S+/.test(formData.email) && (
-                                            <div className="valid-feedback d-block">
-                                                Email format is valid
-                                            </div>
-                                        )}
                                     </Form.Group>
                                     
                                     {/* Password Field */}
@@ -261,7 +267,7 @@ const LoginPage = () => {
                                         <Form.Label>Password</Form.Label>
                                         <InputGroup>
                                             <span className="input-group-text">
-                                                <i className="fa fa-lock"></i>
+                                                <Lock size={18} />
                                             </span>
                                             <Form.Control
                                                 type={showPassword ? 'text' : 'password'}
@@ -278,8 +284,9 @@ const LoginPage = () => {
                                                 variant="outline-secondary" 
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
+                                                className="d-flex align-items-center"
                                             >
-                                                <i className={`fa ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </Button>
                                         </InputGroup>
                                         {validationErrors.password && (
@@ -308,13 +315,14 @@ const LoginPage = () => {
                                     <Button
                                         type="submit"
                                         variant="primary"
-                                        className="auth-btn w-100 mb-3"
+                                        className="auth-btn w-100 mb-3 d-flex align-items-center justify-content-center"
                                         disabled={isLoading}
                                     >
-                                        {isLoading && (
-                                            <div className="loading-spinner me-2" style={{ display: 'inline-block' }}></div>
+                                        {isLoading ? (
+                                            <div className="loading-spinner me-2" style={{ width: '1rem', height: '1rem' }}></div>
+                                        ) : (
+                                            <LogIn className="me-2" size={18} />
                                         )}
-                                        {!isLoading && <i className="fa fa-sign-in-alt me-2"></i>}
                                         {isLoading ? 'Signing In...' : 'Sign In'}
                                     </Button>
                                     
@@ -335,9 +343,9 @@ const LoginPage = () => {
                                 <div className="text-center mt-4">
                                     <Link 
                                         to="/" 
-                                        className="back-to-home-link"
+                                        className="back-to-home-link d-inline-flex align-items-center"
                                     >
-                                        <i className="fa fa-arrow-left me-2"></i>
+                                        <ArrowLeft className="me-2" size={18} />
                                         Back to Home
                                     </Link>
                                 </div>

@@ -1,5 +1,21 @@
 import React from 'react';
 import { Card, Badge, Button, Row, Col } from 'react-bootstrap';
+import { 
+    Mail, 
+    Briefcase, 
+    Building2, 
+    CalendarPlus, 
+    Clock, 
+    Eye, 
+    X, 
+    Search, 
+    Calendar, 
+    Handshake, 
+    Gift, 
+    UserCheck, 
+    ArrowRight, 
+    MoreHorizontal 
+} from 'lucide-react';
 
 import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
 
@@ -32,35 +48,37 @@ const ApplicationCard = ({
               style={{ borderStartColor: getStatusColor(application.status) === 'success' ? '#198754' : 
                                        getStatusColor(application.status) === 'danger' ? '#dc3545' : 
                                        getStatusColor(application.status) === 'warning' ? '#ffc107' : '#0d6efd' }}>
-            <Card.Body>
+            <Card.Body className="d-flex flex-column">
                 {/* Header */}
                 <div className="d-flex justify-content-between align-items-start mb-3">
                     <div className="flex-grow-1">
                         <h6 className="card-title mb-1 fw-bold">
                             {application.applicantName}
                         </h6>
-                        <p className="text-muted mb-0 small">
-                            <i className="fas fa-envelope me-1"></i>
+                        <p className="text-muted mb-0 small d-flex align-items-center">
+                            <Mail className="me-1" size={14} />
                             {application.applicantEmail}
                         </p>
                     </div>
                     <Badge 
                         bg={getStatusColor(application.status)}
-                        className="status-badge"
+                        className="status-badge d-flex align-items-center"
                     >
-                        <i className={`fa ${getStatusIcon(application.status)} me-1`}></i>
+                        <span className="me-1 d-flex align-items-center">
+                            {getStatusIcon(application.status, 12)}
+                        </span>
                         {getStatusLabel(application.status)}
                     </Badge>
                 </div>
 
                 {/* Job Information */}
                 <div className="job-info mb-3">
-                    <p className="mb-1 fw-semibold text-primary">
-                        <i className="fas fa-briefcase me-1"></i>
+                    <p className="mb-1 fw-semibold text-primary d-flex align-items-center">
+                        <Briefcase className="me-1" size={14} />
                         {application.jobTitle}
                     </p>
-                    <p className="mb-0 small text-muted">
-                        <i className="fas fa-building me-1"></i>
+                    <p className="mb-0 small text-muted d-flex align-items-center">
+                        <Building2 className="me-1" size={14} />
                         {application.companyName}
                     </p>
                 </div>
@@ -68,12 +86,12 @@ const ApplicationCard = ({
                 {/* Application Details */}
                 <div className="application-meta mb-3">
                     <Row className="g-2 small text-muted">
-                        <Col xs={6}>
-                            <i className="fas fa-calendar-plus me-1"></i>
+                        <Col xs={6} className="d-flex align-items-center">
+                            <CalendarPlus className="me-1" size={14} />
                             Applied: {formatDate(application.applyDate)}
                         </Col>
-                        <Col xs={6}>
-                            <i className="fas fa-clock me-1"></i>
+                        <Col xs={6} className="d-flex align-items-center">
+                            <Clock className="me-1" size={14} />
                             Updated: {formatDate(application.lastUpdated)}
                         </Col>
                     </Row>
@@ -106,42 +124,43 @@ const ApplicationCard = ({
                 )}
 
                 {/* Action Buttons */}
-                <div className="d-flex justify-content-between align-items-center mt-auto">
+                <div className="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
                     <Button
                         variant="outline-primary"
                         size="sm"
                         onClick={() => onViewDetails(application)}
-                        className="me-2"
+                        className="me-2 d-flex align-items-center"
                     >
-                        <i className="fas fa-eye me-1"></i>
+                        <Eye className="me-1" size={14} />
                         View Details
                     </Button>
 
                     {quickActions.length > 0 && (
-                        <div className="quick-actions">
+                        <div className="quick-actions d-flex align-items-center">
                             {quickActions.slice(0, 2).map((action, index) => (
                                 <Button
                                     key={action}
                                     variant={action === 'REJECTED' ? 'outline-danger' : 'outline-success'}
                                     size="sm"
-                                    className="me-1"
+                                    className="me-1 d-flex align-items-center justify-content-center"
                                     onClick={() => onUpdateStatus(application)}
                                     title={`Mark as ${action.replace(/_/g, ' ')}`}
+                                    style={{ width: '32px', height: '32px' }}
                                 >
                                     {action === 'REJECTED' ? (
-                                        <i className="fas fa-times"></i>
+                                        <X size={16} />
                                     ) : action === 'UNDER_REVIEW' ? (
-                                        <i className="fas fa-search"></i>
+                                        <Search size={16} />
                                     ) : action === 'INTERVIEW_SCHEDULED' ? (
-                                        <i className="fas fa-calendar"></i>
+                                        <Calendar size={16} />
                                     ) : action === 'INTERVIEWED' ? (
-                                        <i className="fas fa-handshake"></i>
+                                        <Handshake size={16} />
                                     ) : action === 'OFFERED' ? (
-                                        <i className="fas fa-gift"></i>
+                                        <Gift size={16} />
                                     ) : action === 'HIRED' ? (
-                                        <i className="fas fa-user-check"></i>
+                                        <UserCheck size={16} />
                                     ) : (
-                                        <i className="fas fa-arrow-right"></i>
+                                        <ArrowRight size={16} />
                                     )}
                                 </Button>
                             ))}
@@ -151,8 +170,10 @@ const ApplicationCard = ({
                                     size="sm"
                                     onClick={() => onUpdateStatus(application)}
                                     title="More actions"
+                                    className="d-flex align-items-center justify-content-center"
+                                    style={{ width: '32px', height: '32px' }}
                                 >
-                                    <i className="fas fa-ellipsis-h"></i>
+                                    <MoreHorizontal size={16} />
                                 </Button>
                             )}
                         </div>
@@ -164,36 +185,47 @@ const ApplicationCard = ({
                 .application-card {
                     transition: all 0.3s ease;
                     cursor: pointer;
+                    border: 1px solid #eee;
                 }
                 
                 .application-card:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                 }
                 
                 .status-badge {
                     font-size: 0.7rem;
                     padding: 0.25rem 0.5rem;
+                    font-weight: 500;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
                 }
                 
                 .quick-actions .btn {
-                    padding: 0.25rem 0.5rem;
+                    padding: 0;
+                    border-radius: 50%;
+                    transition: all 0.2s ease;
+                }
+                
+                .quick-actions .btn:hover {
+                    transform: scale(1.1);
                 }
                 
                 .cover-letter-preview,
                 .recruiter-notes-preview {
                     background: #f8f9fa;
-                    padding: 0.5rem;
-                    border-radius: 0.375rem;
+                    padding: 0.75rem;
+                    border-radius: 0.5rem;
                     border-left: 3px solid #dee2e6;
                 }
                 
                 .recruiter-notes-preview {
                     border-left-color: #0d6efd;
+                    background: #f0f7ff;
                 }
                 
                 .application-meta .col-6 {
-                    font-size: 0.8rem;
+                    font-size: 0.75rem;
                 }
             `}</style>
         </Card>

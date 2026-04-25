@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Form, Button, Dropdown, Badge } from 'react-bootstrap';
+import { Search, Filter, ArrowUpDown, Check, X } from 'lucide-react';
 
 const SavedJobsFilter = ({ onFilterChange, totalJobs, appliedFilters }) => {
     const [filters, setFilters] = useState({
@@ -92,27 +93,32 @@ const SavedJobsFilter = ({ onFilterChange, totalJobs, appliedFilters }) => {
                 <Col md={6}>
                     <div className="search-section">
                         <Form.Group className="mb-0">
-                            <div className="search-input-wrapper">
+                            <div className="search-input-wrapper position-relative">
                                 <Form.Control
                                     type="text"
                                     placeholder="Search saved jobs by title, company, or location..."
                                     value={filters.search}
                                     onChange={(e) => handleFilterChange('search', e.target.value)}
                                     className="search-input"
+                                    style={{ paddingLeft: '40px' }}
                                 />
-                                <i className="fas fa-search search-icon"></i>
+                                <Search 
+                                    size={18} 
+                                    className="search-icon position-absolute text-muted" 
+                                    style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }} 
+                                />
                             </div>
                         </Form.Group>
                     </div>
                 </Col>
                 <Col md={6}>
-                    <div className="filter-actions">
+                    <div className="filter-actions d-flex gap-2 justify-content-md-end mt-3 mt-md-0">
                         <Button
                             variant="outline-secondary"
                             onClick={() => setShowAdvanced(!showAdvanced)}
-                            className="advanced-filter-btn"
+                            className="advanced-filter-btn d-inline-flex align-items-center"
                         >
-                            <i className="fas fa-filter me-2"></i>
+                            <Filter size={16} className="me-2" />
                             Filters
                             {getActiveFilterCount() > 0 && (
                                 <Badge bg="primary" className="ms-2">
@@ -122,8 +128,8 @@ const SavedJobsFilter = ({ onFilterChange, totalJobs, appliedFilters }) => {
                         </Button>
 
                         <Dropdown className="sort-dropdown">
-                            <Dropdown.Toggle variant="outline-primary" className="sort-btn">
-                                <i className="fas fa-sort me-2"></i>
+                            <Dropdown.Toggle variant="outline-primary" className="sort-btn d-inline-flex align-items-center">
+                                <ArrowUpDown size={16} className="me-2" />
                                 Sort By
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
@@ -131,11 +137,11 @@ const SavedJobsFilter = ({ onFilterChange, totalJobs, appliedFilters }) => {
                                     <Dropdown.Item
                                         key={option.value}
                                         onClick={() => handleSortChange(option.value)}
-                                        className={getCurrentSortValue() === option.value ? 'active' : ''}
+                                        className={`d-flex align-items-center justify-content-between ${getCurrentSortValue() === option.value ? 'active' : ''}`}
                                     >
                                         {option.label}
                                         {getCurrentSortValue() === option.value && (
-                                            <i className="fas fa-check ms-2 text-primary"></i>
+                                            <Check size={14} className="ms-2 text-primary" />
                                         )}
                                     </Dropdown.Item>
                                 ))}
@@ -146,9 +152,9 @@ const SavedJobsFilter = ({ onFilterChange, totalJobs, appliedFilters }) => {
                             <Button
                                 variant="outline-danger"
                                 onClick={clearFilters}
-                                className="clear-filters-btn"
+                                className="clear-filters-btn d-inline-flex align-items-center"
                             >
-                                <i className="fas fa-times me-2"></i>
+                                <X size={16} className="me-2" />
                                 Clear
                             </Button>
                         )}
@@ -157,11 +163,11 @@ const SavedJobsFilter = ({ onFilterChange, totalJobs, appliedFilters }) => {
             </Row>
 
             {showAdvanced && (
-                <div className="advanced-filters">
+                <div className="advanced-filters p-4 bg-light rounded-3 mt-3 border">
                     <Row>
                         <Col md={3}>
-                            <Form.Group className="mb-3">
-                                <Form.Label className="filter-label">Job Type</Form.Label>
+                            <Form.Group className="mb-3 mb-md-0">
+                                <Form.Label className="filter-label fw-bold small text-uppercase text-muted">Job Type</Form.Label>
                                 <Form.Select
                                     value={filters.type}
                                     onChange={(e) => handleFilterChange('type', e.target.value)}
@@ -177,8 +183,8 @@ const SavedJobsFilter = ({ onFilterChange, totalJobs, appliedFilters }) => {
                         </Col>
 
                         <Col md={3}>
-                            <Form.Group className="mb-3">
-                                <Form.Label className="filter-label">Location Type</Form.Label>
+                            <Form.Group className="mb-3 mb-md-0">
+                                <Form.Label className="filter-label fw-bold small text-uppercase text-muted">Location Type</Form.Label>
                                 <Form.Select
                                     value={filters.remote}
                                     onChange={(e) => handleFilterChange('remote', e.target.value)}
@@ -194,8 +200,8 @@ const SavedJobsFilter = ({ onFilterChange, totalJobs, appliedFilters }) => {
                         </Col>
 
                         <Col md={3}>
-                            <Form.Group className="mb-3">
-                                <Form.Label className="filter-label">Application Status</Form.Label>
+                            <Form.Group className="mb-3 mb-md-0">
+                                <Form.Label className="filter-label fw-bold small text-uppercase text-muted">Application Status</Form.Label>
                                 <Form.Select
                                     value={filters.applied}
                                     onChange={(e) => handleFilterChange('applied', e.target.value)}
@@ -212,8 +218,8 @@ const SavedJobsFilter = ({ onFilterChange, totalJobs, appliedFilters }) => {
 
                         <Col md={3}>
                             <div className="filter-summary">
-                                <Form.Label className="filter-label">Results</Form.Label>
-                                <div className="results-count">
+                                <Form.Label className="filter-label fw-bold small text-uppercase text-muted">Results</Form.Label>
+                                <div className="results-count py-2">
                                     <strong>{totalJobs}</strong> saved jobs
                                 </div>
                             </div>
@@ -221,46 +227,46 @@ const SavedJobsFilter = ({ onFilterChange, totalJobs, appliedFilters }) => {
                     </Row>
 
                     {getActiveFilterCount() > 0 && (
-                        <div className="active-filters">
-                            <span className="active-filters-label">Active Filters:</span>
+                        <div className="active-filters mt-3 pt-3 border-top d-flex flex-wrap align-items-center gap-2">
+                            <span className="active-filters-label small text-muted">Active Filters:</span>
                             {filters.search && (
                                 <Badge 
                                     bg="primary" 
-                                    className="filter-badge"
+                                    className="filter-badge d-inline-flex align-items-center px-3 py-2 cursor-pointer"
                                     onClick={() => handleFilterChange('search', '')}
                                 >
                                     Search: "{filters.search}"
-                                    <i className="fas fa-times ms-1"></i>
+                                    <X size={12} className="ms-1" />
                                 </Badge>
                             )}
                             {filters.type && (
                                 <Badge 
                                     bg="primary" 
-                                    className="filter-badge"
+                                    className="filter-badge d-inline-flex align-items-center px-3 py-2 cursor-pointer"
                                     onClick={() => handleFilterChange('type', '')}
                                 >
                                     Type: {filters.type}
-                                    <i className="fas fa-times ms-1"></i>
+                                    <X size={12} className="ms-1" />
                                 </Badge>
                             )}
                             {filters.remote && (
                                 <Badge 
                                     bg="primary" 
-                                    className="filter-badge"
+                                    className="filter-badge d-inline-flex align-items-center px-3 py-2 cursor-pointer"
                                     onClick={() => handleFilterChange('remote', '')}
                                 >
                                     Location: {filters.remote === 'true' ? 'Remote' : 'On-site'}
-                                    <i className="fas fa-times ms-1"></i>
+                                    <X size={12} className="ms-1" />
                                 </Badge>
                             )}
                             {filters.applied && (
                                 <Badge 
                                     bg="primary" 
-                                    className="filter-badge"
+                                    className="filter-badge d-inline-flex align-items-center px-3 py-2 cursor-pointer"
                                     onClick={() => handleFilterChange('applied', '')}
                                 >
                                     Status: {filters.applied === 'true' ? 'Applied' : 'Not Applied'}
-                                    <i className="fas fa-times ms-1"></i>
+                                    <X size={12} className="ms-1" />
                                 </Badge>
                             )}
                         </div>

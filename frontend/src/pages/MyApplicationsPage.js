@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { Briefcase, ArrowLeft, Search, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ApplicationStatusManager from '../components/applications/ApplicationStatusManager';
 
@@ -15,28 +16,29 @@ const MyApplicationsPage = () => {
                     <Col>
                         <div className="page-header d-flex justify-content-between align-items-center">
                             <div>
-                                <h2 className="page-title mb-1">
-                                    <i className="fa fa-briefcase me-2"></i>
+                                <h2 className="page-title mb-1 d-flex align-items-center">
+                                    <Briefcase size={24} className="me-2 text-primary" />
                                     My Job Applications
                                 </h2>
                                 <p className="page-subtitle text-muted mb-0">
                                     Track the status of your job applications and view updates from recruiters
                                 </p>
                             </div>
-                            <div className="page-actions">
+                            <div className="page-actions d-flex">
                                 <Button 
                                     variant="outline-secondary" 
-                                    className="me-2"
+                                    className="me-2 d-flex align-items-center"
                                     onClick={() => navigate('/dashboard')}
                                 >
-                                    <i className="fa fa-arrow-left me-2"></i>
+                                    <ArrowLeft size={18} className="me-2" />
                                     Back to Dashboard
                                 </Button>
                                 <Button 
                                     variant="primary"
+                                    className="d-flex align-items-center"
                                     onClick={() => navigate('/')}
                                 >
-                                    <i className="fa fa-search me-2"></i>
+                                    <Search size={18} className="me-2" />
                                     Find Jobs
                                 </Button>
                             </div>
@@ -52,9 +54,9 @@ const MyApplicationsPage = () => {
                                 userId={user.userId} 
                             />
                         ) : (
-                            <Card>
+                            <Card className="border-0 shadow-sm">
                                 <Card.Body className="text-center py-5">
-                                    <i className="fa fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                    <AlertTriangle size={48} className="text-warning mb-3" />
                                     <h4>Authentication Required</h4>
                                     <p className="text-muted">Please log in to view your applications.</p>
                                     <Button variant="primary" onClick={() => navigate('/login')}>

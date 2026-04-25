@@ -6,31 +6,43 @@ import {
 } from '../../services/jobService';
 import { 
     getRecruiterApplications, 
-    getRecruiterStatistics,
-    updateApplicationStatus 
+    getRecruiterStatistics 
 } from '../../services/applicationService';
 import LoadingSpinner from '../common/LoadingSpinner';
-import ApplicationStatusManager from '../applications/ApplicationStatusManager'; 
-import ApplicationCard from './ApplicationCard';
-import ApplicationDetailsModal from './ApplicationDetailsModal';
-import StatusUpdateModal from './StatusUpdateModal';
+import ApplicationStatusManager from '../applications/ApplicationStatusManager';
+import StatsCard from './StatsCard';
+import { 
+    Plus, 
+    Briefcase, 
+    Users, 
+    Calendar, 
+    UserCheck, 
+    AlertCircle,
+    Eye,
+    Edit,
+    FileText,
+    MapPin,
+    Home,
+    DollarSign,
+    AlertTriangle,
+    RefreshCcw,
+    Building2,
+    ChevronRight,
+    TrendingUp
+} from 'lucide-react';
 
 const RecruiterDashboard = ({ user }) => {
     const navigate = useNavigate();
     
     // State management
     const [applications, setApplications] = useState([]);
-    const [filteredApplications, setFilteredApplications] = useState([]);
     const [statistics, setStatistics] = useState({});
     const [postedJobs, setPostedJobs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [jobsLoading, setJobsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('all');
     const [mainTab, setMainTab] = useState('jobs'); 
-    const [selectedApplication, setSelectedApplication] = useState(null);
-    const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [showStatusModal, setShowStatusModal] = useState(false);
+
 
     // Load initial data
     useEffect(() => {
@@ -60,7 +72,6 @@ const RecruiterDashboard = ({ user }) => {
             setApplications(Array.isArray(response) ? response : []);
         } catch (err) {
             console.error('Error loading applications:', err);
-            // Don't throw, just log
         }
     };
 
@@ -85,58 +96,7 @@ const RecruiterDashboard = ({ user }) => {
         }
     };
 
-    const filterApplications = () => {
-        if (activeTab === 'all') {
-            setFilteredApplications(applications);
-        } else {
-            const filtered = applications.filter(app => app.status === activeTab);
-            setFilteredApplications(filtered);
-        }
-    };
 
-    // Filter applications when tab changes
-    useEffect(() => {
-        filterApplications();
-    }, [applications, activeTab]);
-
-    const handleViewDetails = (application) => {
-        setSelectedApplication(application);
-        setShowDetailsModal(true);
-    };
-
-    const handleUpdateStatus = (application) => {
-        setSelectedApplication(application);
-        setShowStatusModal(true);
-    };
-
-    const handleStatusUpdated = async (applicationId, newStatus, notes) => {
-        try {
-            // Update status via API - FIXED: Use named import
-            await updateApplicationStatus(applicationId, {
-                status: newStatus,
-                recruiterNotes: notes
-            });
-
-            // Update local state
-            setApplications(prev => 
-                prev.map(app => 
-                    app.id === applicationId 
-                        ? { ...app, status: newStatus, recruiterNotes: notes, lastUpdated: new Date().toISOString() }
-                        : app
-                )
-            );
-
-            // Refresh statistics
-            loadStatistics();
-
-            setShowStatusModal(false);
-            setSelectedApplication(null);
-
-        } catch (error) {
-            console.error('Error updating application status:', error);
-            setError('Failed to update application status: ' + (error.message || 'Unknown error'));
-        }
-    };
 
     // New function to handle job actions
     const handleViewJobDetails = (jobId) => {
@@ -149,22 +109,9 @@ const RecruiterDashboard = ({ user }) => {
 
     const handleViewJobApplications = (jobId) => {
         setMainTab('applications');
-        // You could also filter applications by job ID here
     };
 
-    const getStatusBadgeVariant = (status) => {
-        const statusMap = {
-            'APPLIED': 'primary',
-            'UNDER_REVIEW': 'info',
-            'INTERVIEW_SCHEDULED': 'warning',
-            'INTERVIEWED': 'secondary',
-            'OFFERED': 'success',
-            'HIRED': 'success',
-            'REJECTED': 'danger',
-            'WITHDRAWN': 'secondary'
-        };
-        return statusMap[status] || 'secondary';
-    };
+
 
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
@@ -173,8 +120,8 @@ const RecruiterDashboard = ({ user }) => {
     };
 
     const getJobStatus = (job) => {
-        // You can customize this based on your job model
-        return job.active ? 'Active' : 'Inactive';
+        const isActive = job.isActive !== undefined ? job.isActive : job.active;
+        return isActive ? 'Active' : 'Inactive';
     };
 
     if (loading) {
@@ -182,98 +129,89 @@ const RecruiterDashboard = ({ user }) => {
     }
 
     return (
-        <div className="recruiter-dashboard">
+        <div className="recruiter-dashboard container-fluid px-4 py-5">
             {/* Welcome Header */}
-            <div className="dashboard-header mb-4">
-                <Row>
-                    <Col>
-                        <Card className="welcome-card">
-                            <Card.Body className="p-4">
-                                <Row className="align-items-center">
-                                    <Col md={8}>
-                                        <div className="welcome-content">
-                                            <h2 className="welcome-title mb-2">
-                                                Welcome back, {user?.firstName}! 👋
-                                            </h2>
-                                            <p className="welcome-subtitle mb-0">
-                                                Manage your job postings and applications to find the best candidates
-                                            </p>
-                                        </div>
-                                    </Col>
-                                    <Col md={4} className="text-end">
-                                        <Button
-                                            variant="primary"
-                                            onClick={() => navigate('/jobs/create')}
-                                            className="me-2"
-                                        >
-                                            <i className="fas fa-plus me-2"></i>
-                                            Post New Job
-                                        </Button>
-                                    </Col>
-                                </Row>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
+            <div className="dashboard-header mb-5">
+                <Card className="welcome-card border-0 shadow-sm overflow-hidden rounded-4">
+                    <Card.Body className="p-0">
+                        <Row className="g-0">
+                            <Col md={8} className="p-5">
+                                <div className="welcome-content">
+                                    <Badge bg="soft-primary" className="text-primary mb-3 px-3 py-2 rounded-pill fw-bold">
+                                        <TrendingUp size={14} className="me-2" /> Recruiter Insights
+                                    </Badge>
+                                    <h1 className="display-5 fw-bold text-dark mb-2">
+                                        Welcome back, {user?.firstName}! 👋
+                                    </h1>
+                                    <p className="lead text-muted mb-0">
+                                        Your talent acquisition hub is ready. Manage job postings and track candidate progress.
+                                    </p>
+                                </div>
+                            </Col>
+                            <Col md={4} className="welcome-action-col d-flex align-items-center justify-content-center p-5 bg-light border-start">
+                                <Button
+                                    variant="primary"
+                                    onClick={() => navigate('/jobs/create')}
+                                    className="d-flex align-items-center px-4 py-3 shadow rounded-3 fw-bold"
+                                    size="lg"
+                                >
+                                    <Plus className="me-2" size={24} />
+                                    Post a New Job
+                                </Button>
+                            </Col>
+                        </Row>
+                    </Card.Body>
+                </Card>
             </div>
 
             {/* Enhanced Statistics Cards */}
-            <Row className="mb-4">
-                <Col md={3} sm={6} className="mb-3">
-                    <Card className="stats-card">
-                        <Card.Body className="text-center">
-                            <div className="stats-icon mb-2">
-                                <i className="fas fa-briefcase fa-2x text-primary"></i>
-                            </div>
-                            <h3 className="stats-number mb-1">{postedJobs.length || 0}</h3>
-                            <p className="stats-label mb-0">Posted Jobs</p>
-                        </Card.Body>
-                    </Card>
+            <Row className="mb-5 g-4">
+                <Col lg={3} sm={6}>
+                    <StatsCard 
+                        title="Posted Jobs" 
+                        value={postedJobs.length || 0} 
+                        icon={Briefcase} 
+                        color="primary" 
+                    />
                 </Col>
-                <Col md={3} sm={6} className="mb-3">
-                    <Card className="stats-card">
-                        <Card.Body className="text-center">
-                            <div className="stats-icon mb-2">
-                                <i className="fas fa-users fa-2x text-info"></i>
-                            </div>
-                            <h3 className="stats-number mb-1">{statistics.totalApplications || 0}</h3>
-                            <p className="stats-label mb-0">Total Applications</p>
-                        </Card.Body>
-                    </Card>
+                <Col lg={3} sm={6}>
+                    <StatsCard 
+                        title="Total Applications" 
+                        value={statistics.totalApplications || 0} 
+                        icon={Users} 
+                        color="info" 
+                    />
                 </Col>
-                <Col md={3} sm={6} className="mb-3">
-                    <Card className="stats-card">
-                        <Card.Body className="text-center">
-                            <div className="stats-icon mb-2">
-                                <i className="fas fa-calendar-check fa-2x text-warning"></i>
-                            </div>
-                            <h3 className="stats-number mb-1">{statistics.INTERVIEW_SCHEDULED || 0}</h3>
-                            <p className="stats-label mb-0">Interviews Scheduled</p>
-                        </Card.Body>
-                    </Card>
+                <Col lg={3} sm={6}>
+                    <StatsCard 
+                        title="Interviews" 
+                        value={statistics.INTERVIEW_SCHEDULED || 0} 
+                        icon={Calendar} 
+                        color="warning" 
+                    />
                 </Col>
-                <Col md={3} sm={6} className="mb-3">
-                    <Card className="stats-card">
-                        <Card.Body className="text-center">
-                            <div className="stats-icon mb-2">
-                                <i className="fas fa-user-check fa-2x text-success"></i>
-                            </div>
-                            <h3 className="stats-number mb-1">{statistics.HIRED || 0}</h3>
-                            <p className="stats-label mb-0">Hired</p>
-                        </Card.Body>
-                    </Card>
+                <Col lg={3} sm={6}>
+                    <StatsCard 
+                        title="Hired" 
+                        value={statistics.HIRED || 0} 
+                        icon={UserCheck} 
+                        color="success" 
+                    />
                 </Col>
             </Row>
 
             {/* Error Message */}
             {error && (
-                <Alert variant="danger" className="mb-4">
-                    <i className="fas fa-exclamation-circle me-2"></i>
-                    {error}
+                <Alert variant="danger" className="mb-4 border-0 shadow-sm d-flex align-items-center rounded-3">
+                    <AlertCircle className="me-3" size={24} />
+                    <div className="flex-grow-1">
+                        <h6 className="mb-0 fw-bold">Dashboard Error</h6>
+                        <p className="mb-0 small">{error}</p>
+                    </div>
                     <Button
                         variant="outline-danger"
                         size="sm"
-                        className="ms-2"
+                        className="ms-3 px-3"
                         onClick={loadApplicationsData}
                     >
                         Try Again
@@ -282,123 +220,123 @@ const RecruiterDashboard = ({ user }) => {
             )}
 
             {/* Main Dashboard Tabs */}
-            <Card className="dashboard-main-card">
-                <Card.Header>
+            <Card className="dashboard-main-card border-0 shadow-sm rounded-4 overflow-hidden">
+                <Card.Header className="bg-white border-0 p-0">
                     <Tabs
                         activeKey={mainTab}
                         onSelect={(key) => setMainTab(key)}
-                        className="dashboard-main-tabs"
+                        className="dashboard-main-tabs d-flex border-bottom"
                     >
                         <Tab eventKey="jobs" title={
-                            <span>
-                                <i className="fas fa-briefcase me-2"></i>
+                            <div className="d-flex align-items-center">
+                                <Briefcase className="me-2" size={18} />
                                 My Posted Jobs
-                                <Badge bg="primary" className="ms-2">{postedJobs.length}</Badge>
-                            </span>
+                                <Badge bg="soft-primary" className="text-primary ms-2 px-2 py-1">{postedJobs.length}</Badge>
+                            </div>
                         }>
                             {/* Posted Jobs Content */}
-                            <div className="p-3">
-                                <div className="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 className="mb-0">Your Job Postings</h5>
+                            <div className="p-4">
+                                <div className="d-flex justify-content-between align-items-center mb-4">
+                                    <h4 className="fw-bold text-dark mb-0">Job Postings Pipeline</h4>
                                     <Button
-                                        variant="outline-primary"
+                                        variant="outline-secondary"
                                         size="sm"
                                         onClick={loadPostedJobs}
                                         disabled={jobsLoading}
+                                        className="d-flex align-items-center px-3"
                                     >
-                                        <i className="fas fa-sync-alt me-2"></i>
-                                        Refresh
+                                        <RefreshCcw size={14} className={`me-2 ${jobsLoading ? 'spin-animation' : ''}`} />
+                                        Refresh Postings
                                     </Button>
                                 </div>
 
                                 {jobsLoading ? (
                                     <div className="text-center py-5">
-                                        <Spinner animation="border" role="status">
-                                            <span className="visually-hidden">Loading...</span>
-                                        </Spinner>
+                                        <Spinner animation="border" variant="primary" style={{ width: '3rem', height: '3rem' }} />
+                                        <p className="mt-3 text-muted">Syncing job data...</p>
                                     </div>
                                 ) : postedJobs.length > 0 ? (
-                                    <Row>
+                                    <Row className="g-4">
                                         {postedJobs.map((job) => (
-                                            <Col lg={6} key={job.jobPostId} className="mb-3">
-                                                <Card className="job-card h-100 border-start border-4 border-primary">
-                                                    <Card.Body>
-                                                        <div className="d-flex justify-content-between align-items-start mb-3">
-                                                            <div className="flex-grow-1">
-                                                                <h6 className="job-title mb-1 fw-bold">
-                                                                    {job.jobTitle}
-                                                                </h6>
-                                                                <p className="text-muted mb-0 small">
-                                                                    <i className="fas fa-building me-1"></i>
-                                                                    {job.jobCompany?.name || 'Company Name'}
-                                                                </p>
+                                            <Col lg={6} key={job.jobPostId}>
+                                                <Card className="job-card h-100 border-0 shadow-sm rounded-4 hover-shadow">
+                                                    <Card.Body className="p-4">
+                                                        <div className="d-flex justify-content-between align-items-start mb-4">
+                                                            <div className="d-flex">
+                                                                <div className="bg-soft-primary p-3 rounded-3 me-3">
+                                                                    <Building2 size={24} className="text-primary" />
+                                                                </div>
+                                                                <div>
+                                                                    <h5 className="fw-bold text-dark mb-1">
+                                                                        {job.jobTitle}
+                                                                    </h5>
+                                                                    <p className="text-muted mb-0 small fw-medium">
+                                                                        {job.jobCompany?.name || 'Company Name'}
+                                                                    </p>
+                                                                </div>
                                                             </div>
                                                             <Badge 
-                                                                bg={getJobStatus(job) === 'Active' ? 'success' : 'secondary'}
-                                                                className="status-badge"
+                                                                bg={null}
+                                                                className={`px-3 py-2 rounded-pill status-badge-${getJobStatus(job).toLowerCase()}`}
                                                             >
                                                                 {getJobStatus(job)}
                                                             </Badge>
                                                         </div>
 
-                                                        <div className="job-details mb-3">
-                                                            <Row className="g-2 small text-muted">
-                                                                <Col xs={6}>
-                                                                    <i className="fas fa-map-marker-alt me-1"></i>
+                                                        <div className="job-meta-grid mb-4">
+                                                            <Row className="g-3 small text-muted">
+                                                                <Col xs={6} className="d-flex align-items-center">
+                                                                    <MapPin className="me-2 text-primary" size={14} />
                                                                     {job.jobLocation?.city}, {job.jobLocation?.state}
                                                                 </Col>
-                                                                <Col xs={6}>
-                                                                    <i className="fas fa-briefcase me-1"></i>
+                                                                <Col xs={6} className="d-flex align-items-center">
+                                                                    <Briefcase className="me-2 text-primary" size={14} />
                                                                     {job.jobType}
                                                                 </Col>
-                                                                <Col xs={6}>
-                                                                    <i className="fas fa-home me-1"></i>
+                                                                <Col xs={6} className="d-flex align-items-center">
+                                                                    <Home className="me-2 text-primary" size={14} />
                                                                     {job.remote}
                                                                 </Col>
-                                                                <Col xs={6}>
-                                                                    <i className="fas fa-calendar me-1"></i>
-                                                                    {formatDate(job.postedDate)}
+                                                                <Col xs={6} className="d-flex align-items-center">
+                                                                    <Calendar className="me-2 text-primary" size={14} />
+                                                                    Posted {formatDate(job.postedDate).split(' ')[0]}
                                                                 </Col>
                                                             </Row>
                                                         </div>
 
                                                         {job.salary && (
-                                                            <div className="salary-info mb-3">
-                                                                <small className="text-success fw-bold">
-                                                                    <i className="fas fa-dollar-sign me-1"></i>
-                                                                    {job.salary}
-                                                                </small>
+                                                            <div className="salary-box mb-4 p-2 bg-light rounded-3 d-inline-flex align-items-center">
+                                                                <DollarSign className="text-success me-1" size={16} />
+                                                                <span className="text-success fw-bold small">{job.salary}</span>
                                                             </div>
                                                         )}
 
-                                                        <div className="job-actions d-flex justify-content-between">
-                                                            <div className="action-buttons">
+                                                        <div className="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                                                            <div className="d-flex gap-2">
                                                                 <Button
-                                                                    variant="outline-primary"
+                                                                    variant="light"
                                                                     size="sm"
-                                                                    className="me-2"
+                                                                    className="px-3"
                                                                     onClick={() => handleViewJobDetails(job.jobPostId)}
                                                                 >
-                                                                    <i className="fas fa-eye me-1"></i>
-                                                                    View
+                                                                    <Eye className="me-2" size={14} /> View
                                                                 </Button>
                                                                 <Button
-                                                                    variant="outline-secondary"
+                                                                    variant="light"
                                                                     size="sm"
-                                                                    className="me-2"
+                                                                    className="px-3"
                                                                     onClick={() => handleEditJob(job.jobPostId)}
                                                                 >
-                                                                    <i className="fas fa-edit me-1"></i>
-                                                                    Edit
+                                                                    <Edit className="me-2" size={14} /> Edit
                                                                 </Button>
                                                             </div>
                                                             <Button
                                                                 variant="primary"
                                                                 size="sm"
+                                                                className="px-4 shadow-sm fw-bold d-flex align-items-center"
                                                                 onClick={() => handleViewJobApplications(job.jobPostId)}
                                                             >
-                                                                <i className="fas fa-users me-1"></i>
-                                                                Applications
+                                                                Manage Candidates <ChevronRight size={14} className="ms-1" />
                                                             </Button>
                                                         </div>
                                                     </Card.Body>
@@ -407,28 +345,30 @@ const RecruiterDashboard = ({ user }) => {
                                         ))}
                                     </Row>
                                 ) : (
-                                    <div className="no-jobs text-center py-5">
-                                        <div className="no-jobs-icon mb-3">
-                                            <i className="fas fa-briefcase fa-3x text-muted"></i>
+                                    <div className="text-center py-5">
+                                        <div className="bg-light p-4 rounded-circle d-inline-flex mb-4">
+                                            <Briefcase className="text-muted" size={48} strokeWidth={1} />
                                         </div>
-                                        <h4 className="no-jobs-title mb-2">No Jobs Posted Yet</h4>
-                                        <p className="no-jobs-text text-muted mb-4">
-                                            Start by posting your first job to attract talented candidates
+                                        <h4 className="fw-bold">No Jobs Posted Yet</h4>
+                                        <p className="text-muted mb-4 mx-auto" style={{ maxWidth: '400px' }}>
+                                            Start your recruitment journey by posting your first job opening to attract the best talent.
                                         </p>
+                                        <Button variant="primary" className="px-4 py-2" onClick={() => navigate('/jobs/create')}>
+                                            Post Your First Job
+                                        </Button>
                                     </div>
                                 )}
                             </div>
                         </Tab>
 
                         <Tab eventKey="applications" title={
-                            <span>
-                                <i className="fas fa-file-alt me-2"></i>
+                            <div className="d-flex align-items-center">
+                                <FileText className="me-2" size={18} />
                                 Application Management
-                                <Badge bg="info" className="ms-2">{applications.length}</Badge>
-                            </span>
+                                <Badge bg="soft-info" className="text-info ms-2 px-2 py-1">{applications.length}</Badge>
+                            </div>
                         }>
-                            {/* Enhanced Applications Management with ApplicationStatusManager */}
-                            <div className="p-3">
+                            <div className="p-4">
                                 {user ? (
                                     <ApplicationStatusManager 
                                         userType={user.userType} 
@@ -436,9 +376,9 @@ const RecruiterDashboard = ({ user }) => {
                                     />
                                 ) : (
                                     <div className="text-center py-5">
-                                        <i className="fa fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                        <AlertTriangle className="text-warning mb-3" size={64} strokeWidth={1} />
                                         <h4>Authentication Required</h4>
-                                        <p className="text-muted">Please log in to manage applications.</p>
+                                        <p className="text-muted">Please log in with recruiter credentials to access this section.</p>
                                     </div>
                                 )}
                             </div>
@@ -447,85 +387,76 @@ const RecruiterDashboard = ({ user }) => {
                 </Card.Header>
             </Card>
 
-            {/* Application Details Modal */}
-            <ApplicationDetailsModal
-                show={showDetailsModal}
-                onHide={() => setShowDetailsModal(false)}
-                application={selectedApplication}
-                onUpdateStatus={handleUpdateStatus}
-                formatDate={formatDate}
-                getStatusBadgeVariant={getStatusBadgeVariant}
-            />
 
-            {/* Status Update Modal */}
-            <StatusUpdateModal
-                show={showStatusModal}
-                onHide={() => setShowStatusModal(false)}
-                application={selectedApplication}
-                onStatusUpdate={handleStatusUpdated}
-            />
+
 
             <style jsx>{`
-                .dashboard-main-tabs .nav-link {
-                    font-weight: 600;
-                    color: #6b7280;
-                    border: none;
-                    padding: 1rem 1.5rem;
+                .spin-animation {
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
                 }
 
-                .dashboard-main-tabs .nav-link.active {
+                .bg-soft-primary { background-color: rgba(52, 193, 217, 0.1); }
+                .bg-soft-info { background-color: rgba(13, 202, 240, 0.1); }
+
+                .dashboard-main-tabs { border-bottom: 2px solid #f8f9fa; }
+                
+                .dashboard-main-tabs :global(.nav-link) {
+                    font-weight: 700;
+                    color: #6c757d;
+                    border: none;
+                    padding: 1.5rem 2rem;
+                    transition: all 0.2s;
+                    position: relative;
+                }
+
+                .dashboard-main-tabs :global(.nav-link.active) {
                     color: #34C1D9;
                     background-color: transparent;
-                    border-bottom: 3px solid #34C1D9;
+                }
+
+                .dashboard-main-tabs :global(.nav-link.active::after) {
+                    content: '';
+                    position: absolute;
+                    bottom: -2px;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    background-color: #34C1D9;
                 }
 
                 .job-card {
-                    transition: all 0.3s ease;
-                    cursor: pointer;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 }
 
-                .job-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                .hover-shadow:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
                 }
 
-                .job-title {
-                    color: #1f2937;
-                    font-size: 1.1rem;
+                .status-badge-active {
+                    background-color: #f0fff4;
+                    color: #276749;
+                    font-weight: 700;
+                    font-size: 0.7rem;
+                    text-transform: uppercase;
                 }
 
-                .status-badge {
-                    font-size: 0.75rem;
-                    padding: 0.25rem 0.5rem;
+                .status-badge-inactive {
+                    background-color: #f7fafc;
+                    color: #4a5568;
+                    font-weight: 700;
+                    font-size: 0.7rem;
+                    text-transform: uppercase;
                 }
 
-                .job-actions .btn {
-                    border-radius: 6px;
-                    font-size: 0.85rem;
-                }
-
-                .salary-info {
-                    background: #f0fdf4;
-                    padding: 0.5rem;
-                    border-radius: 6px;
-                    border-left: 3px solid #34C1D9;
-                }
-
-                .no-jobs, .no-applications {
-                    padding: 3rem 2rem;
-                }
-
-                .no-jobs-icon, .no-applications-icon {
-                    opacity: 0.5;
-                }
-
-                .stats-card {
-                    transition: all 0.3s ease;
-                }
-
-                .stats-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                .job-meta-grid {
+                    background-color: #fdfdfd;
+                    padding: 1rem;
+                    border-radius: 12px;
                 }
             `}</style>
         </div>

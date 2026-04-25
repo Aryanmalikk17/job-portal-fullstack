@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Alert, Spinner, Form, Modal, Table, Tab, Tabs } from 'react-bootstrap';
 import { 
-} from '../../services/jobService';
+    Users, 
+    RefreshCcw, 
+    AlertCircle, 
+    FileText, 
+    Clock, 
+    Eye, 
+    Handshake, 
+    Inbox, 
+    Edit3,
+    CheckCircle2
+} from 'lucide-react';
 import { 
     getRecruiterApplications, 
     getRecruiterStatistics,
@@ -56,18 +66,7 @@ const RecruiterApplications = () => {
         return app.status === filterStatus;
     });
 
-    // Get status badge variant
-    const getStatusVariant = (status) => {
-        switch (status) {
-            case 'PENDING': return 'primary';
-            case 'REVIEWED': return 'info';
-            case 'INTERVIEW': return 'warning';
-            case 'ACCEPTED': return 'success';
-            case 'REJECTED': return 'danger';
-            case 'WITHDRAWN': return 'secondary';
-            default: return 'secondary';
-        }
-    };
+
 
     // Format date
     const formatDate = (dateString) => {
@@ -87,7 +86,6 @@ const RecruiterApplications = () => {
 
         try {
             setUpdating(true);
-            // FIXED: Using named import updateApplicationStatus
             const response = await updateApplicationStatus(
                 selectedApplication.id,
                 {
@@ -129,14 +127,14 @@ const RecruiterApplications = () => {
     };
 
     // Statistics Card Component
-    const StatisticsCard = ({ title, value, icon, color = 'primary' }) => (
-        <Card className="h-100 text-center">
-            <Card.Body>
-                <div className={`text-${color} mb-2`}>
-                    <i className={`${icon} fa-2x`}></i>
+    const StatisticsCard = ({ title, value, icon: Icon, color = 'primary' }) => (
+        <Card className="h-100 text-center border-0 shadow-sm glass-card">
+            <Card.Body className="p-4">
+                <div className={`text-${color} mb-3 d-flex justify-content-center`}>
+                    <Icon size={32} strokeWidth={1.5} />
                 </div>
-                <h4 className="mb-1">{value}</h4>
-                <p className="text-muted mb-0">{title}</p>
+                <h3 className="mb-1 fw-bold">{value}</h3>
+                <p className="text-muted mb-0 small text-uppercase fw-semibold">{title}</p>
             </Card.Body>
         </Card>
     );
@@ -146,27 +144,28 @@ const RecruiterApplications = () => {
             <Row>
                 <Col>
                     <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h2>
-                            <i className="fas fa-users me-2 text-primary"></i>
+                        <h2 className="d-flex align-items-center fw-bold">
+                            <Users size={28} className="me-3 text-primary" />
                             Application Management
                         </h2>
                         <Button 
                             variant="outline-primary" 
+                            className="d-flex align-items-center px-3 py-2 shadow-sm"
                             onClick={() => {
                                 fetchApplications();
                                 fetchStatistics();
                             }}
                             disabled={loading}
                         >
-                            <i className="fas fa-sync-alt me-2"></i>
+                            <RefreshCcw size={18} className={`me-2 ${loading ? 'spin-animation' : ''}`} />
                             Refresh
                         </Button>
                     </div>
 
                     {/* Error Alert */}
                     {error && (
-                        <Alert variant="danger" dismissible onClose={() => setError(null)}>
-                            <i className="fas fa-exclamation-circle me-2"></i>
+                        <Alert variant="danger" className="border-0 shadow-sm d-flex align-items-center" dismissible onClose={() => setError(null)}>
+                            <AlertCircle size={20} className="me-2" />
                             {error}
                         </Alert>
                     )}
@@ -175,7 +174,7 @@ const RecruiterApplications = () => {
                         id="recruiter-tabs"
                         activeKey={activeTab}
                         onSelect={(k) => setActiveTab(k)}
-                        className="mb-4"
+                        className="mb-4 custom-tabs border-0"
                     >
                         {/* Statistics Tab */}
                         <Tab eventKey="statistics" title="Overview">
@@ -185,7 +184,7 @@ const RecruiterApplications = () => {
                                         <StatisticsCard
                                             title="Total Applications"
                                             value={statistics.totalApplications || 0}
-                                            icon="fas fa-file-alt"
+                                            icon={FileText}
                                             color="primary"
                                         />
                                     </Col>
@@ -193,7 +192,7 @@ const RecruiterApplications = () => {
                                         <StatisticsCard
                                             title="Pending Review"
                                             value={statistics.pendingApplications || 0}
-                                            icon="fas fa-clock"
+                                            icon={Clock}
                                             color="warning"
                                         />
                                     </Col>
@@ -201,7 +200,7 @@ const RecruiterApplications = () => {
                                         <StatisticsCard
                                             title="Under Review"
                                             value={statistics.reviewedApplications || 0}
-                                            icon="fas fa-eye"
+                                            icon={Eye}
                                             color="info"
                                         />
                                     </Col>
@@ -209,7 +208,7 @@ const RecruiterApplications = () => {
                                         <StatisticsCard
                                             title="Interviews"
                                             value={statistics.interviewApplications || 0}
-                                            icon="fas fa-handshake"
+                                            icon={Handshake}
                                             color="success"
                                         />
                                     </Col>
@@ -220,15 +219,16 @@ const RecruiterApplications = () => {
                         {/* Applications Tab */}
                         <Tab eventKey="applications" title="All Applications">
                             {/* Filter Controls */}
-                            <Card className="mb-4">
-                                <Card.Body>
+                            <Card className="mb-4 border-0 shadow-sm glass-card">
+                                <Card.Body className="p-4">
                                     <Row className="align-items-center">
                                         <Col md={6}>
                                             <Form.Group>
-                                                <Form.Label>Filter by Status:</Form.Label>
+                                                <Form.Label className="small fw-bold text-muted text-uppercase mb-2">Filter by Status:</Form.Label>
                                                 <Form.Select 
                                                     value={filterStatus}
                                                     onChange={(e) => setFilterStatus(e.target.value)}
+                                                    className="border-light bg-light"
                                                 >
                                                     <option value="ALL">All Applications</option>
                                                     <option value="PENDING">Pending</option>
@@ -240,11 +240,11 @@ const RecruiterApplications = () => {
                                             </Form.Group>
                                         </Col>
                                         <Col md={6} className="text-end">
-                                            <div className="text-muted">
-                                                Total Applications: <strong>{applications.length}</strong>
+                                            <div className="text-muted small">
+                                                Total Applications: <strong className="text-dark">{applications.length}</strong>
                                                 {filterStatus !== 'ALL' && (
                                                     <span className="ms-2">
-                                                        | Filtered: <strong>{filteredApplications.length}</strong>
+                                                        | Filtered: <strong className="text-primary">{filteredApplications.length}</strong>
                                                     </span>
                                                 )}
                                             </div>
@@ -256,8 +256,8 @@ const RecruiterApplications = () => {
                             {/* Loading State */}
                             {loading && (
                                 <div className="text-center py-5">
-                                    <Spinner animation="border" variant="primary" />
-                                    <p className="mt-2 text-muted">Loading applications...</p>
+                                    <Spinner animation="border" variant="primary" style={{ width: '3rem', height: '3rem' }} />
+                                    <p className="mt-3 text-muted fw-medium">Loading applications...</p>
                                 </div>
                             )}
 
@@ -265,72 +265,75 @@ const RecruiterApplications = () => {
                             {!loading && (
                                 <>
                                     {filteredApplications.length === 0 ? (
-                                        <Card className="text-center py-5">
+                                        <Card className="text-center py-5 border-0 shadow-sm glass-card">
                                             <Card.Body>
-                                                <i className="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                                <h5 className="text-muted">
+                                                <div className="text-muted mb-3 d-flex justify-content-center">
+                                                    <Inbox size={64} strokeWidth={1} />
+                                                </div>
+                                                <h5 className="fw-bold">
                                                     {filterStatus === 'ALL' 
                                                         ? 'No Applications Yet' 
                                                         : `No ${filterStatus.toLowerCase()} applications`
                                                     }
                                                 </h5>
-                                                <p className="text-muted">
+                                                <p className="text-muted mb-0">
                                                     Applications will appear here when candidates apply to your jobs.
                                                 </p>
                                             </Card.Body>
                                         </Card>
                                     ) : (
-                                        <Card>
+                                        <Card className="border-0 shadow-sm overflow-hidden">
                                             <Card.Body className="p-0">
-                                                <Table responsive hover className="mb-0">
-                                                    <thead className="bg-light">
+                                                <Table responsive hover className="mb-0 custom-table">
+                                                    <thead>
                                                         <tr>
-                                                            <th>Candidate</th>
+                                                            <th className="ps-4">Candidate</th>
                                                             <th>Job Position</th>
                                                             <th>Applied Date</th>
                                                             <th>Status</th>
-                                                            <th>Actions</th>
+                                                            <th className="text-end pe-4">Actions</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {filteredApplications.map((application) => (
                                                             <tr key={application.id}>
-                                                                <td>
+                                                                <td className="ps-4">
                                                                     <div>
-                                                                        <strong>
+                                                                        <div className="fw-bold text-dark">
                                                                             {application.applicantName}
-                                                                        </strong>
-                                                                        <br />
-                                                                        <small className="text-muted">
+                                                                        </div>
+                                                                        <div className="small text-muted">
                                                                             {application.applicantEmail}
-                                                                        </small>
+                                                                        </div>
                                                                     </div>
                                                                 </td>
                                                                 <td>
                                                                     <div>
-                                                                        <strong>{application.jobTitle}</strong>
-                                                                        <br />
-                                                                        <small className="text-muted">
+                                                                        <div className="fw-semibold">{application.jobTitle}</div>
+                                                                        <div className="small text-muted">
                                                                             ID: {application.jobId}
-                                                                        </small>
+                                                                        </div>
                                                                     </div>
                                                                 </td>
                                                                 <td>
-                                                                    <small>{formatDate(application.applyDate)}</small>
+                                                                    <div className="small text-muted">{formatDate(application.applyDate)}</div>
                                                                 </td>
                                                                 <td>
-                                                                    <Badge bg={getStatusVariant(application.status)}>
+                                                                    <Badge 
+                                                                        bg={null} 
+                                                                        className={`status-badge status-${application.status.toLowerCase()}`}
+                                                                    >
                                                                         {application.status}
                                                                     </Badge>
                                                                 </td>
-                                                                <td>
+                                                                <td className="text-end pe-4">
                                                                     <Button
-                                                                        variant="outline-primary"
+                                                                        variant="light"
                                                                         size="sm"
                                                                         onClick={() => openStatusModal(application)}
-                                                                        className="me-2"
+                                                                        className="btn-action d-inline-flex align-items-center"
                                                                     >
-                                                                        <i className="fas fa-edit me-1"></i>
+                                                                        <Edit3 size={14} className="me-2" />
                                                                         Update Status
                                                                     </Button>
                                                                 </td>
@@ -349,34 +352,38 @@ const RecruiterApplications = () => {
             </Row>
 
             {/* Status Update Modal */}
-            <Modal show={showStatusModal} onHide={() => setShowStatusModal(false)} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>Update Application Status</Modal.Title>
+            <Modal show={showStatusModal} onHide={() => setShowStatusModal(false)} size="lg" centered className="status-modal">
+                <Modal.Header closeButton className="border-0 pb-0">
+                    <Modal.Title className="fw-bold">Update Application Status</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body className="p-4">
                     {selectedApplication && (
                         <>
-                            <div className="mb-3">
-                                <h6>Application Details:</h6>
-                                <p><strong>Candidate:</strong> {selectedApplication.applicantName}</p>
-                                <p><strong>Position:</strong> {selectedApplication.jobTitle}</p>
-                                <p><strong>Applied:</strong> {formatDate(selectedApplication.applyDate)}</p>
+                            <div className="application-brief p-3 bg-light rounded-3 mb-4 d-flex align-items-center">
+                                <div className="me-3 bg-white p-2 rounded-circle shadow-sm">
+                                    <Users size={24} className="text-primary" />
+                                </div>
+                                <div>
+                                    <div className="fw-bold text-dark">{selectedApplication.applicantName}</div>
+                                    <div className="small text-muted">{selectedApplication.jobTitle} • Applied {formatDate(selectedApplication.applyDate)}</div>
+                                </div>
                             </div>
 
                             {selectedApplication.coverLetter && (
-                                <div className="mb-3">
-                                    <h6>Cover Letter:</h6>
-                                    <div className="p-3 bg-light rounded">
+                                <div className="mb-4">
+                                    <label className="small fw-bold text-muted text-uppercase mb-2 d-block">Cover Letter:</label>
+                                    <div className="p-3 bg-light rounded border-start border-4 border-primary shadow-sm" style={{ whiteSpace: 'pre-wrap' }}>
                                         {selectedApplication.coverLetter}
                                     </div>
                                 </div>
                             )}
 
-                            <Form.Group className="mb-3">
-                                <Form.Label>Status:</Form.Label>
+                            <Form.Group className="mb-4">
+                                <Form.Label className="small fw-bold text-muted text-uppercase mb-2">New Status:</Form.Label>
                                 <Form.Select 
                                     value={newStatus}
                                     onChange={(e) => setNewStatus(e.target.value)}
+                                    className="border-light bg-light py-2"
                                 >
                                     <option value="PENDING">Pending</option>
                                     <option value="REVIEWED">Under Review</option>
@@ -387,23 +394,26 @@ const RecruiterApplications = () => {
                             </Form.Group>
 
                             <Form.Group>
-                                <Form.Label>Recruiter Notes:</Form.Label>
+                                <Form.Label className="small fw-bold text-muted text-uppercase mb-2">Recruiter Notes:</Form.Label>
                                 <Form.Control
                                     as="textarea"
                                     rows={3}
                                     value={recruiterNotes}
                                     onChange={(e) => setRecruiterNotes(e.target.value)}
-                                    placeholder="Add notes about this application..."
+                                    placeholder="Add internal notes about this candidate..."
+                                    className="border-light bg-light"
                                 />
+                                <Form.Text className="text-muted small">Notes are only visible to the recruitment team.</Form.Text>
                             </Form.Group>
                         </>
                     )}
                 </Modal.Body>
-                <Modal.Footer>
+                <Modal.Footer className="border-0 pt-0">
                     <Button 
-                        variant="secondary" 
+                        variant="light" 
                         onClick={() => setShowStatusModal(false)}
                         disabled={updating}
+                        className="px-4"
                     >
                         Cancel
                     </Button>
@@ -411,6 +421,7 @@ const RecruiterApplications = () => {
                         variant="primary" 
                         onClick={handleStatusUpdate}
                         disabled={updating || !newStatus}
+                        className="px-4 d-flex align-items-center"
                     >
                         {updating ? (
                             <>
@@ -418,25 +429,67 @@ const RecruiterApplications = () => {
                                 Updating...
                             </>
                         ) : (
-                            'Update Status'
+                            <>
+                                <CheckCircle2 size={18} className="me-2" />
+                                Confirm Update
+                            </>
                         )}
                     </Button>
                 </Modal.Footer>
             </Modal>
 
             <style jsx>{`
-                .table th {
-                    border-top: none;
-                    font-weight: 600;
+                .spin-animation {
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
                 }
                 
-                .table td {
+                .custom-table thead th {
+                    background-color: #f8f9fa;
+                    border-bottom: 2px solid #edf2f7;
+                    color: #718096;
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    padding-top: 1rem;
+                    padding-bottom: 1rem;
+                }
+                
+                .custom-table tbody td {
                     vertical-align: middle;
+                    padding-top: 1.25rem;
+                    padding-bottom: 1.25rem;
+                    border-bottom: 1px solid #edf2f7;
                 }
                 
-                .table tbody tr:hover {
-                    background-color: rgba(0,123,255,0.05);
+                .btn-action {
+                    border: 1px solid #edf2f7;
+                    color: #4a5568;
+                    font-weight: 500;
+                    transition: all 0.2s;
                 }
+                
+                .btn-action:hover {
+                    background-color: #ebf8ff;
+                    border-color: #bee3f8;
+                    color: #2b6cb0;
+                }
+                
+                .status-badge {
+                    padding: 0.5rem 0.75rem;
+                    border-radius: 6px;
+                    font-weight: 600;
+                    font-size: 0.75rem;
+                }
+                
+                .status-pending { background-color: #ebf8ff; color: #2b6cb0; }
+                .status-reviewed { background-color: #e6fffa; color: #2c7a7b; }
+                .status-interview { background-color: #fffaf0; color: #9c4221; }
+                .status-accepted { background-color: #f0fff4; color: #276749; }
+                .status-rejected { background-color: #fff5f5; color: #9b2c2c; }
             `}</style>
         </Container>
     );

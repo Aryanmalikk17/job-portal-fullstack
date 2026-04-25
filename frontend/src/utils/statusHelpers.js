@@ -1,18 +1,36 @@
 import React from 'react';
-// Note: We use FontAwesome class names for now to ensure compatibility with 
-// the current environment's stylesheet, but structured as a utility for easy Lucide migration.
-export const getStatusIcon = (status) => {
+import { 
+    Send, 
+    Search, 
+    Calendar, 
+    UserCheck, 
+    Award, 
+    CheckCircle2, 
+    XCircle, 
+    ArrowLeft, 
+    FileText 
+} from 'lucide-react';
+
+/**
+ * Returns the appropriate Lucide icon component for a given application status.
+ * @param {string} status - The application status string
+ * @param {number} size - Optional size for the icon
+ * @returns {JSX.Element}
+ */
+export const getStatusIcon = (status, size = 16) => {
     const iconMap = {
-        'APPLIED': 'fa-paper-plane',
-        'UNDER_REVIEW': 'fa-search',
-        'INTERVIEW_SCHEDULED': 'fa-calendar-alt',
-        'INTERVIEWED': 'fa-user-check',
-        'OFFERED': 'fa-award',
-        'HIRED': 'fa-check-circle',
-        'REJECTED': 'fa-times-circle',
-        'WITHDRAWN': 'fa-arrow-left'
+        'APPLIED': Send,
+        'UNDER_REVIEW': Search,
+        'INTERVIEW_SCHEDULED': Calendar,
+        'INTERVIEWED': UserCheck,
+        'OFFERED': Award,
+        'HIRED': CheckCircle2,
+        'REJECTED': XCircle,
+        'WITHDRAWN': ArrowLeft
     };
-    return iconMap[status] || 'fa-file-alt';
+    
+    const IconComponent = iconMap[status] || FileText;
+    return <IconComponent size={size} />;
 };
 
 export const getStatusColor = (status) => {

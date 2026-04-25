@@ -1,6 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
 import { useParams, Link } from 'react-router-dom';
+import { 
+    AlertTriangle, 
+    RotateCcw, 
+    Building2, 
+    ExternalLink, 
+    Factory, 
+    Users, 
+    MapPin, 
+    CalendarCheck, 
+    Info, 
+    Briefcase, 
+    Clock, 
+    Wallet, 
+    ArrowRight 
+} from 'lucide-react';
 import { companyService } from '../services/companyService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { Helmet } from 'react-helmet-async';
@@ -40,11 +55,11 @@ const CompanyDetailsPage = () => {
         return (
             <Container className="py-5">
                 <Alert variant="danger" className="glass-card p-4 text-center">
-                    <i className="fa fa-exclamation-triangle fa-3x mb-3 text-danger"></i>
+                    <AlertTriangle size={48} className="mb-3 text-danger" />
                     <h4>Something went wrong</h4>
                     <p>{error}</p>
-                    <Button variant="teal" onClick={loadCompanyData} className="mt-3">
-                        <i className="fa fa-redo me-2"></i> Retry
+                    <Button variant="teal" onClick={loadCompanyData} className="mt-3 d-inline-flex align-items-center">
+                        <RotateCcw size={18} className="me-2" /> Retry
                     </Button>
                 </Alert>
             </Container>
@@ -102,7 +117,7 @@ const CompanyDetailsPage = () => {
                                 />
                             ) : null}
                             <div className="company-logo-fallback" style={{ display: company.logo ? 'none' : 'block' }}>
-                                <i className="fa fa-building"></i>
+                                <Building2 size={48} />
                             </div>
                         </div>
                         <div className="hero-text">
@@ -112,9 +127,9 @@ const CompanyDetailsPage = () => {
                                     href={company.website.startsWith('http') ? company.website : `https://${company.website}`} 
                                     target="_blank" 
                                     rel="noopener noreferrer"
-                                    className="company-website-link"
+                                    className="company-website-link d-inline-flex align-items-center"
                                 >
-                                    <i className="fa fa-external-link-alt"></i>
+                                    <ExternalLink size={16} className="me-2" />
                                     {company.website.replace(/^https?:\/\//, '')}
                                 </a>
                             )}
@@ -127,24 +142,24 @@ const CompanyDetailsPage = () => {
                 {/* Fact Grid */}
                 <div className="fact-grid">
                     <div className="fact-item glass-card">
-                        <i className="fa fa-industry fact-icon"></i>
+                        <Factory size={24} className="fact-icon" />
                         <span className="fact-label">Industry</span>
                         <span className="fact-value">{company.industry || 'Not Specified'}</span>
                     </div>
                     <div className="fact-item glass-card">
-                        <i className="fa fa-users fact-icon"></i>
+                        <Users size={24} className="fact-icon" />
                         <span className="fact-label">Company Size</span>
                         <span className="fact-value">{company.size || 'Not Specified'}</span>
                     </div>
                     <div className="fact-item glass-card">
-                        <i className="fa fa-map-marker-alt fact-icon"></i>
+                        <MapPin size={24} className="fact-icon" />
                         <span className="fact-label">Headquarters</span>
                         <span className="fact-value">
                             {company.city ? `${company.city}, ${company.state || ''}` : 'Not Specified'}
                         </span>
                     </div>
                     <div className="fact-item glass-card">
-                        <i className="fa fa-calendar-check fact-icon"></i>
+                        <CalendarCheck size={24} className="fact-icon" />
                         <span className="fact-label">Founded</span>
                         <span className="fact-value">{company.foundedYear || 'Not Specified'}</span>
                     </div>
@@ -154,8 +169,8 @@ const CompanyDetailsPage = () => {
                     {/* Left: About */}
                     <Col lg={8} className="mb-4">
                         <div className="glass-card p-4 h-100">
-                            <h2 className="section-title">
-                                <i className="fa fa-info-circle"></i> About {company.name}
+                            <h2 className="section-title d-flex align-items-center">
+                                <Info size={24} className="me-2 text-teal" /> About {company.name}
                             </h2>
                             <div className="about-content">
                                 {company.description || 'No description provided by the company.'}
@@ -164,8 +179,8 @@ const CompanyDetailsPage = () => {
                             {company.officeAddress && (
                                 <div className="mt-4 pt-4 border-top">
                                     <h5 className="text-muted mb-3">Office Address</h5>
-                                    <p className="mb-0">
-                                        <i className="fa fa-map-pin me-2 text-teal"></i>
+                                    <p className="mb-0 d-flex align-items-center">
+                                        <MapPin size={18} className="me-2 text-teal" />
                                         {company.officeAddress}, {company.city}, {company.state}, {company.country}
                                     </p>
                                 </div>
@@ -197,8 +212,8 @@ const CompanyDetailsPage = () => {
 
                 {/* Jobs Feed */}
                 <div className="mt-5">
-                    <h2 className="section-title">
-                        <i className="fa fa-briefcase"></i> Open Positions at {company.name}
+                    <h2 className="section-title d-flex align-items-center">
+                        <Briefcase size={24} className="me-2 text-teal" /> Open Positions at {company.name}
                     </h2>
                     {jobs.length > 0 ? (
                         <div className="jobs-list">
@@ -207,14 +222,14 @@ const CompanyDetailsPage = () => {
                                     <div className="job-info">
                                         <h3>{job.jobTitle}</h3>
                                         <div className="job-meta">
-                                            <span><i className="fa fa-map-marker-alt"></i> {job.jobLocationId?.city || 'Location N/A'}</span>
-                                            <span><i className="fa fa-clock"></i> {job.jobType}</span>
-                                            {job.salary && <span><i className="fa fa-wallet"></i> {job.salary}</span>}
+                                            <span className="d-inline-flex align-items-center"><MapPin size={14} className="me-1" /> {job.jobLocationId?.city || 'Location N/A'}</span>
+                                            <span className="d-inline-flex align-items-center"><Clock size={14} className="me-1" /> {job.jobType}</span>
+                                            {job.salary && <span className="d-inline-flex align-items-center"><Wallet size={14} className="me-1" /> {job.salary}</span>}
                                         </div>
                                     </div>
                                     <Link to={`/jobs/${job.jobPostId}`}>
-                                        <Button className="view-job-btn">
-                                            View Details <i className="fa fa-arrow-right ms-2"></i>
+                                        <Button className="view-job-btn d-inline-flex align-items-center">
+                                            View Details <ArrowRight size={18} className="ms-2" />
                                         </Button>
                                     </Link>
                                 </div>

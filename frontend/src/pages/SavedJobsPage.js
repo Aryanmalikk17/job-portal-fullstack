@@ -1,6 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Alert, Pagination, Toast, ToastContainer, Dropdown, Form, Badge, InputGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { 
+    Heart, 
+    AlertTriangle, 
+    Search, 
+    Briefcase, 
+    Home, 
+    SortDesc, 
+    X, 
+    Send, 
+    Trash2, 
+    MoreVertical, 
+    HeartOff, 
+    Plus, 
+    Info, 
+    CheckCircle2, 
+    AlertCircle 
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { savedJobsService } from '../services/savedJobsService';
 import SavedJobCard from '../components/jobs/SavedJobCard';
@@ -274,7 +291,7 @@ const SavedJobsPage = () => {
                                     <div className="header-content">
                                         <div className="header-icon-title">
                                             <div className="header-icon">
-                                                <i className="fas fa-heart"></i>
+                                                <Heart size={24} />
                                             </div>
                                             <div>
                                                 <h1 className="page-title mb-2">My Saved Jobs</h1>
@@ -306,7 +323,7 @@ const SavedJobsPage = () => {
 
                 {error && (
                     <Alert variant="danger" dismissible onClose={() => setError(null)} className="modern-alert mb-4">
-                        <i className="fas fa-exclamation-triangle me-2"></i>
+                        <AlertTriangle size={18} className="me-2" />
                         {error}
                     </Alert>
                 )}
@@ -318,8 +335,8 @@ const SavedJobsPage = () => {
                             <Col md={5}>
                                 <Form onSubmit={handleSearch}>
                                     <Form.Group>
-                                        <Form.Label className="filter-label">
-                                            <i className="fas fa-search me-2"></i>
+                                        <Form.Label className="filter-label d-flex align-items-center">
+                                            <Search size={16} className="me-2" />
                                             Search Jobs
                                         </Form.Label>
                                         <InputGroup className="search-input-group">
@@ -333,9 +350,9 @@ const SavedJobsPage = () => {
                                             <Button 
                                                 variant="primary" 
                                                 type="submit"
-                                                className="search-btn"
+                                                className="search-btn d-flex align-items-center"
                                             >
-                                                <i className="fas fa-search"></i>
+                                                <Search size={18} />
                                             </Button>
                                         </InputGroup>
                                     </Form.Group>
@@ -343,8 +360,8 @@ const SavedJobsPage = () => {
                             </Col>
                             <Col md={2}>
                                 <Form.Group>
-                                    <Form.Label className="filter-label">
-                                        <i className="fas fa-briefcase me-2"></i>
+                                    <Form.Label className="filter-label d-flex align-items-center">
+                                        <Briefcase size={16} className="me-2" />
                                         Job Type
                                     </Form.Label>
                                     <Form.Select 
@@ -366,8 +383,8 @@ const SavedJobsPage = () => {
                             </Col>
                             <Col md={2}>
                                 <Form.Group>
-                                    <Form.Label className="filter-label">
-                                        <i className="fas fa-home me-2"></i>
+                                    <Form.Label className="filter-label d-flex align-items-center">
+                                        <Home size={16} className="me-2" />
                                         Work Style
                                     </Form.Label>
                                     <Form.Select 
@@ -386,8 +403,8 @@ const SavedJobsPage = () => {
                             </Col>
                             <Col md={2}>
                                 <Form.Group>
-                                    <Form.Label className="filter-label">
-                                        <i className="fas fa-sort me-2"></i>
+                                    <Form.Label className="filter-label d-flex align-items-center">
+                                        <SortDesc size={16} className="me-2" />
                                         Sort By
                                     </Form.Label>
                                     <Form.Select 
@@ -409,10 +426,10 @@ const SavedJobsPage = () => {
                                 <Button 
                                     variant="outline-secondary" 
                                     onClick={clearFilters}
-                                    className="clear-filters-btn"
+                                    className="clear-filters-btn d-flex align-items-center justify-content-center"
                                     title="Clear Filters"
                                 >
-                                    <i className="fas fa-times"></i>
+                                    <X size={18} />
                                 </Button>
                             </Col>
                         </Row>
@@ -487,7 +504,7 @@ const SavedJobsPage = () => {
                                     </div>
                                 </Col>
                                 <Col md={6}>
-                                    <div className="bulk-actions-buttons text-end">
+                                    <div className="bulk-actions-buttons text-end d-flex align-items-center justify-content-end">
                                         {selectedJobs.size > 0 && (
                                             <>
                                                 <Button
@@ -497,9 +514,9 @@ const SavedJobsPage = () => {
                                                         setBulkAction('apply');
                                                         setShowBulkModal(true);
                                                     }}
-                                                    className="bulk-action-btn me-2"
+                                                    className="bulk-action-btn me-2 d-inline-flex align-items-center"
                                                 >
-                                                    <i className="fas fa-paper-plane me-1"></i>
+                                                    <Send size={14} className="me-1" />
                                                     Apply to Selected ({selectedJobs.size})
                                                 </Button>
                                                 <Button
@@ -509,26 +526,26 @@ const SavedJobsPage = () => {
                                                         setBulkAction('remove');
                                                         setShowBulkModal(true);
                                                     }}
-                                                    className="bulk-action-btn me-2"
+                                                    className="bulk-action-btn me-2 d-inline-flex align-items-center"
                                                 >
-                                                    <i className="fas fa-trash me-1"></i>
+                                                    <Trash2 size={14} className="me-1" />
                                                     Remove Selected ({selectedJobs.size})
                                                 </Button>
                                             </>
                                         )}
                                         
                                         <Dropdown>
-                                            <Dropdown.Toggle variant="outline-secondary" size="sm" className="options-dropdown">
-                                                <i className="fas fa-ellipsis-v"></i>
+                                            <Dropdown.Toggle variant="outline-secondary" size="sm" className="options-dropdown d-flex align-items-center">
+                                                <MoreVertical size={16} />
                                             </Dropdown.Toggle>
                                             <Dropdown.Menu align="end">
-                                                <Dropdown.Item onClick={handleClearAll} className="text-danger">
-                                                    <i className="fas fa-trash me-2"></i>
+                                                <Dropdown.Item onClick={handleClearAll} className="text-danger d-flex align-items-center">
+                                                    <Trash2 size={16} className="me-2" />
                                                     Clear All Saved Jobs
                                                 </Dropdown.Item>
                                                 <Dropdown.Divider />
-                                                <Dropdown.Item as={Link} to="/jobs">
-                                                    <i className="fas fa-search me-2"></i>
+                                                <Dropdown.Item as={Link} to="/jobs" className="d-flex align-items-center">
+                                                    <Search size={16} className="me-2" />
                                                     Browse More Jobs
                                                 </Dropdown.Item>
                                             </Dropdown.Menu>
@@ -625,15 +642,15 @@ const SavedJobsPage = () => {
                                 // No saved jobs at all
                                 <div className="empty-state">
                                     <div className="empty-icon">
-                                        <i className="fas fa-heart-broken"></i>
+                                        <HeartOff size={64} />
                                     </div>
                                     <h3 className="empty-title">No Saved Jobs Yet</h3>
                                     <p className="empty-description">
                                         Start building your job collection by saving interesting opportunities you find while browsing.
                                     </p>
                                     <div className="empty-actions">
-                                        <Button as={Link} to="/jobs" variant="primary" size="lg" className="cta-button">
-                                            <i className="fas fa-search me-2"></i>
+                                        <Button as={Link} to="/jobs" variant="primary" size="lg" className="cta-button d-inline-flex align-items-center">
+                                            <Search size={20} className="me-2" />
                                             Browse Jobs
                                         </Button>
                                     </div>
@@ -650,7 +667,7 @@ const SavedJobsPage = () => {
                                 // No results for current filters
                                 <div className="no-results-state">
                                     <div className="empty-icon">
-                                        <i className="fas fa-search"></i>
+                                        <Search size={64} />
                                     </div>
                                     <h3 className="empty-title">No Jobs Match Your Filters</h3>
                                     <p className="empty-description">
@@ -660,13 +677,13 @@ const SavedJobsPage = () => {
                                         <Button 
                                             variant="outline-primary" 
                                             onClick={clearFilters}
-                                            className="me-3"
+                                            className="me-3 d-inline-flex align-items-center"
                                         >
-                                            <i className="fas fa-times me-2"></i>
+                                            <X size={18} className="me-2" />
                                             Clear Filters
                                         </Button>
-                                        <Button as={Link} to="/jobs" variant="primary">
-                                            <i className="fas fa-plus me-2"></i>
+                                        <Button as={Link} to="/jobs" variant="primary" className="d-inline-flex align-items-center">
+                                            <Plus size={18} className="me-2" />
                                             Save More Jobs
                                         </Button>
                                     </div>
@@ -679,15 +696,23 @@ const SavedJobsPage = () => {
                 {/* Enhanced Bulk Action Modal */}
                 <Modal show={showBulkModal} onHide={() => setShowBulkModal(false)} centered className="bulk-action-modal">
                     <Modal.Header closeButton className="border-0">
-                        <Modal.Title className="modal-title">
-                            <i className={`fas fa-${bulkAction === 'apply' ? 'paper-plane text-success' : 'trash text-danger'} me-2`}></i>
+                        <Modal.Title className="modal-title d-flex align-items-center">
+                            {bulkAction === 'apply' ? (
+                                <Send size={24} className="text-success me-2" />
+                            ) : (
+                                <Trash2 size={24} className="text-danger me-2" />
+                            )}
                             {bulkAction === 'apply' ? 'Apply to Jobs' : 'Remove Jobs'}
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="p-4">
                         <div className="text-center">
                             <div className="modal-icon mb-3">
-                                <i className={`fas fa-${bulkAction === 'apply' ? 'paper-plane' : 'trash'} fa-3x ${bulkAction === 'apply' ? 'text-success' : 'text-danger'}`}></i>
+                                {bulkAction === 'apply' ? (
+                                    <Send size={48} className="text-success" />
+                                ) : (
+                                    <Trash2 size={48} className="text-danger" />
+                                )}
                             </div>
                             <h5 className="modal-question mb-3">
                                 {bulkAction === 'apply' 
@@ -702,9 +727,9 @@ const SavedJobsPage = () => {
                                 }
                             </p>
                             {bulkAction === 'apply' && (
-                                <div className="alert alert-info">
-                                    <i className="fas fa-info-circle me-2"></i>
-                                    <strong>Tip:</strong> Review each job carefully before applying to ensure you meet the requirements.
+                                <div className="alert alert-info d-flex align-items-center">
+                                    <Info size={18} className="me-2" />
+                                    <span><strong>Tip:</strong> Review each job carefully before applying to ensure you meet the requirements.</span>
                                 </div>
                             )}
                         </div>
@@ -721,7 +746,7 @@ const SavedJobsPage = () => {
                             variant={bulkAction === 'apply' ? 'success' : 'danger'}
                             onClick={handleBulkAction}
                             disabled={bulkLoading}
-                            className="modal-action-btn"
+                            className="modal-action-btn d-inline-flex align-items-center"
                         >
                             {bulkLoading ? (
                                 <>
@@ -730,7 +755,7 @@ const SavedJobsPage = () => {
                                 </>
                             ) : (
                                 <>
-                                    <i className={`fas fa-${bulkAction === 'apply' ? 'paper-plane' : 'trash'} me-2`}></i>
+                                    {bulkAction === 'apply' ? <Send size={18} className="me-2" /> : <Trash2 size={18} className="me-2" />}
                                     {bulkAction === 'apply' ? `Apply to ${selectedJobs.size} Jobs` : `Remove ${selectedJobs.size} Jobs`}
                                 </>
                             )}
@@ -751,9 +776,15 @@ const SavedJobsPage = () => {
                         >
                             <Toast.Header className="toast-header">
                                 <div className="toast-icon">
-                                    <i className={`fas fa-${toast.type === 'success' ? 'check-circle' : toast.type === 'error' ? 'exclamation-circle' : 'info-circle'}`}></i>
+                                    {toast.type === 'success' ? (
+                                        <CheckCircle2 size={18} className="text-success" />
+                                    ) : toast.type === 'error' ? (
+                                        <AlertCircle size={18} className="text-danger" />
+                                    ) : (
+                                        <Info size={18} className="text-info" />
+                                    )}
                                 </div>
-                                <strong className="toast-title me-auto">
+                                <strong className="toast-title me-auto ms-2">
                                     {toast.type === 'success' ? 'Success' : toast.type === 'error' ? 'Error' : 'Info'}
                                 </strong>
                             </Toast.Header>

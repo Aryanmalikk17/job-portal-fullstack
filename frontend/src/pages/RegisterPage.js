@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Alert, Card } from 'react-bootstrap';
+import { Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
+import { 
+    UserPlus, 
+    Shield, 
+    Star, 
+    CheckCircle2, 
+    AlertTriangle, 
+    User, 
+    Mail, 
+    Lock, 
+    Eye, 
+    EyeOff 
+} from 'lucide-react';
 import { register } from '../services/authService';
 
 const RegisterPage = () => {
@@ -211,7 +223,7 @@ const RegisterPage = () => {
                                 <div className="auth-features">
                                     <div className="feature-item">
                                         <div className="feature-icon">
-                                            <i className="fa fa-user-plus"></i>
+                                            <UserPlus size={24} />
                                         </div>
                                         <div className="feature-text">
                                             <h6>Quick Registration</h6>
@@ -220,7 +232,7 @@ const RegisterPage = () => {
                                     </div>
                                     <div className="feature-item">
                                         <div className="feature-icon">
-                                            <i className="fa fa-shield"></i>
+                                            <Shield size={24} />
                                         </div>
                                         <div className="feature-text">
                                             <h6>Secure & Private</h6>
@@ -229,7 +241,7 @@ const RegisterPage = () => {
                                     </div>
                                     <div className="feature-item">
                                         <div className="feature-icon">
-                                            <i className="fa fa-star"></i>
+                                            <Star size={24} />
                                         </div>
                                         <div className="feature-text">
                                             <h6>Premium Experience</h6>
@@ -260,16 +272,16 @@ const RegisterPage = () => {
                                 
                                 {/* Success Message */}
                                 {successMessage && (
-                                    <Alert variant="success" className="alert-custom alert-success">
-                                        <i className="fa fa-check-circle me-2"></i>
+                                    <Alert variant="success" className="alert-custom alert-success d-flex align-items-center">
+                                        <CheckCircle2 className="me-2" size={18} />
                                         {successMessage}
                                     </Alert>
                                 )}
                                 
                                 {/* General Error Message */}
                                 {errors.general && (
-                                    <Alert variant="danger" className="alert-custom alert-error">
-                                        <i className="fa fa-exclamation-triangle me-2"></i>
+                                    <Alert variant="danger" className="alert-custom alert-error d-flex align-items-center">
+                                        <AlertTriangle className="me-2" size={18} />
                                         {errors.general}
                                     </Alert>
                                 )}
@@ -277,8 +289,8 @@ const RegisterPage = () => {
                                 {/* Validation Errors Summary */}
                                 {Object.keys(errors).length > 1 && (
                                     <Alert variant="danger" className="alert-custom alert-error">
-                                        <h6>
-                                            <i className="fa fa-exclamation-triangle me-2"></i>
+                                        <h6 className="d-flex align-items-center">
+                                            <AlertTriangle className="me-2" size={18} />
                                             Please correct the following errors:
                                         </h6>
                                         <ul className="mb-0 mt-2">
@@ -320,7 +332,7 @@ const RegisterPage = () => {
                                         <Form.Label>First Name</Form.Label>
                                         <div className="input-group">
                                             <span className="input-group-text">
-                                                <i className="fa fa-user"></i>
+                                                <User size={18} />
                                             </span>
                                             <Form.Control
                                                 type="text"
@@ -347,7 +359,7 @@ const RegisterPage = () => {
                                         <Form.Label>Last Name</Form.Label>
                                         <div className="input-group">
                                             <span className="input-group-text">
-                                                <i className="fa fa-user"></i>
+                                                <User size={18} />
                                             </span>
                                             <Form.Control
                                                 type="text"
@@ -374,7 +386,7 @@ const RegisterPage = () => {
                                         <Form.Label>Email Address</Form.Label>
                                         <div className="input-group">
                                             <span className="input-group-text">
-                                                <i className="fa fa-envelope"></i>
+                                                <Mail size={18} />
                                             </span>
                                             <Form.Control
                                                 type="email"
@@ -394,11 +406,6 @@ const RegisterPage = () => {
                                                 {errors.email}
                                             </div>
                                         )}
-                                        {formData.email && !errors.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) && (
-                                            <div className="valid-feedback d-block">
-                                                Email format is valid
-                                            </div>
-                                        )}
                                     </Form.Group>
                                     
                                     {/* Password Field */}
@@ -406,7 +413,7 @@ const RegisterPage = () => {
                                         <Form.Label>Password</Form.Label>
                                         <div className="input-group">
                                             <span className="input-group-text">
-                                                <i className="fa fa-lock"></i>
+                                                <Lock size={18} />
                                             </span>
                                             <Form.Control
                                                 type={showPassword ? 'text' : 'password'}
@@ -425,8 +432,9 @@ const RegisterPage = () => {
                                                 variant="outline-secondary" 
                                                 type="button"
                                                 onClick={() => setShowPassword(!showPassword)}
+                                                className="d-flex align-items-center"
                                             >
-                                                <i className={`fa ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                             </Button>
                                         </div>
                                         
@@ -477,13 +485,14 @@ const RegisterPage = () => {
                                     <Button
                                         type="submit"
                                         variant="primary"
-                                        className="auth-btn w-100 mb-3"
+                                        className="auth-btn w-100 mb-3 d-flex align-items-center justify-content-center"
                                         disabled={isLoading}
                                     >
-                                        {isLoading && (
-                                            <div className="loading-spinner me-2" style={{ display: 'inline-block' }}></div>
+                                        {isLoading ? (
+                                            <div className="loading-spinner me-2" style={{ width: '1rem', height: '1rem' }}></div>
+                                        ) : (
+                                            <UserPlus className="me-2" size={18} />
                                         )}
-                                        {!isLoading && <i className="fa fa-user-plus me-2"></i>}
                                         {isLoading ? 'Creating Account...' : 'Create Account'}
                                     </Button>
                                     

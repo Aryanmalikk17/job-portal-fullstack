@@ -1,6 +1,23 @@
 import React, { useState } from 'react';
 import { Card, Button, Badge, Dropdown, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { 
+    Check, 
+    Building2, 
+    MapPin, 
+    Briefcase, 
+    Home, 
+    DollarSign, 
+    Heart, 
+    CheckCircle2, 
+    Clock, 
+    Send, 
+    Eye, 
+    MoreVertical, 
+    HeartOff, 
+    ExternalLink, 
+    AlertTriangle 
+} from 'lucide-react';
 import './SavedJobCard.css';
 
 const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
@@ -170,36 +187,36 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                                         {jobData.title}
                                     </Link>
                                     {jobData.isApplied && (
-                                        <Badge bg="success" className="ms-2 applied-badge">
-                                            <i className="fas fa-check me-1"></i>
+                                        <Badge bg="success" className="ms-2 applied-badge d-inline-flex align-items-center">
+                                            <Check size={12} className="me-1" />
                                             Applied
                                         </Badge>
                                     )}
                                 </h5>
-                                <p className="company-name">
-                                    <i className="fas fa-building me-2"></i>
+                                <p className="company-name d-flex align-items-center">
+                                    <Building2 size={16} className="me-2 text-muted" />
                                     {jobData.company}
                                 </p>
                             </div>
 
                             <div className="job-meta">
-                                <span className="job-location">
-                                    <i className="fas fa-map-marker-alt me-1"></i>
+                                <span className="job-location d-inline-flex align-items-center">
+                                    <MapPin size={14} className="me-1 text-muted" />
                                     {jobData.location}
                                 </span>
-                                <span className="job-type">
-                                    <i className="fas fa-briefcase me-1"></i>
+                                <span className="job-type d-inline-flex align-items-center">
+                                    <Briefcase size={14} className="me-1 text-muted" />
                                     {jobData.type}
                                 </span>
                                 {jobData.remote && jobData.remote !== 'Office-Only' && (
-                                    <Badge bg="info" className="remote-badge">
-                                        <i className="fas fa-home me-1"></i>
+                                    <Badge bg="info" className="remote-badge d-inline-flex align-items-center">
+                                        <Home size={12} className="me-1" />
                                         {jobData.remote}
                                     </Badge>
                                 )}
                                 {jobData.salary && (
-                                    <span className="job-salary">
-                                        <i className="fas fa-dollar-sign me-1"></i>
+                                    <span className="job-salary d-inline-flex align-items-center">
+                                        <DollarSign size={14} className="me-1 text-muted" />
                                         {jobData.salary}
                                     </span>
                                 )}
@@ -249,19 +266,19 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                             )}
 
                             <div className="job-dates">
-                                <small className="text-muted saved-date">
-                                    <i className="fas fa-heart me-1"></i>
+                                <small className="text-muted saved-date d-inline-flex align-items-center">
+                                    <Heart size={14} className="me-1" />
                                     {formatSavedDate(jobData.savedAt)}
                                 </small>
                                 {jobData.isApplied && jobData.appliedAt && (
-                                    <small className="text-success applied-date">
-                                        <i className="fas fa-check-circle me-1"></i>
+                                    <small className="text-success applied-date d-inline-flex align-items-center">
+                                        <CheckCircle2 size={14} className="me-1" />
                                         Applied on {formatDate(jobData.appliedAt)}
                                     </small>
                                 )}
                                 {deadlineInfo && (
-                                    <small className={`deadline-info text-${deadlineInfo.variant}`}>
-                                        <i className="fas fa-clock me-1"></i>
+                                    <small className={`deadline-info text-${deadlineInfo.variant} d-inline-flex align-items-center`}>
+                                        <Clock size={14} className="me-1" />
                                         {deadlineInfo.text}
                                     </small>
                                 )}
@@ -276,10 +293,10 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                                         variant="success"
                                         size="sm"
                                         onClick={() => setShowApplyModal(true)}
-                                        className="apply-btn"
+                                        className="apply-btn d-inline-flex align-items-center"
                                         disabled={deadlineInfo?.status === 'expired'}
                                     >
-                                        <i className="fas fa-paper-plane me-1"></i>
+                                        <Send size={14} className="me-1" />
                                         Apply Now
                                     </Button>
                                 ) : (
@@ -287,9 +304,9 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                                         variant="outline-success"
                                         size="sm"
                                         disabled
-                                        className="applied-btn"
+                                        className="applied-btn d-inline-flex align-items-center"
                                     >
-                                        <i className="fas fa-check me-1"></i>
+                                        <Check size={14} className="me-1" />
                                         Applied
                                     </Button>
                                 )}
@@ -299,9 +316,9 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                                     to={`/jobs/${jobData.id}`}
                                     variant="outline-primary"
                                     size="sm"
-                                    className="view-btn"
+                                    className="view-btn d-inline-flex align-items-center"
                                 >
-                                    <i className="fas fa-eye me-1"></i>
+                                    <Eye size={14} className="me-1" />
                                     View Details
                                 </Button>
                             </div>
@@ -310,18 +327,18 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                                 <Dropdown.Toggle 
                                     variant="outline-secondary" 
                                     size="sm" 
-                                    className="options-btn"
+                                    className="options-btn d-flex align-items-center"
                                     id={`dropdown-${jobData.id}`}
                                 >
-                                    <i className="fas fa-ellipsis-v"></i>
+                                    <MoreVertical size={16} />
                                 </Dropdown.Toggle>
 
                                 <Dropdown.Menu>
                                     <Dropdown.Item 
                                         onClick={() => setShowRemoveModal(true)}
-                                        className="text-danger"
+                                        className="text-danger d-flex align-items-center"
                                     >
-                                        <i className="fas fa-heart-broken me-2"></i>
+                                        <HeartOff size={16} className="me-2" />
                                         Remove from Saved
                                     </Dropdown.Item>
                                     <Dropdown.Divider />
@@ -329,8 +346,9 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                                         as={Link} 
                                         to={`/jobs/${jobData.id}`}
                                         target="_blank"
+                                        className="d-flex align-items-center"
                                     >
-                                        <i className="fas fa-external-link-alt me-2"></i>
+                                        <ExternalLink size={16} className="me-2" />
                                         Open in New Tab
                                     </Dropdown.Item>
                                 </Dropdown.Menu>
@@ -347,14 +365,14 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="text-center mb-3">
-                        <i className="fas fa-paper-plane fa-3x text-success mb-3"></i>
+                        <Send size={48} className="text-success mb-3" />
                         <h5>Apply to {jobData.title}?</h5>
                         <p className="text-muted">
                             You're about to apply to <strong>{jobData.title}</strong> at <strong>{jobData.company}</strong>.
                         </p>
                         {deadlineInfo && deadlineInfo.status !== 'expired' && (
-                            <div className={`alert alert-${deadlineInfo.variant}`}>
-                                <i className="fas fa-clock me-2"></i>
+                            <div className={`alert alert-${deadlineInfo.variant} d-flex align-items-center justify-content-center`}>
+                                <Clock size={18} className="me-2" />
                                 Application deadline: {deadlineInfo.text}
                             </div>
                         )}
@@ -368,6 +386,7 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                         variant="success" 
                         onClick={() => handleApply(jobData)}
                         disabled={isApplying}
+                        className="d-inline-flex align-items-center"
                     >
                         {isApplying ? (
                             <>
@@ -376,7 +395,7 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                             </>
                         ) : (
                             <>
-                                <i className="fas fa-paper-plane me-2"></i>
+                                <Send size={18} className="me-2" />
                                 Apply Now
                             </>
                         )}
@@ -391,13 +410,13 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="text-center mb-3">
-                        <i className="fas fa-heart-broken fa-3x text-danger mb-3"></i>
+                        <HeartOff size={48} className="text-danger mb-3" />
                         <h5>Remove {jobData.title}?</h5>
                         <p className="text-muted">
                             Are you sure you want to remove <strong>{jobData.title}</strong> at <strong>{jobData.company}</strong> from your saved jobs?
                         </p>
-                        <div className="alert alert-warning">
-                            <i className="fas fa-exclamation-triangle me-2"></i>
+                        <div className="alert alert-warning d-flex align-items-center justify-content-center">
+                            <AlertTriangle size={18} className="me-2" />
                             This action cannot be undone.
                         </div>
                     </div>
@@ -410,6 +429,7 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                         variant="danger" 
                         onClick={() => handleRemove(jobData)}
                         disabled={isRemoving}
+                        className="d-inline-flex align-items-center"
                     >
                         {isRemoving ? (
                             <>
@@ -418,7 +438,7 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
                             </>
                         ) : (
                             <>
-                                <i className="fas fa-heart-broken me-2"></i>
+                                <HeartOff size={18} className="me-2" />
                                 Remove Job
                             </>
                         )}

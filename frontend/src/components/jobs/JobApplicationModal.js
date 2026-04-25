@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
+import { 
+    Send, 
+    Building2, 
+    MapPin, 
+    Briefcase, 
+    CheckCircle2, 
+    AlertCircle, 
+    Edit, 
+    FileText, 
+    Info, 
+    File, 
+    X, 
+    Lightbulb, 
+    ShieldCheck 
+} from 'lucide-react';
 import { applyToJob } from '../../services/applicationService';
 
 const JobApplicationModal = ({ 
@@ -163,8 +178,8 @@ const JobApplicationModal = ({
             keyboard={!isSubmitting}
         >
             <Modal.Header closeButton={!isSubmitting}>
-                <Modal.Title>
-                    <i className="fas fa-paper-plane me-2 text-primary"></i>
+                <Modal.Title className="d-flex align-items-center">
+                    <Send className="me-2 text-primary" size={24} />
                     Apply for Job
                 </Modal.Title>
             </Modal.Header>
@@ -173,19 +188,19 @@ const JobApplicationModal = ({
                 {/* Job Information */}
                 <div className="job-info-section mb-4 p-3 bg-light rounded">
                     <h5 className="mb-2 text-primary">{job?.jobTitle}</h5>
-                    <p className="mb-1 text-muted">
-                        <i className="fas fa-building me-2"></i>
+                    <p className="mb-1 text-muted d-flex align-items-center">
+                        <Building2 className="me-2" size={16} />
                         {job?.companyName || job?.jobCompanyId?.name || `${job?.postedBy?.firstName} ${job?.postedBy?.lastName}`}
                     </p>
                     {job?.jobLocation && (
-                        <p className="mb-0 text-muted">
-                            <i className="fas fa-map-marker-alt me-2"></i>
+                        <p className="mb-1 text-muted d-flex align-items-center">
+                            <MapPin className="me-2" size={16} />
                             {job.jobLocation}
                         </p>
                     )}
                     {job?.jobType && (
-                        <p className="mb-0 text-muted">
-                            <i className="fas fa-briefcase me-2"></i>
+                        <p className="mb-0 text-muted d-flex align-items-center">
+                            <Briefcase className="me-2" size={16} />
                             {job.jobType}
                         </p>
                     )}
@@ -193,21 +208,25 @@ const JobApplicationModal = ({
 
                 {/* Success Message */}
                 {success && (
-                    <Alert variant="success" className="mb-3">
-                        <i className="fas fa-check-circle me-2"></i>
-                        <strong>Application Submitted Successfully!</strong>
-                        <br />
-                        Your application has been sent to the recruiter. You will be notified of any updates.
+                    <Alert variant="success" className="mb-3 d-flex align-items-start">
+                        <CheckCircle2 className="me-2 mt-1" size={18} />
+                        <div>
+                            <strong>Application Submitted Successfully!</strong>
+                            <br />
+                            Your application has been sent to the recruiter. You will be notified of any updates.
+                        </div>
                     </Alert>
                 )}
 
                 {/* Error Message */}
                 {error && (
-                    <Alert variant="danger" className="mb-3">
-                        <i className="fas fa-exclamation-circle me-2"></i>
-                        <strong>Application Failed:</strong>
-                        <br />
-                        {error}
+                    <Alert variant="danger" className="mb-3 d-flex align-items-start">
+                        <AlertCircle className="me-2 mt-1" size={18} />
+                        <div>
+                            <strong>Application Failed:</strong>
+                            <br />
+                            {error}
+                        </div>
                     </Alert>
                 )}
 
@@ -216,9 +235,9 @@ const JobApplicationModal = ({
                     <Form onSubmit={handleSubmit}>
                         {/* Cover Letter Section */}
                         <Form.Group className="mb-4">
-                            <Form.Label>
-                                <i className="fas fa-edit me-2"></i>
-                                Cover Letter <span className="text-muted">(Optional)</span>
+                            <Form.Label className="d-flex align-items-center">
+                                <Edit className="me-2" size={18} />
+                                Cover Letter <span className="text-muted ms-1">(Optional)</span>
                             </Form.Label>
                             <Form.Control
                                 as="textarea"
@@ -243,9 +262,9 @@ const JobApplicationModal = ({
 
                         {/* Resume Section - Now Functional */}
                         <Form.Group className="mb-4">
-                            <Form.Label>
-                                <i className="fas fa-file-pdf me-2"></i>
-                                Resume <span className="text-muted">(Optional)</span>
+                            <Form.Label className="d-flex align-items-center">
+                                <FileText className="me-2" size={18} />
+                                Resume <span className="text-muted ms-1">(Optional)</span>
                             </Form.Label>
                             <div className="resume-upload-section">
                                 <Form.Control
@@ -257,23 +276,25 @@ const JobApplicationModal = ({
                                     className="mb-2"
                                 />
                                 <div className="file-upload-help">
-                                    <small className="text-muted">
-                                        <i className="fas fa-info-circle me-1"></i>
+                                    <small className="text-muted d-flex align-items-center">
+                                        <Info className="me-1" size={14} />
                                         Supported formats: PDF, DOC, DOCX (Max 5MB)
                                     </small>
                                 </div>
                                 {formData.resumeFile && (
-                                    <div className="selected-file mt-2 p-2 bg-light rounded">
-                                        <i className="fas fa-file me-2 text-primary"></i>
-                                        <span className="file-name">{formData.resumeFile.name}</span>
+                                    <div className="selected-file mt-2 p-2 bg-light rounded d-flex align-items-center justify-content-between">
+                                        <div className="d-flex align-items-center">
+                                            <File className="me-2 text-primary" size={16} />
+                                            <span className="file-name">{formData.resumeFile.name}</span>
+                                        </div>
                                         <Button
                                             variant="link"
                                             size="sm"
-                                            className="text-danger p-0 ms-2"
+                                            className="text-danger p-0 ms-2 d-flex align-items-center"
                                             onClick={removeFile}
                                             disabled={isSubmitting}
                                         >
-                                            <i className="fas fa-times"></i>
+                                            <X size={16} />
                                         </Button>
                                     </div>
                                 )}
@@ -282,8 +303,8 @@ const JobApplicationModal = ({
 
                         {/* Application Guidelines */}
                         <div className="application-guidelines mb-4 p-3 bg-info bg-opacity-10 rounded">
-                            <h6 className="text-info mb-2">
-                                <i className="fas fa-lightbulb me-2"></i>
+                            <h6 className="text-info mb-2 d-flex align-items-center">
+                                <Lightbulb className="me-2" size={18} />
                                 Application Tips
                             </h6>
                             <ul className="mb-0 small text-muted">
@@ -300,8 +321,8 @@ const JobApplicationModal = ({
             <Modal.Footer className="d-flex justify-content-between">
                 <div>
                     {!success && (
-                        <small className="text-muted">
-                            <i className="fas fa-shield-alt me-1"></i>
+                        <small className="text-muted d-flex align-items-center">
+                            <ShieldCheck className="me-1" size={14} />
                             Your application will be sent securely to the recruiter
                         </small>
                     )}
@@ -322,6 +343,7 @@ const JobApplicationModal = ({
                             type="submit"
                             onClick={handleSubmit}
                             disabled={isSubmitting}
+                            className="d-flex align-items-center"
                         >
                             {isSubmitting ? (
                                 <>
@@ -330,7 +352,7 @@ const JobApplicationModal = ({
                                 </>
                             ) : (
                                 <>
-                                    <i className="fas fa-paper-plane me-2"></i>
+                                    <Send className="me-2" size={18} />
                                     Submit Application
                                 </>
                             )}

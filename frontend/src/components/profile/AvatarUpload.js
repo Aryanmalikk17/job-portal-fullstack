@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
+import { Camera, UserPlus, Trash2 } from 'lucide-react';
 import { getFullFileUrl } from '../../services/profileService';
 import './AvatarUpload.css';
 
@@ -91,7 +92,7 @@ const AvatarUpload = ({ currentImage, onUpload, loading }) => {
                     <div className="avatar-preview">
                         <img src={preview} alt="Profile preview" className="avatar-image" />
                         <div className="avatar-overlay">
-                            <i className="fas fa-camera"></i>
+                            <Camera size={24} className="mb-1" />
                             <span>Change Photo</span>
                         </div>
                         {loading && (
@@ -102,7 +103,7 @@ const AvatarUpload = ({ currentImage, onUpload, loading }) => {
                     </div>
                 ) : (
                     <div className="avatar-placeholder">
-                        <i className="fas fa-user-plus"></i>
+                        <UserPlus size={40} className="mb-2 text-muted" />
                         <h6>Upload Photo</h6>
                         <p>Drag & drop or click to select</p>
                         <small>JPEG, PNG, GIF up to 2MB</small>
@@ -124,15 +125,15 @@ const AvatarUpload = ({ currentImage, onUpload, loading }) => {
             />
 
             {preview && (
-                <div className="avatar-actions mt-3">
+                <div className="avatar-actions mt-3 d-flex justify-content-center">
                     <Button
                         variant="outline-secondary"
                         size="sm"
                         onClick={handleRemove}
                         disabled={loading}
-                        className="me-2"
+                        className="me-2 d-flex align-items-center"
                     >
-                        <i className="fas fa-trash me-1"></i>
+                        <Trash2 size={14} className="me-2" />
                         Remove
                     </Button>
                     <Button
@@ -140,8 +141,9 @@ const AvatarUpload = ({ currentImage, onUpload, loading }) => {
                         size="sm"
                         onClick={handleClick}
                         disabled={loading}
+                        className="d-flex align-items-center"
                     >
-                        <i className="fas fa-camera me-1"></i>
+                        <Camera size={14} className="me-2" />
                         Change
                     </Button>
                 </div>

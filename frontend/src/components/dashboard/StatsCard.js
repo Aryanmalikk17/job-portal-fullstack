@@ -1,8 +1,10 @@
 import React from 'react';
 import { Card } from 'react-bootstrap';
+import { HelpCircle } from 'lucide-react';
 
-const StatsCard = ({ title, value, icon, color, subtitle, trend }) => {
-    const getColorClass = (color) => {
+const StatsCard = ({ title, value, icon: Icon, color = 'primary', subtitle, trend }) => {
+    // Map color names to modern CSS classes
+    const getColorClass = (c) => {
         const colorMap = {
             primary: 'stats-card-primary',
             success: 'stats-card-success',
@@ -10,10 +12,10 @@ const StatsCard = ({ title, value, icon, color, subtitle, trend }) => {
             warning: 'stats-card-warning',
             danger: 'stats-card-danger'
         };
-        return colorMap[color] || 'stats-card-primary';
+        return colorMap[c] || 'stats-card-primary';
     };
 
-    const getIconColor = (color) => {
+    const getIconColor = (c) => {
         const colorMap = {
             primary: 'text-primary',
             success: 'text-success',
@@ -21,27 +23,29 @@ const StatsCard = ({ title, value, icon, color, subtitle, trend }) => {
             warning: 'text-warning',
             danger: 'text-danger'
         };
-        return colorMap[color] || 'text-primary';
+        return colorMap[c] || 'text-primary';
     };
+
+    // Safe icon rendering: fallback to HelpCircle if Icon is not provided or invalid
+    const IconComponent = Icon || HelpCircle;
 
     return (
         <Card className={`stats-card ${getColorClass(color)}`}>
             <Card.Body className="p-4">
-                <div className="stats-content">
-                    <div className="stats-icon">
-                        <i className={`${icon} ${getIconColor(color)}`}></i>
+                <div className="stats-content d-flex align-items-center">
+                    <div className="stats-icon me-3">
+                        <IconComponent size={24} className={getIconColor(color)} />
                     </div>
                     <div className="stats-info">
-                        <div className="stats-number">
-                            {typeof value === 'number' ? value.toLocaleString() : value}
+                        <div className="stats-number h3 mb-0 font-weight-bold">
+                            {typeof value === 'number' ? value.toLocaleString() : (value || 0)}
                         </div>
-                        <div className="stats-label">{title}</div>
+                        <div className="stats-label text-muted">{title}</div>
                         {subtitle && (
-                            <div className="stats-subtitle">{subtitle}</div>
+                            <div className="stats-subtitle x-small text-muted">{subtitle}</div>
                         )}
                         {trend && (
-                            <div className={`stats-trend ${trend.type === 'up' ? 'trend-up' : 'trend-down'}`}>
-                                <i className={`fas fa-arrow-${trend.type === 'up' ? 'up' : 'down'} me-1`}></i>
+                            <div className={`stats-trend ${trend.type === 'up' ? 'text-success' : 'text-danger'} small mt-1`}>
                                 {trend.value}%
                             </div>
                         )}

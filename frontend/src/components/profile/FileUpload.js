@@ -1,5 +1,14 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button, ProgressBar } from 'react-bootstrap';
+import { 
+    FileText, 
+    FileImage, 
+    FileUp, 
+    Image, 
+    Upload, 
+    Download, 
+    Trash2
+} from 'lucide-react';
 import { getFullFileUrl } from '../../services/profileService';
 import './FileUpload.css';
 
@@ -9,23 +18,38 @@ const FileUpload = ({ currentFile, onUpload, loading, acceptedTypes, maxSize, fi
     const fileInputRef = useRef(null);
 
     const getFileIcon = (fileName) => {
-        if (!fileName) return 'fas fa-file';
+        if (!fileName) return FileText;
         
         const extension = fileName.split('.').pop().toLowerCase();
         switch (extension) {
             case 'pdf':
-                return 'fas fa-file-pdf text-danger';
             case 'doc':
             case 'docx':
-                return 'fas fa-file-word text-primary';
+                return FileText;
             case 'jpg':
             case 'jpeg':
             case 'png':
             case 'gif':
             case 'svg':
-                return 'fas fa-file-image text-success';
+                return FileImage;
             default:
-                return 'fas fa-file';
+                return FileText;
+        }
+    };
+
+    const getIconColorClass = (fileName) => {
+        if (!fileName) return 'text-muted';
+        const extension = fileName.split('.').pop().toLowerCase();
+        switch (extension) {
+            case 'pdf': return 'text-danger';
+            case 'doc':
+            case 'docx': return 'text-primary';
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+            case 'gif':
+            case 'svg': return 'text-success';
+            default: return 'text-muted';
         }
     };
 
@@ -122,50 +146,53 @@ const FileUpload = ({ currentFile, onUpload, loading, acceptedTypes, maxSize, fi
         // You might want to call an onRemove callback here
     };
 
+    const FileIcon = currentFile ? getFileIcon(currentFile instanceof File ? currentFile.name : currentFile) : null;
+    const PlaceholderIcon = fileType === 'resume' ? FileUp : fileType === 'logo' ? Image : Upload;
+
     return (
         <div className="file-upload">
             <div 
-                className={`file-upload-area ${dragOver ? 'drag-over' : ''} ${loading ? 'loading' : ''}`}
+                className={`file-upload-area ${dragOver ? 'drag-over' : ''} ${loading ? 'loading' : ''} border-2 border-dashed rounded-3 p-4 text-center cursor-pointer`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={handleClick}
             >
                 {currentFile ? (
-                    <div className="file-preview">
-                        <div className="file-info">
-                            <i className={getFileIcon(currentFile instanceof File ? currentFile.name : currentFile)}></i>
-                            <div className="file-details">
-                                <h6 className="file-name">
+                    <div className="file-preview position-relative">
+                        <div className="file-info d-flex align-items-center justify-content-center flex-column">
+                            <FileIcon size={48} className={getIconColorClass(currentFile instanceof File ? currentFile.name : currentFile)} />
+                            <div className="file-details mt-2">
+                                <h6 className="file-name mb-1 fw-bold">
                                     {currentFile instanceof File ? currentFile.name : currentFile}
                                 </h6>
-                                <p className="file-size">
+                                <p className="file-size text-muted small mb-0">
                                     {currentFile instanceof File ? formatFileSize(currentFile.size) : 'Previously uploaded'}
                                 </p>
                             </div>
                         </div>
-                        <div className="file-overlay">
-                            <i className="fas fa-upload"></i>
-                            <span>Replace File</span>
+                        <div className="file-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-white bg-opacity-75 opacity-0 transition-all hover-opacity-100">
+                            <Upload size={24} className="mb-2" />
+                            <span className="fw-bold">Replace File</span>
                         </div>
                         {loading && (
-                            <div className="upload-loading">
-                                <div className="spinner-border spinner-border-sm"></div>
+                            <div className="upload-loading position-absolute top-50 start-50 translate-middle">
+                                <div className="spinner-border spinner-border-sm text-primary"></div>
                             </div>
                         )}
                     </div>
                 ) : (
                     <div className="file-placeholder">
-                        <i className={`fas ${fileType === 'resume' ? 'fa-file-upload' : fileType === 'logo' ? 'fa-image' : 'fa-upload'}`}></i>
-                        <h6>Upload {fileType === 'resume' ? 'Resume' : fileType === 'logo' ? 'Logo' : 'File'}</h6>
-                        <p>Drag & drop or click to select</p>
-                        <small>
+                        <PlaceholderIcon size={48} className="text-muted mb-3 opacity-50" />
+                        <h6 className="fw-bold">Upload {fileType === 'resume' ? 'Resume' : fileType === 'logo' ? 'Logo' : 'File'}</h6>
+                        <p className="text-muted mb-2">Drag & drop or click to select</p>
+                        <small className="text-muted d-block">
                             {acceptedTypes ? acceptedTypes.replace(/\./g, '').toUpperCase() : 'All files'} 
                             {maxSize && ` up to ${maxSize}MB`}
                         </small>
                         {loading && (
-                            <div className="upload-loading">
-                                <div className="spinner-border spinner-border-sm"></div>
+                            <div className="upload-loading mt-3">
+                                <div className="spinner-border spinner-border-sm text-primary"></div>
                             </div>
                         )}
                     </div>
@@ -173,12 +200,14 @@ const FileUpload = ({ currentFile, onUpload, loading, acceptedTypes, maxSize, fi
             </div>
 
             {uploadProgress > 0 && uploadProgress < 100 && (
-                <div className="upload-progress mt-2">
+                <div className="upload-progress mt-3">
                     <ProgressBar 
                         now={uploadProgress} 
                         label={`${uploadProgress}%`}
                         variant="primary"
                         animated
+                        className="rounded-pill"
+                        style={{ height: '10px' }}
                     />
                 </div>
             )}
@@ -192,15 +221,15 @@ const FileUpload = ({ currentFile, onUpload, loading, acceptedTypes, maxSize, fi
             />
 
             {currentFile && (
-                <div className="file-actions mt-3">
+                <div className="file-actions mt-3 d-flex flex-wrap gap-2">
                     <Button
                         variant="outline-success"
                         size="sm"
                         onClick={handleDownload}
                         disabled={loading}
-                        className="me-2"
+                        className="d-inline-flex align-items-center px-3"
                     >
-                        <i className="fas fa-download me-1"></i>
+                        <Download size={14} className="me-2" />
                         Download
                     </Button>
                     <Button
@@ -208,9 +237,9 @@ const FileUpload = ({ currentFile, onUpload, loading, acceptedTypes, maxSize, fi
                         size="sm"
                         onClick={handleRemove}
                         disabled={loading}
-                        className="me-2"
+                        className="d-inline-flex align-items-center px-3"
                     >
-                        <i className="fas fa-trash me-1"></i>
+                        <Trash2 size={14} className="me-2" />
                         Remove
                     </Button>
                     <Button
@@ -218,8 +247,9 @@ const FileUpload = ({ currentFile, onUpload, loading, acceptedTypes, maxSize, fi
                         size="sm"
                         onClick={handleClick}
                         disabled={loading}
+                        className="d-inline-flex align-items-center px-3"
                     >
-                        <i className="fas fa-upload me-1"></i>
+                        <Upload size={14} className="me-2" />
                         Replace
                     </Button>
                 </div>

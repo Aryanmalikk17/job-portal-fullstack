@@ -1,5 +1,19 @@
 import React from 'react';
 import { Modal, Button, Row, Col, Badge, Card } from 'react-bootstrap';
+import { 
+    CircleUser, 
+    User, 
+    Mail, 
+    Circle, 
+    Briefcase, 
+    Building2, 
+    Clock, 
+    CheckCircle2, 
+    Info, 
+    FileText, 
+    StickyNote, 
+    Edit 
+} from 'lucide-react';
 
 const ApplicationDetailsModal = ({ 
     show, 
@@ -38,8 +52,8 @@ const ApplicationDetailsModal = ({
             centered
         >
             <Modal.Header closeButton>
-                <Modal.Title>
-                    <i className="fas fa-user-circle me-2 text-primary"></i>
+                <Modal.Title className="d-flex align-items-center">
+                    <CircleUser className="me-2 text-primary" size={24} />
                     Application Details
                 </Modal.Title>
             </Modal.Header>
@@ -47,19 +61,17 @@ const ApplicationDetailsModal = ({
             <Modal.Body>
                 {/* Applicant Information */}
                 <Card className="mb-4">
-                    <Card.Header className="bg-light">
-                        <h6 className="mb-0">
-                            <i className="fas fa-user me-2"></i>
-                            Applicant Information
-                        </h6>
+                    <Card.Header className="bg-light d-flex align-items-center">
+                        <User className="me-2 text-muted" size={18} />
+                        <h6 className="mb-0">Applicant Information</h6>
                     </Card.Header>
                     <Card.Body>
                         <Row>
                             <Col md={6}>
                                 <div className="applicant-info">
                                     <h5 className="text-primary mb-1">{application.applicantName}</h5>
-                                    <p className="text-muted mb-2">
-                                        <i className="fas fa-envelope me-2"></i>
+                                    <p className="text-muted mb-2 d-flex align-items-center">
+                                        <Mail className="me-2" size={14} />
                                         <a href={`mailto:${application.applicantEmail}`} className="text-decoration-none">
                                             {application.applicantEmail}
                                         </a>
@@ -69,9 +81,9 @@ const ApplicationDetailsModal = ({
                             <Col md={6} className="text-end">
                                 <Badge 
                                     bg={getStatusBadgeVariant(application.status)}
-                                    className="status-badge-large px-3 py-2"
+                                    className="status-badge-large px-3 py-2 d-inline-flex align-items-center"
                                 >
-                                    <i className="fas fa-circle me-1" style={{ fontSize: '0.6rem' }}></i>
+                                    <Circle className="me-2 fill-current" size={8} />
                                     {application.status?.replace(/_/g, ' ')}
                                 </Badge>
                             </Col>
@@ -81,16 +93,14 @@ const ApplicationDetailsModal = ({
 
                 {/* Job Information */}
                 <Card className="mb-4">
-                    <Card.Header className="bg-light">
-                        <h6 className="mb-0">
-                            <i className="fas fa-briefcase me-2"></i>
-                            Job Information
-                        </h6>
+                    <Card.Header className="bg-light d-flex align-items-center">
+                        <Briefcase className="me-2 text-muted" size={18} />
+                        <h6 className="mb-0">Job Information</h6>
                     </Card.Header>
                     <Card.Body>
                         <h6 className="text-primary mb-2">{application.jobTitle}</h6>
-                        <p className="text-muted mb-0">
-                            <i className="fas fa-building me-2"></i>
+                        <p className="text-muted mb-0 d-flex align-items-center">
+                            <Building2 className="me-2" size={14} />
                             {application.companyName}
                         </p>
                     </Card.Body>
@@ -99,11 +109,9 @@ const ApplicationDetailsModal = ({
                 {/* Application Timeline */}
                 {timeline.length > 0 && (
                     <Card className="mb-4">
-                        <Card.Header className="bg-light">
-                            <h6 className="mb-0">
-                                <i className="fas fa-clock me-2"></i>
-                                Application Progress
-                            </h6>
+                        <Card.Header className="bg-light d-flex align-items-center">
+                            <Clock className="me-2 text-muted" size={18} />
+                            <h6 className="mb-0">Application Progress</h6>
                         </Card.Header>
                         <Card.Body>
                             <div className="timeline-container">
@@ -114,7 +122,7 @@ const ApplicationDetailsModal = ({
                                             className={`timeline-item ${item.isActive ? 'active' : ''} ${item.isCurrent ? 'current' : ''}`}
                                         >
                                             <div className="timeline-marker">
-                                                <i className={`fas ${item.isActive ? 'fa-check-circle' : 'fa-circle'}`}></i>
+                                                {item.isActive ? <CheckCircle2 size={16} /> : <Circle size={16} />}
                                             </div>
                                             <div className="timeline-content">
                                                 <span className={`timeline-label ${item.isCurrent ? 'fw-bold' : ''}`}>
@@ -131,11 +139,9 @@ const ApplicationDetailsModal = ({
 
                 {/* Application Details */}
                 <Card className="mb-4">
-                    <Card.Header className="bg-light">
-                        <h6 className="mb-0">
-                            <i className="fas fa-info-circle me-2"></i>
-                            Application Details
-                        </h6>
+                    <Card.Header className="bg-light d-flex align-items-center">
+                        <Info className="me-2 text-muted" size={18} />
+                        <h6 className="mb-0">Application Details</h6>
                     </Card.Header>
                     <Card.Body>
                         <Row className="mb-3">
@@ -165,8 +171,8 @@ const ApplicationDetailsModal = ({
                         {application.resumePath && (
                             <div className="resume-section mt-3">
                                 <strong className="d-block mb-2">Resume:</strong>
-                                <div className="resume-link p-2 bg-light rounded">
-                                    <i className="fas fa-file-pdf me-2 text-danger"></i>
+                                <div className="resume-link p-2 bg-light rounded d-inline-flex align-items-center">
+                                    <FileText className="me-2 text-danger" size={18} />
                                     <a href={application.resumePath} target="_blank" rel="noopener noreferrer" className="text-decoration-none">
                                         View Resume
                                     </a>
@@ -178,11 +184,9 @@ const ApplicationDetailsModal = ({
 
                 {/* Recruiter Notes */}
                 <Card className="mb-4">
-                    <Card.Header className="bg-light">
-                        <h6 className="mb-0">
-                            <i className="fas fa-sticky-note me-2"></i>
-                            Your Notes
-                        </h6>
+                    <Card.Header className="bg-light d-flex align-items-center">
+                        <StickyNote className="me-2 text-muted" size={18} />
+                        <h6 className="mb-0">Your Notes</h6>
                     </Card.Header>
                     <Card.Body>
                         {application.recruiterNotes ? (
@@ -192,10 +196,12 @@ const ApplicationDetailsModal = ({
                                 </p>
                             </div>
                         ) : (
-                            <p className="text-muted mb-0 text-center py-3">
-                                <i className="fas fa-edit me-2"></i>
-                                No notes added yet. Click "Update Status" to add notes.
-                            </p>
+                            <div className="text-center py-3">
+                                <Edit className="mb-2 text-muted" size={24} />
+                                <p className="text-muted mb-0">
+                                    No notes added yet. Click "Update Status" to add notes.
+                                </p>
+                            </div>
                         )}
                     </Card.Body>
                 </Card>
@@ -203,12 +209,12 @@ const ApplicationDetailsModal = ({
 
             <Modal.Footer className="d-flex justify-content-between">
                 <div>
-                    <small className="text-muted">
-                        <i className="fas fa-info-circle me-1"></i>
+                    <small className="text-muted d-flex align-items-center">
+                        <Info className="me-1" size={14} />
                         Application ID: #{application.id}
                     </small>
                 </div>
-                <div>
+                <div className="d-flex">
                     <Button 
                         variant="secondary" 
                         onClick={onHide}
@@ -220,12 +226,13 @@ const ApplicationDetailsModal = ({
                     {application.status !== 'HIRED' && application.status !== 'REJECTED' && application.status !== 'WITHDRAWN' && (
                         <Button 
                             variant="primary" 
+                            className="d-flex align-items-center"
                             onClick={() => {
                                 onUpdateStatus(application);
                                 onHide();
                             }}
                         >
-                            <i className="fas fa-edit me-2"></i>
+                            <Edit className="me-2" size={18} />
                             Update Status
                         </Button>
                     )}
@@ -236,6 +243,8 @@ const ApplicationDetailsModal = ({
                 .status-badge-large {
                     font-size: 0.9rem;
                     font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
                 }
                 
                 .timeline-container {
@@ -283,7 +292,6 @@ const ApplicationDetailsModal = ({
                     background: white;
                     border: 2px solid #dee2e6;
                     color: #6c757d;
-                    font-size: 0.8rem;
                     z-index: 2;
                     position: relative;
                 }
@@ -330,6 +338,11 @@ const ApplicationDetailsModal = ({
                 
                 .card-header {
                     border-bottom: 1px solid #dee2e6;
+                    font-weight: 600;
+                }
+
+                .fill-current {
+                    fill: currentColor;
                 }
             `}</style>
         </Modal>

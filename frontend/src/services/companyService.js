@@ -25,7 +25,7 @@ export const companyService = {
     createOrGetCompany: async ({ name, website = null, logo = null } = {}) => {
         // Guard: name must be a non-empty string
         if (typeof name !== 'string' || !name.trim()) {
-            throw { message: 'Company name is required and must be a non-empty string.' };
+            throw new Error('Company name is required and must be a non-empty string.');
         }
         try {
             const response = await api.post(COMPANY_ENDPOINTS.CREATE_OR_GET, {
@@ -38,7 +38,7 @@ export const companyService = {
         } catch (error) {
             // Preserve original response data (with HTTP status) instead of wrapping in
             // a plain Error — callers can inspect error.status, error.message, etc.
-            throw error.response?.data || { message: 'Failed to create/get company' };
+            throw error.response?.data || new Error('Failed to create/get company');
         }
     },
 
@@ -51,7 +51,7 @@ export const companyService = {
             const response = await api.get(COMPANY_ENDPOINTS.SEARCH, { params: { name } });
             return response.data?.data || [];
         } catch (error) {
-            throw error.response?.data || { message: 'Failed to search companies' };
+            throw error.response?.data || new Error('Failed to search companies');
         }
     },
 
@@ -64,7 +64,7 @@ export const companyService = {
             const response = await api.get(COMPANY_ENDPOINTS.GET_ALL);
             return response.data?.data || [];
         } catch (error) {
-            throw error.response?.data || { message: 'Failed to fetch companies' };
+            throw error.response?.data || new Error('Failed to fetch companies');
         }
     },
 

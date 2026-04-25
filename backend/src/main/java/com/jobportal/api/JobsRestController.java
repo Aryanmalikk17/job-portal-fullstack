@@ -168,6 +168,33 @@ public class JobsRestController {
         }
     }
 
+    // Get recruiter's jobs - Frontend compatibility
+    @GetMapping("/recruiter")
+    @PreAuthorize("hasAuthority('Recruiter')")
+    public ResponseEntity<ApiResponse<List<JobResponse>>> getRecruiterJobs() {
+        try {
+            Users currentUser = usersService.getCurrentUser();
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>(false, "User not authenticated", null));
+            }
+
+            // Optimized: Use repository-level filtering instead of in-memory filter
+            List<JobPostActivity> recruiterJobs = jobPostActivityService.getActiveJobsByRecruiter(currentUser.getUserId());
+
+            List<JobResponse> jobResponses = recruiterJobs.stream()
+                .map(this::convertToJobResponse)
+                .collect(Collectors.toList());
+
+            return ResponseEntity.ok(new ApiResponse<>(true, "Recruiter jobs retrieved successfully", jobResponses));
+
+        } catch (Exception e) {
+            logger.error("Error retrieving recruiter jobs", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse<>(false, "Error retrieving recruiter jobs", null));
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<JobResponse>> getJobById(@PathVariable Integer id) {
         try {
@@ -301,36 +328,7 @@ public class JobsRestController {
         }
     }
 
-    // Get recruiter's jobs - Frontend compatibility
-    @GetMapping("/recruiter")
-    @PreAuthorize("hasAuthority('Recruiter')")
-    public ResponseEntity<ApiResponse<List<JobResponse>>> getRecruiterJobs() {
-        try {
-            Users currentUser = usersService.getCurrentUser();
-            if (currentUser == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponse<>(false, "User not authenticated", null));
-            }
 
-            // Get all jobs posted by the current recruiter
-            List<JobPostActivity> allJobs = jobPostActivityService.getAll();
-            List<JobPostActivity> recruiterJobs = allJobs.stream()
-                .filter(job -> job.getPostedById() != null && 
-                              Objects.equals(job.getPostedById().getUserId(), currentUser.getUserId()))
-                .collect(Collectors.toList());
-
-            List<JobResponse> jobResponses = recruiterJobs.stream()
-                .map(this::convertToJobResponse)
-                .collect(Collectors.toList());
-
-            return ResponseEntity.ok(new ApiResponse<>(true, "Recruiter jobs retrieved successfully", jobResponses));
-
-        } catch (Exception e) {
-            logger.error("Error retrieving recruiter jobs", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResponse<>(false, "Error retrieving recruiter jobs", null));
-        }
-    }
 
     // Alias endpoint for job creation - Frontend compatibility
     @PostMapping

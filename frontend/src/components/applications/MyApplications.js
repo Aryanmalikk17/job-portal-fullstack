@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Badge, Button, Alert, Spinner, Form, Modal } from 'react-bootstrap';
+import { 
+    Briefcase, 
+    RefreshCcw, 
+    AlertCircle, 
+    Inbox, 
+    Building2, 
+    MapPin, 
+    FileText,
+    MessageSquare,
+    ChevronRight,
+    Trash2
+} from 'lucide-react';
 import { getMyApplications, withdrawApplication } from '../../services/applicationService';
-import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
+import { getStatusIcon, getStatusLabel } from '../../utils/statusHelpers';
 
 const MyApplications = () => {
     const [applications, setApplications] = useState([]);
@@ -37,21 +49,9 @@ const MyApplications = () => {
         return app.status === filterStatus;
     });
 
-    // Get status badge variant
-    const getStatusVariant = (status) => {
-        switch (status) {
-            case 'PENDING': return 'primary';
-            case 'REVIEWED': return 'info';
-            case 'INTERVIEW': return 'warning';
-            case 'ACCEPTED': return 'success';
-            case 'REJECTED': return 'danger';
-            case 'WITHDRAWN': return 'secondary';
-            default: return 'secondary';
-        }
-    };
-
     // Format date
     const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -86,34 +86,36 @@ const MyApplications = () => {
     };
 
     return (
-        <Container className="my-4">
+        <Container className="my-5">
             <Row>
                 <Col>
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h2>
-                            <i className="fas fa-briefcase me-2 text-primary"></i>
+                    <div className="d-flex justify-content-between align-items-center mb-5">
+                        <h2 className="fw-bold d-flex align-items-center">
+                            <Briefcase size={32} className="me-3 text-primary" />
                             My Job Applications
                         </h2>
                         <Button 
                             variant="outline-primary" 
+                            className="d-flex align-items-center px-4 py-2 shadow-sm"
                             onClick={fetchMyApplications}
                             disabled={loading}
                         >
-                            <i className="fas fa-sync-alt me-2"></i>
+                            <RefreshCcw size={18} className={`me-2 ${loading ? 'spin-animation' : ''}`} />
                             Refresh
                         </Button>
                     </div>
 
                     {/* Filter Controls */}
-                    <Card className="mb-4">
-                        <Card.Body>
+                    <Card className="mb-5 border-0 shadow-sm glass-card rounded-4">
+                        <Card.Body className="p-4">
                             <Row className="align-items-center">
                                 <Col md={6}>
                                     <Form.Group>
-                                        <Form.Label>Filter by Status:</Form.Label>
+                                        <Form.Label className="small fw-bold text-muted text-uppercase mb-2">Filter by Status:</Form.Label>
                                         <Form.Select 
                                             value={filterStatus}
                                             onChange={(e) => setFilterStatus(e.target.value)}
+                                            className="border-light bg-light py-2"
                                         >
                                             <option value="ALL">All Applications</option>
                                             <option value="PENDING">Pending</option>
@@ -126,11 +128,11 @@ const MyApplications = () => {
                                     </Form.Group>
                                 </Col>
                                 <Col md={6} className="text-end">
-                                    <div className="text-muted">
-                                        Total Applications: <strong>{applications.length}</strong>
+                                    <div className="text-muted small">
+                                        Total Applications: <strong className="text-dark">{applications.length}</strong>
                                         {filterStatus !== 'ALL' && (
                                             <span className="ms-2">
-                                                | Filtered: <strong>{filteredApplications.length}</strong>
+                                                | Filtered: <strong className="text-primary">{filteredApplications.length}</strong>
                                             </span>
                                         )}
                                     </div>
@@ -141,8 +143,8 @@ const MyApplications = () => {
 
                     {/* Error Alert */}
                     {error && (
-                        <Alert variant="danger" dismissible onClose={() => setError(null)}>
-                            <i className="fas fa-exclamation-circle me-2"></i>
+                        <Alert variant="danger" className="border-0 shadow-sm d-flex align-items-center mb-4" dismissible onClose={() => setError(null)}>
+                            <AlertCircle size={20} className="me-2" />
                             {error}
                         </Alert>
                     )}
@@ -150,8 +152,8 @@ const MyApplications = () => {
                     {/* Loading State */}
                     {loading && (
                         <div className="text-center py-5">
-                            <Spinner animation="border" variant="primary" />
-                            <p className="mt-2 text-muted">Loading your applications...</p>
+                            <Spinner animation="border" variant="primary" style={{ width: '3rem', height: '3rem' }} />
+                            <p className="mt-3 text-muted fw-medium">Loading your applications...</p>
                         </div>
                     )}
 
@@ -159,66 +161,82 @@ const MyApplications = () => {
                     {!loading && (
                         <>
                             {filteredApplications.length === 0 ? (
-                                <Card className="text-center py-5">
+                                <Card className="text-center py-5 border-0 shadow-sm glass-card rounded-4">
                                     <Card.Body>
-                                        <i className="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                        <h5 className="text-muted">
+                                        <div className="text-muted mb-3 d-flex justify-content-center">
+                                            <Inbox size={64} strokeWidth={1} />
+                                        </div>
+                                        <h4 className="fw-bold text-dark mb-3">
                                             {filterStatus === 'ALL' 
                                                 ? 'No Applications Yet' 
                                                 : `No ${filterStatus.toLowerCase()} applications`
                                             }
-                                        </h5>
-                                        <p className="text-muted">
+                                        </h4>
+                                        <p className="text-muted mb-4 mx-auto" style={{ maxWidth: '400px' }}>
                                             {filterStatus === 'ALL' 
-                                                ? 'Start applying to jobs to see your applications here.'
-                                                : 'Try changing the filter to see other applications.'
+                                                ? 'Start your career journey today! Browse open positions and apply to your dream job.'
+                                                : 'Try changing the filter or search to see other applications in your history.'
                                             }
                                         </p>
+                                        {filterStatus === 'ALL' && (
+                                            <Button variant="primary" className="px-4 py-2" href="/jobs">
+                                                Browse Jobs <ChevronRight size={16} className="ms-1" />
+                                            </Button>
+                                        )}
                                     </Card.Body>
                                 </Card>
                             ) : (
-                                <Row>
+                                <Row className="g-4">
                                     {filteredApplications.map((application) => (
-                                        <Col lg={6} key={application.id} className="mb-4">
-                                            <Card className="h-100 application-card">
-                                                <Card.Body>
-                                                    <div className="d-flex justify-content-between align-items-start mb-3">
-                                                        <div>
-                                                            <h5 className="mb-1">
-                                                                {application.jobTitle || 'Job Title'}
-                                                            </h5>
-                                                            <p className="text-muted mb-0">
-                                                                <i className="fas fa-building me-2"></i>
-                                                                {application.companyName || 'Company Name'}
-                                                            </p>
+                                        <Col lg={6} key={application.id}>
+                                            <Card className="h-100 border-0 shadow-sm application-card rounded-4 overflow-hidden">
+                                                <Card.Body className="p-4">
+                                                    <div className="d-flex justify-content-between align-items-start mb-4">
+                                                        <div className="d-flex">
+                                                            <div className="bg-light p-3 rounded-3 me-3 d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px' }}>
+                                                                <Building2 size={28} className="text-primary" />
+                                                            </div>
+                                                            <div>
+                                                                <h5 className="fw-bold text-dark mb-1">
+                                                                    {application.jobTitle || 'Job Title'}
+                                                                </h5>
+                                                                <p className="text-muted mb-0 fw-medium d-flex align-items-center">
+                                                                    {application.companyName || 'Company Name'}
+                                                                </p>
+                                                            </div>
                                                         </div>
-                                                        <Badge bg={getStatusColor(application.status)}>
-                                                            <i className={`fa ${getStatusIcon(application.status)} me-1`}></i>
+                                                        <Badge 
+                                                            bg={null} 
+                                                            className={`status-badge d-flex align-items-center status-${application.status.toLowerCase()}`}
+                                                        >
+                                                            <span className="me-1 d-flex align-items-center">
+                                                                {getStatusIcon(application.status, 12)}
+                                                            </span>
                                                             {getStatusLabel(application.status)}
                                                         </Badge>
                                                     </div>
 
-                                                    {application.jobLocation && (
-                                                        <p className="text-muted mb-2">
-                                                            <i className="fas fa-map-marker-alt me-2"></i>
-                                                            {application.jobLocation}
-                                                        </p>
-                                                    )}
-
-                                                    <div className="mb-3">
-                                                        <small className="text-muted">
-                                                            <strong>Applied:</strong> {formatDate(application.applyDate)}
-                                                        </small>
+                                                    <div className="d-flex flex-wrap gap-3 mb-4">
+                                                        {application.jobLocation && (
+                                                            <div className="d-flex align-items-center text-muted small bg-light px-2 py-1 rounded">
+                                                                <MapPin size={14} className="me-1" />
+                                                                {application.jobLocation}
+                                                            </div>
+                                                        )}
+                                                        <div className="d-flex align-items-center text-muted small bg-light px-2 py-1 rounded">
+                                                            <FileText size={14} className="me-1" />
+                                                            Applied: {formatDate(application.applyDate)}
+                                                        </div>
                                                     </div>
 
                                                     {application.coverLetter && (
-                                                        <div className="mb-3">
-                                                            <small className="text-muted d-block mb-1">
-                                                                <strong>Cover Letter:</strong>
-                                                            </small>
-                                                            <div className="cover-letter-preview">
-                                                                {application.coverLetter.length > 150 
-                                                                    ? `${application.coverLetter.substring(0, 150)}...`
+                                                        <div className="mb-4">
+                                                            <div className="small fw-bold text-muted text-uppercase mb-2 d-flex align-items-center">
+                                                                <FileText size={14} className="me-1" /> Cover Letter Preview
+                                                            </div>
+                                                            <div className="cover-letter-preview p-3 bg-light rounded-3 border-start border-4 border-primary shadow-sm">
+                                                                {application.coverLetter.length > 180 
+                                                                    ? `${application.coverLetter.substring(0, 180)}...`
                                                                     : application.coverLetter
                                                                 }
                                                             </div>
@@ -226,32 +244,38 @@ const MyApplications = () => {
                                                     )}
 
                                                     {application.recruiterNotes && (
-                                                        <div className="mb-3 p-2 bg-light rounded">
-                                                            <small className="text-muted d-block mb-1">
-                                                                <strong>Recruiter Notes:</strong>
-                                                            </small>
-                                                            <small>{application.recruiterNotes}</small>
+                                                        <div className="mb-4 p-3 bg-soft-info rounded-3 border-start border-4 border-info shadow-sm">
+                                                            <div className="small fw-bold text-info text-uppercase mb-1 d-flex align-items-center">
+                                                                <MessageSquare size={14} className="me-1" /> Feedback from Recruiter
+                                                            </div>
+                                                            <div className="small text-dark fw-medium">{application.recruiterNotes}</div>
                                                         </div>
                                                     )}
 
-                                                    <div className="d-flex justify-content-between align-items-center">
-                                                        <small className="text-muted">
-                                                            Application ID: {application.id}
+                                                    <div className="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                                                        <small className="text-muted fw-medium">
+                                                            ID: #{application.id}
                                                         </small>
                                                         
-                                                        {application.status === 'PENDING' && (
-                                                            <Button
-                                                                variant="outline-danger"
-                                                                size="sm"
-                                                                onClick={() => {
-                                                                    setSelectedApplication(application);
-                                                                    setShowWithdrawModal(true);
-                                                                }}
-                                                            >
-                                                                <i className="fas fa-times me-1"></i>
-                                                                Withdraw
+                                                        <div className="d-flex gap-2">
+                                                            <Button variant="light" size="sm" className="px-3" href={`/jobs/${application.jobId}`}>
+                                                                View Job
                                                             </Button>
-                                                        )}
+                                                            {application.status === 'PENDING' && (
+                                                                <Button
+                                                                    variant="outline-danger"
+                                                                    size="sm"
+                                                                    className="px-3 d-flex align-items-center"
+                                                                    onClick={() => {
+                                                                        setSelectedApplication(application);
+                                                                        setShowWithdrawModal(true);
+                                                                    }}
+                                                                >
+                                                                    <Trash2 size={14} className="me-1" />
+                                                                    Withdraw
+                                                                </Button>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </Card.Body>
                                             </Card>
@@ -265,31 +289,39 @@ const MyApplications = () => {
             </Row>
 
             {/* Withdraw Confirmation Modal */}
-            <Modal show={showWithdrawModal} onHide={() => setShowWithdrawModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Withdraw Application</Modal.Title>
+            <Modal show={showWithdrawModal} onHide={() => setShowWithdrawModal(false)} centered>
+                <Modal.Header closeButton className="border-0 pb-0">
+                    <Modal.Title className="fw-bold">Withdraw Application</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <p>
-                        Are you sure you want to withdraw your application for{' '}
-                        <strong>{selectedApplication?.jobTitle}</strong>?
-                    </p>
-                    <p className="text-muted">
-                        This action cannot be undone. You will need to apply again if you change your mind.
-                    </p>
+                <Modal.Body className="p-4">
+                    <div className="text-center mb-4">
+                        <div className="bg-soft-danger p-3 rounded-circle d-inline-flex mb-3">
+                            <AlertCircle size={40} className="text-danger" />
+                        </div>
+                        <h5>Are you sure?</h5>
+                        <p className="text-muted px-4">
+                            You are about to withdraw your application for <br />
+                            <strong className="text-dark">{selectedApplication?.jobTitle}</strong>.
+                        </p>
+                    </div>
+                    <div className="p-3 bg-light rounded-3 mb-2 small text-muted">
+                        <strong>Important:</strong> This action cannot be undone. Your profile will be removed from the recruiter's list for this position.
+                    </div>
                 </Modal.Body>
-                <Modal.Footer>
+                <Modal.Footer className="border-0 pt-0">
                     <Button 
-                        variant="secondary" 
+                        variant="light" 
                         onClick={() => setShowWithdrawModal(false)}
                         disabled={withdrawing}
+                        className="px-4"
                     >
-                        Cancel
+                        Keep Application
                     </Button>
                     <Button 
                         variant="danger" 
                         onClick={handleWithdraw}
                         disabled={withdrawing}
+                        className="px-4 shadow"
                     >
                         {withdrawing ? (
                             <>
@@ -297,28 +329,55 @@ const MyApplications = () => {
                                 Withdrawing...
                             </>
                         ) : (
-                            'Withdraw Application'
+                            'Confirm Withdrawal'
                         )}
                     </Button>
                 </Modal.Footer>
             </Modal>
 
             <style jsx>{`
+                .spin-animation {
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+
                 .application-card {
-                    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-                    border: 1px solid #e9ecef;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    border: 1px solid #f1f3f5;
                 }
                 
                 .application-card:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    transform: translateY(-5px);
+                    box-shadow: 0 12px 24px rgba(0,0,0,0.08) !important;
                 }
                 
                 .cover-letter-preview {
                     font-size: 0.875rem;
-                    color: #6c757d;
-                    font-style: italic;
+                    color: #495057;
+                    line-height: 1.6;
                 }
+
+                .bg-soft-info { background-color: #e3f2fd; }
+                .bg-soft-danger { background-color: #ffebee; }
+
+                .status-badge {
+                    padding: 0.5rem 0.75rem;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    font-size: 0.7rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+                
+                .status-pending, .status-applied { background-color: #ebf8ff; color: #2b6cb0; }
+                .status-reviewed, .status-under_review { background-color: #e6fffa; color: #2c7a7b; }
+                .status-interview, .status-interview_scheduled { background-color: #fffaf0; color: #9c4221; }
+                .status-accepted, .status-offered, .status-hired { background-color: #f0fff4; color: #276749; }
+                .status-rejected { background-color: #fff5f5; color: #9b2c2c; }
+                .status-withdrawn { background-color: #f7fafc; color: #4a5568; }
             `}</style>
         </Container>
     );

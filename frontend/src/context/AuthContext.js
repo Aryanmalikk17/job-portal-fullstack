@@ -123,7 +123,7 @@ export const AuthProvider = ({ children }) => {
         };
 
         initializeAuth();
-    }, []); // Empty dependency array - only run on mount
+    }, [hasInitialized]);
 
     // Login function - memoized to prevent re-renders
     const login = useCallback(async (credentials) => {

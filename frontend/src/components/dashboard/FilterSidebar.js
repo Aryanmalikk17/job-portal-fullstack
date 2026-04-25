@@ -1,12 +1,20 @@
 import React from 'react';
 import { Card, Form, Button, Badge } from 'react-bootstrap';
+import { 
+    Briefcase, 
+    Home, 
+    Calendar, 
+    Filter, 
+    X, 
+    Lightbulb 
+} from 'lucide-react';
 
 const FilterSidebar = ({ filters, onFilterChange, onClearAll, totalResults }) => {
     const filterGroups = [
         {
             title: 'Employment Type',
             key: 'employmentType',
-            icon: 'fas fa-briefcase',
+            icon: Briefcase,
             options: [
                 { value: 'Full-time', label: 'Full-time', count: null },
                 { value: 'Part-time', label: 'Part-time', count: null },
@@ -17,7 +25,7 @@ const FilterSidebar = ({ filters, onFilterChange, onClearAll, totalResults }) =>
         {
             title: 'Remote Work',
             key: 'remoteWork',
-            icon: 'fas fa-home',
+            icon: Home,
             options: [
                 { value: 'Remote-Only', label: '🏠 Remote Only', count: null },
                 { value: 'Office-Only', label: '🏢 Office Only', count: null },
@@ -27,7 +35,7 @@ const FilterSidebar = ({ filters, onFilterChange, onClearAll, totalResults }) =>
         {
             title: 'Date Posted',
             key: 'datePosted',
-            icon: 'fas fa-calendar-alt',
+            icon: Calendar,
             options: [
                 { value: 'today', label: 'Today', count: null },
                 { value: 'last7days', label: 'Last 7 Days', count: null },
@@ -50,11 +58,11 @@ const FilterSidebar = ({ filters, onFilterChange, onClearAll, totalResults }) =>
             <Card className="filter-header-card mb-3">
                 <Card.Body className="p-3">
                     <div className="filter-header">
-                        <h5 className="filter-title mb-2">
-                            <i className="fas fa-filter me-2"></i>
+                        <h5 className="filter-title mb-2 d-flex align-items-center">
+                            <Filter className="me-2" size={18} />
                             Filters
                         </h5>
-                        <div className="filter-stats">
+                        <div className="filter-stats d-flex align-items-center">
                             <Badge bg="primary" className="results-badge">
                                 {totalResults} Result{totalResults !== 1 ? 's' : ''}
                             </Badge>
@@ -69,10 +77,10 @@ const FilterSidebar = ({ filters, onFilterChange, onClearAll, totalResults }) =>
                         <Button
                             variant="outline-secondary"
                             size="sm"
-                            className="clear-all-btn mt-2"
+                            className="clear-all-btn mt-2 d-flex align-items-center"
                             onClick={onClearAll}
                         >
-                            <i className="fas fa-times me-1"></i>
+                            <X className="me-1" size={14} />
                             Clear All
                         </Button>
                     )}
@@ -83,8 +91,8 @@ const FilterSidebar = ({ filters, onFilterChange, onClearAll, totalResults }) =>
             {filterGroups.map((group) => (
                 <Card key={group.key} className="filter-group-card mb-3">
                     <Card.Body className="p-3">
-                        <h6 className="filter-group-title mb-3">
-                            <i className={`${group.icon} me-2`}></i>
+                        <h6 className="filter-group-title mb-3 d-flex align-items-center">
+                            <group.icon className="me-2 text-muted" size={16} />
                             {group.title}
                             {filters[group.key].length > 0 && (
                                 <Badge bg="primary" className="ms-2 filter-count-badge">
@@ -120,11 +128,11 @@ const FilterSidebar = ({ filters, onFilterChange, onClearAll, totalResults }) =>
             {/* Filter Tips */}
             <Card className="filter-tips-card">
                 <Card.Body className="p-3">
-                    <h6 className="tips-title mb-2">
-                        <i className="fas fa-lightbulb me-2"></i>
+                    <h6 className="tips-title mb-2 d-flex align-items-center">
+                        <Lightbulb className="me-2 text-warning" size={18} />
                         Search Tips
                     </h6>
-                    <ul className="tips-list">
+                    <ul className="tips-list small text-muted">
                         <li>Use multiple filters to narrow your search</li>
                         <li>Clear filters to see all available jobs</li>
                         <li>Try different keywords in the search box</li>

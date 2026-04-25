@@ -1,6 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Container, Row, Col, Card, Button, Alert, Modal, Spinner } from 'react-bootstrap';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { 
+    Wifi, 
+    Search, 
+    Lock, 
+    Server, 
+    AlertTriangle, 
+    RotateCcw, 
+    ArrowLeft, 
+    AlertCircle, 
+    CheckCircle2, 
+    ChevronRight, 
+    Building2, 
+    MapPin, 
+    Edit3, 
+    Trash2, 
+    Briefcase, 
+    DollarSign, 
+    Calendar, 
+    Info, 
+    FileText, 
+    Users, 
+    UserCircle2,
+    Clock,
+    Rocket,
+    Heart
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { 
     getJobById, 
@@ -213,18 +239,20 @@ const JobDetailsPage = () => {
         const getErrorIcon = () => {
             switch (errorType) {
                 case 'NETWORK_ERROR':
-                    return 'fa-wifi';
+                    return Wifi;
                 case 'NOT_FOUND':
-                    return 'fa-search';
+                    return Search;
                 case 'UNAUTHORIZED':
                 case 'FORBIDDEN':
-                    return 'fa-lock';
+                    return Lock;
                 case 'SERVER_ERROR':
-                    return 'fa-server';
+                    return Server;
                 default:
-                    return 'fa-exclamation-triangle';
+                    return AlertTriangle;
             }
         };
+
+        const Icon = getErrorIcon();
 
         const getRetryButtonText = () => {
             switch (errorType) {
@@ -245,9 +273,9 @@ const JobDetailsPage = () => {
                     <Button 
                         variant="outline-primary" 
                         onClick={() => navigate('/jobs')}
-                        className="ms-2"
+                        className="ms-2 d-flex align-items-center"
                     >
-                        <i className="fa fa-search me-2"></i>
+                        <Search size={18} className="me-2" />
                         Browse All Jobs
                     </Button>
                 );
@@ -261,15 +289,16 @@ const JobDetailsPage = () => {
                     <Col>
                         <Alert variant="danger" className="text-center error-alert">
                             <div className="error-content">
-                                <i className={`fa ${getErrorIcon()} fa-3x mb-3 text-danger`}></i>
+                                <Icon size={48} className="mb-3 text-danger" />
                                 <h4 className="mb-3">Oops! Something went wrong</h4>
                                 <p className="mb-4">{error}</p>
                                 
-                                <div className="error-actions">
+                                <div className="error-actions d-flex justify-content-center">
                                     <Button 
                                         variant="primary" 
                                         onClick={handleRetry}
                                         disabled={loading}
+                                        className="d-flex align-items-center"
                                     >
                                         {loading ? (
                                             <>
@@ -278,7 +307,7 @@ const JobDetailsPage = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <i className="fa fa-redo me-2"></i>
+                                                <RotateCcw size={18} className="me-2" />
                                                 {getRetryButtonText()}
                                             </>
                                         )}
@@ -289,17 +318,17 @@ const JobDetailsPage = () => {
                                     <Button 
                                         variant="outline-secondary" 
                                         onClick={goBack}
-                                        className="ms-2"
+                                        className="ms-2 d-flex align-items-center"
                                     >
-                                        <i className="fa fa-arrow-left me-2"></i>
+                                        <ArrowLeft size={18} className="me-2" />
                                         Go Back
                                     </Button>
                                 </div>
 
                                 {errorType === 'NETWORK_ERROR' && (
                                     <div className="mt-3">
-                                        <small className="text-muted">
-                                            <i className="fa fa-info-circle me-1"></i>
+                                        <small className="text-muted d-flex align-items-center justify-content-center">
+                                            <Info size={14} className="me-1" />
                                             Please check your internet connection and try again
                                         </small>
                                     </div>
@@ -326,7 +355,7 @@ const JobDetailsPage = () => {
                 <Row>
                     <Col>
                         <Alert variant="warning" className="text-center">
-                            <i className="fa fa-exclamation-circle me-2"></i>
+                            <AlertCircle size={24} className="me-2" />
                             Job not found
                         </Alert>
                     </Col>
@@ -417,7 +446,7 @@ const JobDetailsPage = () => {
                         onClose={() => setNotification(null)}
                     >
                         <div className="d-flex align-items-center">
-                            <i className={`fa ${notification.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-3`}></i>
+                            {notification.type === 'success' ? <CheckCircle2 size={18} className="me-3" /> : <AlertCircle size={18} className="me-3" />}
                             <span>{notification.message}</span>
                         </div>
                     </Alert>
@@ -429,17 +458,17 @@ const JobDetailsPage = () => {
                         <Button 
                             variant="outline-primary" 
                             size="sm"
-                            className="back-btn me-3" 
+                            className="back-btn me-3 d-flex align-items-center" 
                             onClick={goBack}
                         >
-                            <i className="fa fa-arrow-left me-2"></i>
+                            <ArrowLeft size={16} className="me-2" />
                             Back
                         </Button>
                         
                         <div className="page-breadcrumb text-muted">
-                            <small>
+                            <small className="d-flex align-items-center">
                                 <Link to="/dashboard" className="text-decoration-none">Dashboard</Link>
-                                <i className="fa fa-angle-right mx-2"></i>
+                                <ChevronRight size={14} className="mx-2" />
                                 <span>Job Details</span>
                             </small>
                         </div>
@@ -452,7 +481,7 @@ const JobDetailsPage = () => {
                                     <div className="d-flex align-items-start mb-4">
                                         <div className="company-logo me-4">
                                             <div className="logo-placeholder">
-                                                <i className="fa fa-building fa-2x"></i>
+                                                <Building2 size={32} />
                                             </div>
                                         </div>
                                         <div className="flex-grow-1">
@@ -466,8 +495,8 @@ const JobDetailsPage = () => {
                                                         {job.jobCompanyId?.name || job.companyName || 'Company not specified'}
                                                     </Link>
                                                 </h5>
-                                                <div className="location-info text-muted">
-                                                    <i className="fa fa-map-marker-alt me-2"></i>
+                                                <div className="location-info text-muted d-flex align-items-center">
+                                                    <MapPin size={16} className="me-2" />
                                                     {job.jobLocationId ? 
                                                         `${job.jobLocationId.city}, ${job.jobLocationId.state}` : 
                                                         'Location not specified'
@@ -482,23 +511,56 @@ const JobDetailsPage = () => {
                                                 <Button
                                                     variant="primary"
                                                     size="lg"
-                                                    className="me-2 mb-2"
+                                                    className="me-2 mb-2 d-flex align-items-center"
                                                     onClick={handleEditJob}
                                                     disabled={actionLoading}
                                                 >
-                                                    <i className="fa fa-edit me-2"></i>
+                                                    <Edit3 size={18} className="me-2" />
                                                     Edit Job
                                                 </Button>
                                                 
                                                 <Button
                                                     variant="outline-danger"
                                                     size="lg"
-                                                    className="mb-2"
+                                                    className="mb-2 d-flex align-items-center"
                                                     onClick={() => setShowDeleteModal(true)}
                                                     disabled={actionLoading}
                                                 >
-                                                    <i className="fa fa-trash me-2"></i>
+                                                    <Trash2 size={18} className="me-2" />
                                                     Delete
+                                                </Button>
+                                            </div>
+                                        )}
+
+                                        {/* Job Seeker Actions - Right Aligned */}
+                                        {user?.userType === 'Job Seeker' && (
+                                            <div className="job-seeker-actions ms-3">
+                                                <Button
+                                                    variant={jobStatus.alreadyApplied ? "success" : "primary"}
+                                                    size="lg"
+                                                    className="me-2 mb-2 d-flex align-items-center"
+                                                    onClick={handleApplyJob}
+                                                    disabled={actionLoading || jobStatus.alreadyApplied}
+                                                >
+                                                    {jobStatus.alreadyApplied ? (
+                                                        <><CheckCircle2 size={18} className="me-2" /> Applied</>
+                                                    ) : (
+                                                        <><Rocket size={18} className="me-2" /> Apply Now</>
+                                                    )}
+                                                </Button>
+                                                
+                                                <Button
+                                                    variant={jobStatus.alreadySaved ? "warning" : "outline-primary"}
+                                                    size="lg"
+                                                    className="mb-2 d-flex align-items-center"
+                                                    onClick={handleSaveJob}
+                                                    disabled={actionLoading}
+                                                >
+                                                    {jobStatus.alreadySaved ? (
+                                                        <><Heart size={18} className="me-2 fill-current" /> Saved</>
+                                                    ) : (
+                                                        <><Heart size={18} className="me-2" /> Save Job</>
+                                                    )}
                                                 </Button>
                                             </div>
                                         )}
@@ -507,25 +569,25 @@ const JobDetailsPage = () => {
                                     {/* Job Tags */}
                                     <div className="job-tags">
                                         {job.jobType && (
-                                            <span className="badge bg-primary me-2 mb-2">
-                                                <i className="fa fa-briefcase me-1"></i>
+                                            <span className="badge bg-primary me-2 mb-2 d-inline-flex align-items-center">
+                                                <Briefcase size={14} className="me-1" />
                                                 {job.jobType}
                                             </span>
                                         )}
                                         {job.remote && (
-                                            <span className="badge bg-success me-2 mb-2">
-                                                <i className="fa fa-wifi me-1"></i>
+                                            <span className="badge bg-success me-2 mb-2 d-inline-flex align-items-center">
+                                                <Wifi size={14} className="me-1" />
                                                 {job.remote}
                                             </span>
                                         )}
                                         {job.salary && (
-                                            <span className="badge bg-warning text-dark me-2 mb-2">
-                                                <i className="fa fa-dollar-sign me-1"></i>
+                                            <span className="badge bg-warning text-dark me-2 mb-2 d-inline-flex align-items-center">
+                                                <DollarSign size={14} className="me-1" />
                                                 {job.salary}
                                             </span>
                                         )}
-                                        <span className="badge bg-secondary me-2 mb-2">
-                                            <i className="fa fa-calendar me-1"></i>
+                                        <span className="badge bg-secondary me-2 mb-2 d-inline-flex align-items-center">
+                                            <Calendar size={14} className="me-1" />
                                             Posted {formatDate(job.postedDate)}
                                         </span>
                                     </div>
@@ -542,8 +604,8 @@ const JobDetailsPage = () => {
                         {/* Job Specifications */}
                         <Card className="job-specs-card mb-4 border-0 shadow-sm">
                             <Card.Body className="p-4">
-                                <h2 className="section-title mb-4">
-                                    <i className="fa fa-info-circle me-2 text-primary"></i>
+                                <h2 className="section-title mb-4 d-flex align-items-center">
+                                    <Info size={24} className="me-2 text-primary" />
                                     Job Information
                                 </h2>
                                 
@@ -551,7 +613,7 @@ const JobDetailsPage = () => {
                                     <Col md={6} lg={3} className="mb-3">
                                         <div className="spec-card">
                                             <div className="spec-icon">
-                                                <i className="fa fa-calendar-alt"></i>
+                                                <Calendar size={20} />
                                             </div>
                                             <div className="spec-content">
                                                 <label className="spec-label">Date Posted</label>
@@ -563,7 +625,7 @@ const JobDetailsPage = () => {
                                     <Col md={6} lg={3} className="mb-3">
                                         <div className="spec-card">
                                             <div className="spec-icon">
-                                                <i className="fa fa-dollar-sign"></i>
+                                                <DollarSign size={20} />
                                             </div>
                                             <div className="spec-content">
                                                 <label className="spec-label">Salary</label>
@@ -575,7 +637,7 @@ const JobDetailsPage = () => {
                                     <Col md={6} lg={3} className="mb-3">
                                         <div className="spec-card">
                                             <div className="spec-icon">
-                                                <i className="fa fa-briefcase"></i>
+                                                <Briefcase size={20} />
                                             </div>
                                             <div className="spec-content">
                                                 <label className="spec-label">Job Type</label>
@@ -587,7 +649,7 @@ const JobDetailsPage = () => {
                                     <Col md={6} lg={3} className="mb-3">
                                         <div className="spec-card">
                                             <div className="spec-icon">
-                                                <i className="fa fa-wifi"></i>
+                                                <Wifi size={20} />
                                             </div>
                                             <div className="spec-content">
                                                 <label className="spec-label">Work Type</label>
@@ -602,8 +664,8 @@ const JobDetailsPage = () => {
                         {/* Job Description */}
                         <Card className="job-description-card border-0 shadow-sm">
                             <Card.Body className="p-4">
-                                <h2 className="section-title mb-4">
-                                    <i className="fa fa-file-alt me-2 text-primary"></i>
+                                <h2 className="section-title mb-4 d-flex align-items-center">
+                                    <FileText size={24} className="me-2 text-primary" />
                                     Job Description
                                 </h2>
                                 <div 
@@ -620,8 +682,8 @@ const JobDetailsPage = () => {
                             <Card className="candidates-sidebar-card border-0 shadow-sm">
                                 <Card.Body className="p-4">
                                     <div className="candidates-header mb-4">
-                                        <h5 className="section-title mb-0">
-                                            <i className="fa fa-users me-2 text-primary"></i>
+                                        <h5 className="section-title mb-0 d-flex align-items-center">
+                                            <Users size={20} className="me-2 text-primary" />
                                             Applications
                                             <span className="badge bg-primary ms-2">{candidates.length}</span>
                                         </h5>
@@ -637,7 +699,7 @@ const JobDetailsPage = () => {
                                                     >
                                                         <div className="d-flex align-items-center">
                                                             <div className="candidate-avatar me-3">
-                                                                <i className="fa fa-user-circle fa-2x text-primary"></i>
+                                                                <UserCircle2 size={32} className="text-primary" />
                                                             </div>
                                                             <div className="candidate-info">
                                                                 <h6 className="candidate-name mb-1">
@@ -646,13 +708,13 @@ const JobDetailsPage = () => {
                                                                         'Anonymous User'
                                                                     }
                                                                 </h6>
-                                                                <small className="text-muted">
-                                                                    <i className="fa fa-clock me-1"></i>
+                                                                <small className="text-muted d-flex align-items-center">
+                                                                    <Clock size={12} className="me-1" />
                                                                     Applied recently
                                                                 </small>
                                                             </div>
                                                             <div className="ms-auto">
-                                                                <i className="fa fa-chevron-right text-muted"></i>
+                                                                <ChevronRight size={16} className="text-muted" />
                                                             </div>
                                                         </div>
                                                     </Link>
@@ -661,7 +723,7 @@ const JobDetailsPage = () => {
                                         </div>
                                     ) : (
                                         <div className="no-candidates text-center py-4">
-                                            <i className="fa fa-users fa-3x text-muted mb-3"></i>
+                                            <Users size={48} className="text-muted mb-3" />
                                             <h6 className="text-muted mb-2">No Applications Yet</h6>
                                             <p className="text-muted small mb-0">
                                                 When candidates apply for this job, they'll appear here.
@@ -678,8 +740,8 @@ const JobDetailsPage = () => {
             {/* Delete Confirmation Modal */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>
-                        <i className="fa fa-exclamation-triangle text-danger me-2"></i>
+                    <Modal.Title className="d-flex align-items-center">
+                        <AlertTriangle size={24} className="text-danger me-2" />
                         Confirm Delete
                     </Modal.Title>
                 </Modal.Header>
@@ -696,6 +758,7 @@ const JobDetailsPage = () => {
                         variant="danger" 
                         onClick={handleDeleteJob}
                         disabled={actionLoading}
+                        className="d-flex align-items-center"
                     >
                         {actionLoading ? (
                             <>
@@ -704,7 +767,7 @@ const JobDetailsPage = () => {
                             </>
                         ) : (
                             <>
-                                <i className="fa fa-trash me-2"></i>
+                                <Trash2 size={18} className="me-2" />
                                 Delete Job
                             </>
                         )}
