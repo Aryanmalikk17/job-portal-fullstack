@@ -17,6 +17,7 @@ import {
     getRecruiterStatistics,
     updateApplicationStatus 
 } from '../../services/applicationService';
+import { formatDate } from '../../utils/dateUtils';
 
 const RecruiterApplications = () => {
     const [applications, setApplications] = useState([]);
@@ -68,17 +69,7 @@ const RecruiterApplications = () => {
 
 
 
-    // Format date
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
+
 
     // Handle status update
     const handleStatusUpdate = async () => {

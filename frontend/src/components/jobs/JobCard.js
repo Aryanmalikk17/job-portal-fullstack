@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import JobApplicationModal from './JobApplicationModal';
+import { formatRelativeTime } from '../../utils/dateUtils';
 
 const JobCard = ({ 
     job, 
@@ -70,17 +71,7 @@ const JobCard = ({
         }
     };
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffTime = Math.abs(now - date);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 1) return '1 day ago';
-        if (diffDays < 7) return `${diffDays} days ago`;
-        if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
-        return date.toLocaleDateString();
-    };
+
 
     const truncateText = (text, maxLength = 150) => {
         if (!text) return '';
@@ -166,7 +157,7 @@ const JobCard = ({
                         
                         <small className="text-muted d-flex align-items-center">
                             <Calendar className="me-1" size={14} />
-                            Posted {formatDate(job.postedDate)}
+                            Posted {formatRelativeTime(job.postedDate)}
                         </small>
                     </div>
 

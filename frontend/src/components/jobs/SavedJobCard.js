@@ -19,6 +19,7 @@ import {
     AlertTriangle 
 } from 'lucide-react';
 import './SavedJobCard.css';
+import { formatDate, formatRelativeTime } from '../../utils/dateUtils';
 
 const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
     const [showApplyModal, setShowApplyModal] = useState(false);
@@ -80,25 +81,10 @@ const SavedJobCard = ({ job, onRemove, onApply, onSelect, isSelected }) => {
         companyLogo: job.companyLogo
     };
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
-        });
-    };
+
 
     const formatSavedDate = (dateString) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffTime = Math.abs(now - date);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays === 1) return 'Saved yesterday';
-        if (diffDays < 7) return `Saved ${diffDays} days ago`;
-        if (diffDays < 30) return `Saved ${Math.ceil(diffDays / 7)} weeks ago`;
-        return `Saved on ${formatDate(dateString)}`;
+        return `Saved ${formatRelativeTime(dateString)}`;
     };
 
     const getDaysUntilDeadline = (deadline) => {

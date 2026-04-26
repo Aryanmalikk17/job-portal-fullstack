@@ -18,12 +18,13 @@ import {
 } from 'lucide-react';
 
 import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
+import { formatDate as defaultFormatDate } from '../../utils/dateUtils';
 
 const ApplicationCard = ({ 
     application, 
-    onViewDetails, 
-    onUpdateStatus, 
-    formatDate,
+    onViewDetails = () => {}, 
+    onUpdateStatus = () => {}, 
+    formatDate = defaultFormatDate,
 }) => {
     // getStatusBadgeVariant is no longer needed as we use getStatusColor
     
@@ -41,33 +42,34 @@ const ApplicationCard = ({
         return nextActions[status] || [];
     };
 
-    const quickActions = getStatusActions(application.status);
+    const safeApplication = application || {};
+    const quickActions = getStatusActions(safeApplication.status);
 
     return (
         <Card className="application-card h-100 border-start border-4" 
-              style={{ borderStartColor: getStatusColor(application.status) === 'success' ? '#198754' : 
-                                       getStatusColor(application.status) === 'danger' ? '#dc3545' : 
-                                       getStatusColor(application.status) === 'warning' ? '#ffc107' : '#0d6efd' }}>
+              style={{ borderStartColor: getStatusColor(safeApplication.status) === 'success' ? '#198754' : 
+                                       getStatusColor(safeApplication.status) === 'danger' ? '#dc3545' : 
+                                       getStatusColor(safeApplication.status) === 'warning' ? '#ffc107' : '#0d6efd' }}>
             <Card.Body className="d-flex flex-column">
                 {/* Header */}
                 <div className="d-flex justify-content-between align-items-start mb-3">
                     <div className="flex-grow-1">
                         <h6 className="card-title mb-1 fw-bold">
-                            {application.applicantName}
+                            {safeApplication.applicantName || 'Anonymous'}
                         </h6>
                         <p className="text-muted mb-0 small d-flex align-items-center">
                             <Mail className="me-1" size={14} />
-                            {application.applicantEmail}
+                            {safeApplication.applicantEmail || 'No email provided'}
                         </p>
                     </div>
                     <Badge 
-                        bg={getStatusColor(application.status)}
+                        bg={getStatusColor(safeApplication.status)}
                         className="status-badge d-flex align-items-center"
                     >
                         <span className="me-1 d-flex align-items-center">
-                            {getStatusIcon(application.status, 12)}
+                            {getStatusIcon(safeApplication.status, 12)}
                         </span>
-                        {getStatusLabel(application.status)}
+                        {getStatusLabel(safeApplication.status)}
                     </Badge>
                 </div>
 
@@ -75,11 +77,11 @@ const ApplicationCard = ({
                 <div className="job-info mb-3">
                     <p className="mb-1 fw-semibold text-primary d-flex align-items-center">
                         <Briefcase className="me-1" size={14} />
-                        {application.jobTitle}
+                        {safeApplication.jobTitle || 'Untitled Role'}
                     </p>
                     <p className="mb-0 small text-muted d-flex align-items-center">
                         <Building2 className="me-1" size={14} />
-                        {application.companyName}
+                        {safeApplication.companyName || 'Unknown Company'}
                     </p>
                 </div>
 
@@ -88,36 +90,36 @@ const ApplicationCard = ({
                     <Row className="g-2 small text-muted">
                         <Col xs={6} className="d-flex align-items-center">
                             <CalendarPlus className="me-1" size={14} />
-                            Applied: {formatDate(application.applyDate)}
+                            Applied: {formatDate(safeApplication.applyDate)}
                         </Col>
                         <Col xs={6} className="d-flex align-items-center">
                             <Clock className="me-1" size={14} />
-                            Updated: {formatDate(application.lastUpdated)}
+                            Updated: {formatDate(safeApplication.lastUpdated)}
                         </Col>
                     </Row>
                 </div>
 
                 {/* Cover Letter Preview */}
-                {application.coverLetter && (
+                {safeApplication.coverLetter && (
                     <div className="cover-letter-preview mb-3">
                         <small className="text-muted d-block mb-1">Cover Letter:</small>
                         <p className="small text-truncate mb-0" style={{ maxHeight: '40px', overflow: 'hidden' }}>
-                            {application.coverLetter.length > 100 
-                                ? `${application.coverLetter.substring(0, 100)}...`
-                                : application.coverLetter
+                            {safeApplication.coverLetter.length > 100 
+                                ? `${safeApplication.coverLetter.substring(0, 100)}...`
+                                : safeApplication.coverLetter
                             }
                         </p>
                     </div>
                 )}
 
                 {/* Recruiter Notes Preview */}
-                {application.recruiterNotes && (
+                {safeApplication.recruiterNotes && (
                     <div className="recruiter-notes-preview mb-3">
                         <small className="text-muted d-block mb-1">Your Notes:</small>
                         <p className="small text-info mb-0" style={{ fontStyle: 'italic' }}>
-                            {application.recruiterNotes.length > 80 
-                                ? `${application.recruiterNotes.substring(0, 80)}...`
-                                : application.recruiterNotes
+                            {safeApplication.recruiterNotes.length > 80 
+                                ? `${safeApplication.recruiterNotes.substring(0, 80)}...`
+                                : safeApplication.recruiterNotes
                             }
                         </p>
                     </div>
@@ -128,7 +130,7 @@ const ApplicationCard = ({
                     <Button
                         variant="outline-primary"
                         size="sm"
-                        onClick={() => onViewDetails(application)}
+                        onClick={() => onViewDetails(safeApplication)}
                         className="me-2 d-flex align-items-center"
                     >
                         <Eye className="me-1" size={14} />
@@ -143,7 +145,7 @@ const ApplicationCard = ({
                                     variant={action === 'REJECTED' ? 'outline-danger' : 'outline-success'}
                                     size="sm"
                                     className="me-1 d-flex align-items-center justify-content-center"
-                                    onClick={() => onUpdateStatus(application)}
+                                    onClick={() => onUpdateStatus(safeApplication)}
                                     title={`Mark as ${action.replace(/_/g, ' ')}`}
                                     style={{ width: '32px', height: '32px' }}
                                 >
@@ -168,7 +170,7 @@ const ApplicationCard = ({
                                 <Button
                                     variant="outline-secondary"
                                     size="sm"
-                                    onClick={() => onUpdateStatus(application)}
+                                    onClick={() => onUpdateStatus(safeApplication)}
                                     title="More actions"
                                     className="d-flex align-items-center justify-content-center"
                                     style={{ width: '32px', height: '32px' }}

@@ -6,26 +6,24 @@
 
 | Endpoint | Method | Payload (Summary) | Status Code | Result |
 |----------|--------|-------------------|-------------|--------|
-| `/api/auth/register` | `POST` | Jobseeker Registration | 201 | ✅ PASS |
-| `/api/auth/register` | `POST` | Recruiter Registration | 201 | ✅ PASS |
-| `/api/auth/login` | `POST` | Jobseeker Auth | 200 | ✅ PASS |
-| `/api/auth/login` | `POST` | Recruiter Auth | 200 | ✅ PASS |
-| `/api/profile/job-seeker` | `PUT` | Full Data + Skills | 200 | ✅ PASS |
-| `/api/profile/job-seeker` | `PUT` | Clear city & about | 200 | ✅ PASS |
-| `/api/profile/job-seeker` | `PUT` | Skills Sentinel ('') | 200 | ✅ PASS |
-| `/api/profile/recruiter` | `PUT` | 15 Missing Fields | 200 | ✅ PASS |
-| `/api/jobs/create` | `POST` | Job with Loc & Comp | 201 | ✅ PASS (ID: 93) |
-| `JS Dashboard` | `GET` | /api/applications/my-applications | 200 | ✅ PASS |
-| `REC Dashboard` | `GET` | /api/jobs/recruiter | 200 | ✅ PASS |
-| `REC Dashboard` | `GET` | /api/applications/recruiter/statistics | 200 | ✅ PASS |
-| `Job Apply` | `POST` | Jobseeker -> Job 93 | 200 | ✅ PASS (AppID: 27) |
-| `Update Status` | `PUT` | Recruiter -> App 27 | 200 | ✅ PASS |
-| `Sync Verify` | `GET` | Jobseeker checks status | 200 | ✅ PASS (Status: UNDER_REVIEW) |
-| `Double-Path Check` | `GET` | Ghost path /api/api/ | 401 | ⚠️ WARNING (Ghost path returned 401) |
-| `/api/jobs` | `GET` | Iterable Check (Array) | 200 | ✅ PASS |
-| `Recruiter Deep-Sync` | `PUT/GET` | Industry & Website | 200 | ✅ PASS |
-| `/sitemap.xml` | `GET` | Sitemap Header | 200 | ✅ PASS |
-| `/robots.txt` | `GET` | Contains Sitemap Path | 200 | ✅ PASS |
+| `/api/auth/register` | `POST` | Jobseeker Registration | 000 | ❌ FAIL |
+| `/api/auth/register` | `POST` | Recruiter Registration | 000 | ❌ FAIL |
+| `/api/auth/login` | `POST` | Jobseeker Auth | 000 | ❌ FAIL |
+| `/api/auth/login` | `POST` | Recruiter Auth | 000 | ❌ FAIL |
+| `/api/profile/job-seeker` | `PUT` | Full Data + Skills | 000 | ❌ FAIL (Skills:) |
+| `/api/profile/job-seeker` | `PUT` | Clear city & about | 000 | ❌ FAIL (City:, About:) |
+| `/api/profile/job-seeker` | `PUT` | Skills Sentinel ('') | 000 | ❌ FAIL (Empty:) |
+| `/api/profile/recruiter` | `PUT` | 15 Missing Fields | 000 | ❌ FAIL (Zip:, Ind:) |
+| `/api/jobs/create` | `POST` | Job with Loc & Comp | N/A | ❌ FAIL (Missing IDs: LOC:, COMP:) |
+| `JS Dashboard` | `GET` | /api/applications/my-applications | 000 | ❌ FAIL (Body: ) |
+| `REC Dashboard` | `GET` | /api/jobs/recruiter | 000 | ❌ FAIL |
+| `REC Dashboard` | `GET` | /api/applications/recruiter/statistics | 000 | ❌ FAIL |
+| `Lifecycle Synergy` | `N/A` | Bridge Test | N/A | ❌ FAIL (Skipped: Missing JOB_ID or JS_TOKEN) |
+| `Double-Path Check` | `GET` | Ghost path /api/api/ | 000 | ⚠️ WARNING (Ghost path returned 000) |
+| `/api/jobs` | `GET` | Iterable Check (Array) | 200 | ❌ FAIL (Not an array) |
+| `Recruiter Deep-Sync` | `PUT/GET` | Industry & Website | 000 | ❌ FAIL (Ind:, Web:) |
+| `/sitemap.xml` | `GET` | Sitemap Header | 000 | ❌ FAIL |
+| `/robots.txt` | `GET` | Contains Sitemap Path | 200 | ❌ FAIL |
 
 ## Full cURL Logs (For Demonstration)
 
@@ -67,5 +65,5 @@ curl -X POST "https://api.zplusejobs.com/api/job-data/companies" \
 curl -X POST "https://api.zplusejobs.com/api/jobs/create" \
   -H "Authorization: Bearer <RECRUITER_TOKEN>" \
   -H "Content-Type: application/json" \
-  -d '{"jobTitle":"SDET Test","descriptionOfJob":"QA","jobType":"Full-Time","salary":"100k","remote":"Remote","jobLocationId":11,"jobCompanyId":31}'
+  -d '{"jobTitle":"SDET Test","descriptionOfJob":"QA","jobType":"Full-Time","salary":"100k","remote":"Remote","jobLocationId":,"jobCompanyId":}'
 ```

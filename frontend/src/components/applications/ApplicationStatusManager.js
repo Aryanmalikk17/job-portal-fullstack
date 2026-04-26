@@ -21,6 +21,7 @@ import {
     getNextPossibleStatuses 
 } from '../../services/applicationService';
 import { getStatusIcon, getStatusColor, getStatusLabel } from '../../utils/statusHelpers';
+import { formatDate as sharedFormatDate } from '../../utils/dateUtils';
 
 const ApplicationStatusManager = ({ userType, userId }) => {
     const [applications, setApplications] = useState([]);
@@ -132,12 +133,7 @@ const ApplicationStatusManager = ({ userType, userId }) => {
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
+        return sharedFormatDate(dateString);
     };
 
     const getNextStatuses = () => {

@@ -40,6 +40,7 @@ import {
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { Helmet } from 'react-helmet-async';
 import './JobDetailsPage.css';
+import { formatDate } from '../utils/dateUtils';
 
 const JobDetailsPage = () => {
     const { id } = useParams();
@@ -206,14 +207,7 @@ const JobDetailsPage = () => {
         setTimeout(() => setNotification(null), 5000);
     };
 
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    };
+
 
     const goBack = () => {
         if (window.history.length > 1) {

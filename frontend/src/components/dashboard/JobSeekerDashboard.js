@@ -6,6 +6,7 @@ import StatsCard from './StatsCard';
 import ApplicationCard from './ApplicationCard';
 import JobCard from '../jobs/JobCard';
 import { Briefcase, Clock, CheckCircle2, XCircle, Search } from 'lucide-react';
+import { formatDate } from '../../utils/dateUtils';
 const JobSeekerDashboard = () => {
   const [applications, setApplications] = useState([]);
   const [jobs, setJobs] = useState([]);
@@ -69,8 +70,8 @@ const JobSeekerDashboard = () => {
   const filteredJobs = jobs
     .filter(j => j && (j.jobPostId || j.jobId || j.id))
     .filter(job => 
-      job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.descriptionOfJob.toLowerCase().includes(searchTerm.toLowerCase())
+      (job.jobTitle || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (job.descriptionOfJob || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
 
@@ -107,7 +108,12 @@ const JobSeekerDashboard = () => {
           <div className="applications-list">
             {applications.length > 0 ? (
               applications.slice(0, 5).map(app => (
-                <ApplicationCard key={app.applicationId || app.id} application={app} />
+                <ApplicationCard 
+                  key={app.applicationId || app.id} 
+                  application={app} 
+                  formatDate={formatDate}
+                  onViewDetails={() => navigate('/my-applications')}
+                />
               ))
             ) : (
               <div className="empty-state">

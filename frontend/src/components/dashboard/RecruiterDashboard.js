@@ -30,6 +30,7 @@ import {
     ChevronRight,
     TrendingUp
 } from 'lucide-react';
+import { formatDate as sharedFormatDate } from '../../utils/dateUtils';
 
 const RecruiterDashboard = ({ user }) => {
     const navigate = useNavigate();
@@ -114,9 +115,10 @@ const RecruiterDashboard = ({ user }) => {
 
 
     const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        const date = new Date(dateString);
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        return sharedFormatDate(dateString, {
+            hour: '2-digit', 
+            minute: '2-digit'
+        });
     };
 
     const getJobStatus = (job) => {

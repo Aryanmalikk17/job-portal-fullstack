@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { getMyApplications, withdrawApplication } from '../../services/applicationService';
 import { getStatusIcon, getStatusLabel } from '../../utils/statusHelpers';
+import { formatDate } from '../../utils/dateUtils';
 
 const MyApplications = () => {
     const [applications, setApplications] = useState([]);
@@ -49,15 +50,7 @@ const MyApplications = () => {
         return app.status === filterStatus;
     });
 
-    // Format date
-    const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    };
+
 
     // Handle withdraw application
     const handleWithdraw = async () => {
